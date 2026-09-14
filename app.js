@@ -1,8 +1,8 @@
 /* ==========================================================================
-   SMART BUDGET APP v4.0 - CONFIRMED DEBITS VS NEXT MONTH CARD BILL SEPARATION
+   SMART BUDGET APP v5.0 - INSTANT LOAD ENGINE & MULTI-ACCOUNT MANAGEMENT
    ========================================================================== */
 
-document.addEventListener('DOMContentLoaded', () => {
+(function () {
   // --- LOCAL STORAGE KEYS ---
   const STORAGE_KEY_TX = 'smart_budget_transactions_v5.0';
   const STORAGE_KEY_ACC = 'smart_budget_accounts_v5.0';
@@ -1714,4 +1714,4 @@ document.addEventListener('DOMContentLoaded', () => {
       toast.classList.remove('show');
     }, 2800);
   }
-});
+})();
