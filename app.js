@@ -114,12 +114,17 @@
     applyRecurringRules();
     checkAutoCardSettlements();
 
-    setupEventListeners();
-    updateLiveClock();
-    setInterval(updateLiveClock, 60000);
-
     renderCategoryGrid();
     renderApp();
+
+    try {
+      setupEventListeners();
+    } catch (e) {
+      console.error('setupEventListeners error:', e);
+    }
+
+    updateLiveClock();
+    setInterval(updateLiveClock, 60000);
   }
 
   // --- SMART ACTIVE MONTH AUTO-FOCUS & PERSISTENCE ---
@@ -1094,6 +1099,11 @@
 
   // --- EVENT LISTENERS & MODALS ---
   function setupEventListeners() {
+    const safeAddListener = (id, event, handler) => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener(event, handler);
+    };
+
     const accTypeBank = document.getElementById('acc-type-bank');
     const accTypeCard = document.getElementById('acc-type-card');
     const accTypeDebit = document.getElementById('acc-type-debit');
@@ -1103,19 +1113,19 @@
 
     const toggleAccTypeFields = () => {
       if (accTypeCard && accTypeCard.checked) {
-        linkedGroup.style.display = 'block';
-        paymentDayGroup.style.display = 'block';
-        balanceGroup.style.display = 'none';
+        if (linkedGroup) linkedGroup.style.display = 'block';
+        if (paymentDayGroup) paymentDayGroup.style.display = 'block';
+        if (balanceGroup) balanceGroup.style.display = 'none';
         updateBankOrCardDropdownOptions(true);
       } else if (accTypeDebit && accTypeDebit.checked) {
-        linkedGroup.style.display = 'block';
-        paymentDayGroup.style.display = 'none';
-        balanceGroup.style.display = 'none';
+        if (linkedGroup) linkedGroup.style.display = 'block';
+        if (paymentDayGroup) paymentDayGroup.style.display = 'none';
+        if (balanceGroup) balanceGroup.style.display = 'none';
         updateBankOrCardDropdownOptions(true);
       } else {
-        linkedGroup.style.display = 'none';
-        paymentDayGroup.style.display = 'none';
-        balanceGroup.style.display = 'block';
+        if (linkedGroup) linkedGroup.style.display = 'none';
+        if (paymentDayGroup) paymentDayGroup.style.display = 'none';
+        if (balanceGroup) balanceGroup.style.display = 'block';
         updateBankOrCardDropdownOptions(false);
       }
     };
@@ -1124,7 +1134,7 @@
       if (el) el.addEventListener('change', toggleAccTypeFields);
     });
 
-    document.getElementById('prev-month-btn').addEventListener('click', () => {
+    safeAddListener('prev-month-btn', 'click', () => {
       currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1);
       selectedDateStr = formatDate(currentDate);
       saveActiveViewDate();
@@ -1132,7 +1142,7 @@
       renderApp();
     });
 
-    document.getElementById('next-month-btn').addEventListener('click', () => {
+    safeAddListener('next-month-btn', 'click', () => {
       currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1);
       selectedDateStr = formatDate(currentDate);
       saveActiveViewDate();
@@ -1140,7 +1150,7 @@
       renderApp();
     });
 
-    document.getElementById('today-btn').addEventListener('click', () => {
+    safeAddListener('today-btn', 'click', () => {
       const now = new Date();
       currentDate = new Date(now.getFullYear(), now.getMonth(), 1);
       selectedDateStr = formatDate(now);
@@ -1212,11 +1222,13 @@
 
         const viewId = tab.dataset.view;
         document.querySelectorAll('.app-view').forEach(v => v.classList.remove('active'));
-        document.getElementById(`view-${viewId}`).classList.add('active');
+        const targetView = document.getElementById(`view-${viewId}`);
+        if (targetView) targetView.classList.add('active');
 
         const fab = document.getElementById('fab-add-btn');
-        if (viewId === 'calendar') fab.style.display = 'flex';
-        else fab.style.display = 'none';
+        if (fab) {
+          fab.style.display = (viewId === 'calendar') ? 'flex' : 'none';
+        }
       });
     });
 
@@ -1226,25 +1238,33 @@
     const closeModalBtn = document.getElementById('close-modal-btn');
 
     const openTxModal = () => {
-      document.getElementById('tx-date').value = selectedDateStr;
-      document.getElementById('tx-amount').value = '';
-      document.getElementById('tx-memo').value = '';
-      document.getElementById('tx-is-recurring').checked = false;
+      const txDateInput = document.getElementById('tx-date');
+      const txAmountInput = document.getElementById('tx-amount');
+      const txMemoInput = document.getElementById('tx-memo');
+      const txRecurringInput = document.getElementById('tx-is-recurring');
+
+      if (txDateInput) txDateInput.value = selectedDateStr;
+      if (txAmountInput) txAmountInput.value = '';
+      if (txMemoInput) txMemoInput.value = '';
+      if (txRecurringInput) txRecurringInput.checked = false;
+
       renderAccountSelectOptions();
-      txModalOverlay.classList.add('active');
+      if (txModalOverlay) txModalOverlay.classList.add('active');
     };
 
     const closeTxModal = () => {
-      txModalOverlay.classList.remove('active');
+      if (txModalOverlay) txModalOverlay.classList.remove('active');
     };
 
-    openModalBtn.addEventListener('click', openTxModal);
-    fabAddBtn.addEventListener('click', openTxModal);
-    closeModalBtn.addEventListener('click', closeTxModal);
+    if (openModalBtn) openModalBtn.addEventListener('click', openTxModal);
+    if (fabAddBtn) fabAddBtn.addEventListener('click', openTxModal);
+    if (closeModalBtn) closeModalBtn.addEventListener('click', closeTxModal);
 
-    txModalOverlay.addEventListener('click', (e) => {
-      if (e.target === txModalOverlay) closeTxModal();
-    });
+    if (txModalOverlay) {
+      txModalOverlay.addEventListener('click', (e) => {
+        if (e.target === txModalOverlay) closeTxModal();
+      });
+    }
 
     const accModalOverlay = document.getElementById('acc-modal-overlay');
     const openAccModalBtn = document.getElementById('open-account-modal-btn');
@@ -1253,23 +1273,29 @@
     const closeAccModalBtn = document.getElementById('close-acc-modal-btn');
 
     const openAccModal = (targetType = 'bank') => {
-      document.getElementById('acc-name').value = '';
-      document.getElementById('acc-number').value = '';
-      document.getElementById('acc-balance').value = '0';
+      const accNameInput = document.getElementById('acc-name');
+      const accNumberInput = document.getElementById('acc-number');
+      const accBalanceInput = document.getElementById('acc-balance');
+      const accCardRadio = document.getElementById('acc-type-card');
+      const accBankRadio = document.getElementById('acc-type-bank');
 
-      if (targetType === 'card') {
-        document.getElementById('acc-type-card').checked = true;
-      } else {
-        document.getElementById('acc-type-bank').checked = true;
+      if (accNameInput) accNameInput.value = '';
+      if (accNumberInput) accNumberInput.value = '';
+      if (accBalanceInput) accBalanceInput.value = '0';
+
+      if (targetType === 'card' && accCardRadio) {
+        accCardRadio.checked = true;
+      } else if (accBankRadio) {
+        accBankRadio.checked = true;
       }
-      
+
       toggleAccTypeFields();
       renderAccountSelectOptions();
-      accModalOverlay.classList.add('active');
+      if (accModalOverlay) accModalOverlay.classList.add('active');
     };
 
     const closeAccModal = () => {
-      accModalOverlay.classList.remove('active');
+      if (accModalOverlay) accModalOverlay.classList.remove('active');
     };
 
     if (openAccModalBtn) openAccModalBtn.addEventListener('click', () => openAccModal('bank'));
@@ -1277,71 +1303,79 @@
     if (settingsAddCardBtn) settingsAddCardBtn.addEventListener('click', () => openAccModal('card'));
     if (closeAccModalBtn) closeAccModalBtn.addEventListener('click', closeAccModal);
 
-    accModalOverlay.addEventListener('click', (e) => {
-      if (e.target === accModalOverlay) closeAccModal();
-    });
+    if (accModalOverlay) {
+      accModalOverlay.addEventListener('click', (e) => {
+        if (e.target === accModalOverlay) closeAccModal();
+      });
+    }
 
     document.querySelectorAll('#acc-color-grid .color-chip').forEach(chip => {
       chip.addEventListener('click', () => {
         document.querySelectorAll('#acc-color-grid .color-chip').forEach(c => c.classList.remove('active'));
         chip.classList.add('active');
-        document.getElementById('acc-color').value = chip.dataset.color;
+        const colorInput = document.getElementById('acc-color');
+        if (colorInput) colorInput.value = chip.dataset.color;
       });
     });
 
-    document.getElementById('acc-form').addEventListener('submit', (e) => {
-      e.preventDefault();
+    const accForm = document.getElementById('acc-form');
+    if (accForm) {
+      accForm.addEventListener('submit', (e) => {
+        e.preventDefault();
 
-      const typeRadio = document.querySelector('input[name="acc-type"]:checked').value;
-      const name = document.getElementById('acc-name').value.trim();
-      const bank = document.getElementById('acc-bank').value;
-      const accountNumber = document.getElementById('acc-number').value.trim();
-      const initialBalance = Number(document.getElementById('acc-balance').value) || 0;
-      const linkedBankAccountId = document.getElementById('acc-linked-bank').value;
-      const paymentDay = Number(document.getElementById('acc-payment-day').value) || 25;
-      const color = document.getElementById('acc-color').value;
+        const typeRadioEl = document.querySelector('input[name="acc-type"]:checked');
+        const typeRadio = typeRadioEl ? typeRadioEl.value : 'bank';
+        const name = (document.getElementById('acc-name')?.value || '').trim();
+        const bank = document.getElementById('acc-bank')?.value || '신한은행';
+        const accountNumber = (document.getElementById('acc-number')?.value || '').trim();
+        const initialBalance = Number(document.getElementById('acc-balance')?.value) || 0;
+        const linkedBankAccountId = document.getElementById('acc-linked-bank')?.value || null;
+        const paymentDay = Number(document.getElementById('acc-payment-day')?.value) || 25;
+        const color = document.getElementById('acc-color')?.value || '#6366f1';
 
-      if (!name) {
-        alert('명칭을 입력해주세요.');
-        return;
-      }
+        if (!name) {
+          alert('명칭을 입력해주세요.');
+          return;
+        }
 
-      let type = 'bank';
-      let cardKind = null;
+        let type = 'bank';
+        let cardKind = null;
 
-      if (typeRadio === 'card') {
-        type = 'card';
-        cardKind = 'credit';
-      } else if (typeRadio === 'debit') {
-        type = 'card';
-        cardKind = 'debit';
-      }
+        if (typeRadio === 'card') {
+          type = 'card';
+          cardKind = 'credit';
+        } else if (typeRadio === 'debit') {
+          type = 'card';
+          cardKind = 'debit';
+        }
 
-      const newAcc = {
-        id: `acc_${Date.now()}`,
-        type,
-        cardKind,
-        name,
-        bank,
-        accountNumber,
-        initialBalance: type === 'bank' ? initialBalance : 0,
-        linkedBankAccountId: type === 'card' ? linkedBankAccountId : null,
-        paymentDay: cardKind === 'credit' ? paymentDay : null,
-        color
-      };
+        const newAcc = {
+          id: `acc_${Date.now()}`,
+          type,
+          cardKind,
+          name,
+          bank,
+          accountNumber,
+          initialBalance: type === 'bank' ? initialBalance : 0,
+          linkedBankAccountId: type === 'card' ? linkedBankAccountId : null,
+          paymentDay: cardKind === 'credit' ? paymentDay : null,
+          color
+        };
 
-      accounts.push(newAcc);
-      saveAccounts();
-      selectedAccountId = newAcc.id;
+        accounts.push(newAcc);
+        saveAccounts();
+        selectedAccountIds = [newAcc.id];
 
-      closeAccModal();
-      renderApp();
-      showToast(`새 ${type === 'card' ? '카드' : '통장'} '${name}'이(가) 등록되었습니다!`);
-    });
+        closeAccModal();
+        renderApp();
+        showToast(`새 ${type === 'card' ? '카드' : '통장'} '${name}'이(가) 등록되었습니다!`);
+      });
+    }
 
     document.querySelectorAll('.amount-chips .chip-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         const amountInput = document.getElementById('tx-amount');
+        if (!amountInput) return;
         if (btn.id === 'amount-clear-btn') {
           amountInput.value = '';
           return;
@@ -1356,91 +1390,99 @@
       pill.addEventListener('click', () => {
         document.querySelectorAll('.pm-pill').forEach(p => p.classList.remove('active'));
         pill.classList.add('active');
-        document.getElementById('tx-payment').value = pill.dataset.pm;
+        const paymentInput = document.getElementById('tx-payment');
+        if (paymentInput) paymentInput.value = pill.dataset.pm;
       });
     });
 
-    document.getElementById('tx-form').addEventListener('submit', (e) => {
-      e.preventDefault();
+    const txForm = document.getElementById('tx-form');
+    if (txForm) {
+      txForm.addEventListener('submit', (e) => {
+        e.preventDefault();
 
-      const type = document.querySelector('input[name="tx-type"]:checked').value;
-      const accountId = document.getElementById('tx-account-select').value;
-      const amount = Number(document.getElementById('tx-amount').value);
-      const date = document.getElementById('tx-date').value;
-      const isRecurring = document.getElementById('tx-is-recurring').checked;
-      const category = document.getElementById('tx-category').value;
-      const payment = document.getElementById('tx-payment').value;
-      const memo = document.getElementById('tx-memo').value.trim();
+        const typeRadioEl = document.querySelector('input[name="tx-type"]:checked');
+        const type = typeRadioEl ? typeRadioEl.value : 'expense';
+        const accountId = document.getElementById('tx-account-select')?.value;
+        const amount = Number(document.getElementById('tx-amount')?.value);
+        const date = document.getElementById('tx-date')?.value;
+        const isRecurring = document.getElementById('tx-is-recurring')?.checked || false;
+        const category = document.getElementById('tx-category')?.value || '식당';
+        const payment = document.getElementById('tx-payment')?.value || '신용카드';
+        const memo = (document.getElementById('tx-memo')?.value || '').trim();
 
-      if (!amount || amount <= 0) {
-        alert('올바른 금액을 입력하세요.');
-        return;
-      }
+        if (!amount || amount <= 0) {
+          alert('올바른 금액을 입력하세요.');
+          return;
+        }
 
-      const [y, m, d] = date.split('-').map(Number);
-      let recurringId = null;
+        const [y, m, d] = date.split('-').map(Number);
+        let recurringId = null;
 
-      if (isRecurring) {
-        const newRule = {
-          id: `rec_${Date.now()}`,
+        if (isRecurring) {
+          const newRule = {
+            id: `rec_${Date.now()}`,
+            accountId,
+            dayOfMonth: d,
+            type,
+            amount,
+            category,
+            payment,
+            memo: memo || `${category} (고정)`
+          };
+          recurringRules.push(newRule);
+          saveRecurringRules();
+          recurringId = newRule.id;
+        }
+
+        const newTx = {
+          id: `tx_${Date.now()}`,
+          date,
           accountId,
-          dayOfMonth: d,
           type,
           amount,
           category,
           payment,
-          memo: memo || `${category} (고정)`
+          memo,
+          isRecurring,
+          recurringId
         };
-        recurringRules.push(newRule);
-        saveRecurringRules();
-        recurringId = newRule.id;
-      }
 
-      const newTx = {
-        id: `tx_${Date.now()}`,
-        date,
-        accountId,
-        type,
-        amount,
-        category,
-        payment,
-        memo,
-        isRecurring,
-        recurringId
-      };
+        transactions.unshift(newTx);
+        saveTransactions();
 
-      transactions.unshift(newTx);
-      saveTransactions();
+        selectedDateStr = date;
+        const selectedObj = parseLocalDateStr(date);
+        currentDate = new Date(selectedObj.getFullYear(), selectedObj.getMonth(), 1);
+        saveActiveViewDate();
 
-      selectedDateStr = date;
-      const selectedObj = parseLocalDateStr(date);
-      currentDate = new Date(selectedObj.getFullYear(), selectedObj.getMonth(), 1);
-      saveActiveViewDate();
-
-      closeTxModal();
-      renderApp();
-      showToast(isRecurring ? '새 거래 내역과 고정 자동 등록 규칙이 추가되었습니다!' : '새로운 가계부 내역이 추가되었습니다!');
-    });
+        closeTxModal();
+        renderApp();
+        showToast(isRecurring ? '새 거래 내역과 고정 자동 등록 규칙이 추가되었습니다!' : '새로운 가계부 내역이 추가되었습니다!');
+      });
+    }
 
     const toggleFrameBtn = document.getElementById('toggle-frame-btn');
     const appViewport = document.getElementById('app-viewport');
-    toggleFrameBtn.addEventListener('click', () => {
-      appViewport.classList.toggle('frame-mode');
-      appViewport.classList.toggle('full-mode');
-      toggleFrameBtn.classList.toggle('active');
-    });
+    if (toggleFrameBtn && appViewport) {
+      toggleFrameBtn.addEventListener('click', () => {
+        appViewport.classList.toggle('frame-mode');
+        appViewport.classList.toggle('full-mode');
+        toggleFrameBtn.classList.toggle('active');
+      });
+    }
 
     const toggleThemeBtn = document.getElementById('toggle-theme-btn');
     const themeIcon = document.getElementById('theme-icon');
-    toggleThemeBtn.addEventListener('click', () => {
-      document.body.classList.toggle('theme-dark');
-      document.body.classList.toggle('theme-light');
-      const isLight = document.body.classList.contains('theme-light');
-      themeIcon.setAttribute('data-lucide', isLight ? 'sun' : 'moon');
-      if (window.lucide) lucide.createIcons();
-    });
+    if (toggleThemeBtn && themeIcon) {
+      toggleThemeBtn.addEventListener('click', () => {
+        document.body.classList.toggle('theme-dark');
+        document.body.classList.toggle('theme-light');
+        const isLight = document.body.classList.contains('theme-light');
+        themeIcon.setAttribute('data-lucide', isLight ? 'sun' : 'moon');
+        if (window.lucide) lucide.createIcons();
+      });
+    }
 
-    // Summary Card Click Detail Listeners
     const incomeCard = document.querySelector('.summary-card.income');
     const cashExpenseCard = document.querySelector('.summary-card.expense-cash');
     const thisCardBillCard = document.querySelector('.summary-card.card-bill-this');
@@ -1467,35 +1509,41 @@
       });
     }
 
-    document.getElementById('reset-sample-data-btn').addEventListener('click', () => {
-      if (confirm('모든 계좌 및 거래 데이터를 데모 샘플로 초기화하시겠습니까?')) {
-        accounts = getSampleAccounts();
-        recurringRules = getSampleRecurringRules();
-        transactions = getSampleTransactions();
-        saveAccounts();
-        saveRecurringRules();
-        saveTransactions();
-        selectedAccountIds = ['all'];
-        renderApp();
-        showToast('샘플 데이터가 복원되었습니다.');
-      }
-    });
+    const resetSampleBtn = document.getElementById('reset-sample-data-btn');
+    if (resetSampleBtn) {
+      resetSampleBtn.addEventListener('click', () => {
+        if (confirm('모든 계좌 및 거래 데이터를 데모 샘플로 초기화하시겠습니까?')) {
+          accounts = getSampleAccounts();
+          recurringRules = getSampleRecurringRules();
+          transactions = getSampleTransactions();
+          saveAccounts();
+          saveRecurringRules();
+          saveTransactions();
+          selectedAccountIds = ['all'];
+          renderApp();
+          showToast('샘플 데이터가 복원되었습니다.');
+        }
+      });
+    }
 
-    document.getElementById('clear-all-data-btn').addEventListener('click', () => {
-      if (confirm('모든 계좌, 고정 규칙 및 가계부 내역을 정말 삭제하시겠습니까?')) {
-        accounts = [
-          { id: 'acc_main', type: 'bank', name: '기본 통장', bank: '신한은행', accountNumber: '', initialBalance: 0, color: '#6366f1' }
-        ];
-        transactions = [];
-        recurringRules = [];
-        saveAccounts();
-        saveRecurringRules();
-        saveTransactions();
-        selectedAccountIds = ['all'];
-        renderApp();
-        showToast('모든 데이터가 삭제되었습니다.');
-      }
-    });
+    const clearAllBtn = document.getElementById('clear-all-data-btn');
+    if (clearAllBtn) {
+      clearAllBtn.addEventListener('click', () => {
+        if (confirm('모든 계좌, 고정 규칙 및 가계부 내역을 정말 삭제하시겠습니까?')) {
+          accounts = [
+            { id: 'acc_main', type: 'bank', name: '기본 통장', bank: '신한은행', accountNumber: '', initialBalance: 0, color: '#6366f1' }
+          ];
+          transactions = [];
+          recurringRules = [];
+          saveAccounts();
+          saveRecurringRules();
+          saveTransactions();
+          selectedAccountIds = ['all'];
+          renderApp();
+          showToast('모든 데이터가 삭제되었습니다.');
+        }
+      });
+    }
   }
 
   // --- SUMMARY DETAIL MODAL RENDER ENGINE ---
