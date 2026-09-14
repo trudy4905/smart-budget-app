@@ -4,9 +4,9 @@
 
 document.addEventListener('DOMContentLoaded', () => {
   // --- LOCAL STORAGE KEYS ---
-  const STORAGE_KEY_TX = 'smart_budget_transactions_v4.0';
-  const STORAGE_KEY_ACC = 'smart_budget_accounts_v4.0';
-  const STORAGE_KEY_REC = 'smart_budget_recurring_v4.0';
+  const STORAGE_KEY_TX = 'smart_budget_transactions_v5.0';
+  const STORAGE_KEY_ACC = 'smart_budget_accounts_v5.0';
+  const STORAGE_KEY_REC = 'smart_budget_recurring_v5.0';
 
   // --- STATE MANAGEMENT ---
   let currentDate = new Date(); // Active Month / Year view
@@ -151,48 +151,19 @@ document.addEventListener('DOMContentLoaded', () => {
     localStorage.setItem(STORAGE_KEY_TX, JSON.stringify(transactions));
   }
 
-  // --- DEFAULT SAMPLE DATA ---
+  // --- DEFAULT INITIAL DATA ---
   function getSampleAccounts() {
     return [
-      { id: 'acc_shinhan', type: 'bank', name: '신한 주거래 통장', bank: '신한은행', accountNumber: '110-482-910283', initialBalance: 2500000, color: '#6366f1' },
-      { id: 'acc_shinhan_card1', type: 'card', cardKind: 'credit', name: '신한 쏠 신용카드', bank: '신한카드', accountNumber: '9411-****-****-1029', initialBalance: 0, linkedBankAccountId: 'acc_shinhan', paymentDay: 25, color: '#ec4899' },
-      { id: 'acc_shinhan_card2', type: 'card', cardKind: 'credit', name: '신한 딥드림 신용카드', bank: '신한카드', accountNumber: '4518-****-****-8812', initialBalance: 0, linkedBankAccountId: 'acc_shinhan', paymentDay: 14, color: '#a855f7' },
-      { id: 'acc_shinhan_debit', type: 'card', cardKind: 'debit', name: '신한 체인지업 체크카드', bank: '신한은행', accountNumber: '110-****-****-02', initialBalance: 0, linkedBankAccountId: 'acc_shinhan', color: '#06b6d4' },
-      { id: 'acc_kakao', type: 'bank', name: '카카오 비상금 통장', bank: '카카오뱅크', accountNumber: '3333-01-928172', initialBalance: 1200000, color: '#f59e0b' }
+      { id: 'acc_main', type: 'bank', name: '주거래 통장', bank: '신한은행', accountNumber: '', initialBalance: 0, color: '#6366f1' }
     ];
   }
 
   function getSampleRecurringRules() {
-    return [
-      { id: 'rec_1', accountId: 'acc_shinhan', dayOfMonth: 1, type: 'income', amount: 3500000, category: '수입/월급', payment: '계좌이체', memo: '매월 급여 입금 (고정)' },
-      { id: 'rec_2', accountId: 'acc_shinhan', dayOfMonth: 25, type: 'savings', amount: 500000, category: '적금/저축', payment: '계좌이체', memo: '청년우대 적금 자동이체' },
-      { id: 'rec_3', accountId: 'acc_shinhan_card1', dayOfMonth: 10, type: 'expense', amount: 15000, category: '문화/쇼핑', payment: '신용카드', memo: '넷플릭스/유튜브 구독 (쏠 카드)' }
-    ];
+    return [];
   }
 
   function getSampleTransactions() {
-    const year = currentDate.getFullYear();
-    const monthNum = currentDate.getMonth() + 1;
-    const month = String(monthNum).padStart(2, '0');
-
-    const prevDateObj = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1);
-    const pYear = prevDateObj.getFullYear();
-    const pMonth = String(prevDateObj.getMonth() + 1).padStart(2, '0');
-
-    return [
-      // Previous month credit card spending (Billed & paid in CURRENT month)
-      { id: 'tx_p1', date: `${pYear}-${pMonth}-18`, accountId: 'acc_shinhan_card1', type: 'expense', amount: 120000, category: '문화/쇼핑', payment: '신용카드', memo: '8월 백화점 옷 구매 (전월분)', isRecurring: false },
-      { id: 'tx_p2', date: `${pYear}-${pMonth}-22`, accountId: 'acc_shinhan_card2', type: 'expense', amount: 85000, category: '식당', payment: '신용카드', memo: '8월 가족 외식 (전월분)', isRecurring: false },
-
-      // Current month transactions
-      { id: 'tx_1', date: `${year}-${month}-01`, accountId: 'acc_shinhan', type: 'income', amount: 3500000, category: '수입/월급', payment: '계좌이체', memo: '9월 급여 입금', isRecurring: true, recurringId: 'rec_1' },
-      { id: 'tx_2', date: `${year}-${month}-02`, accountId: 'acc_shinhan', type: 'savings', amount: 500000, category: '적금/저축', payment: '계좌이체', memo: '청년우대형 적금 납입', isRecurring: false },
-      { id: 'tx_3', date: `${year}-${month}-03`, accountId: 'acc_shinhan_card1', type: 'expense', amount: 148000, category: '장보기', payment: '신용카드', memo: '이마트 장보기 (쏠 신용카드)', isRecurring: false },
-      { id: 'tx_4', date: `${year}-${month}-05`, accountId: 'acc_shinhan_card2', type: 'expense', amount: 35000, category: '식당', payment: '신용카드', memo: '패밀리 레스토랑 (딥드림 신용카드)', isRecurring: false },
-      { id: 'tx_5', date: `${year}-${month}-06`, accountId: 'acc_shinhan_debit', type: 'expense', amount: 12000, category: '카페/디저트', payment: '체크카드', memo: '스타벅스 선물세트 (체크카드)', isRecurring: false },
-      { id: 'tx_6', date: `${year}-${month}-08`, accountId: 'acc_shinhan_card1', type: 'expense', amount: 55000, category: '교통/차량', payment: '신용카드', memo: '주유소 기름 충전', isRecurring: false },
-      { id: 'tx_7', date: `${year}-${month}-10`, accountId: 'acc_shinhan_card1', type: 'expense', amount: 15000, category: '문화/쇼핑', payment: '신용카드', memo: '넷플릭스 구독', isRecurring: true, recurringId: 'rec_3' }
-    ];
+    return [];
   }
 
   // --- RECURRING ENGINE ---
