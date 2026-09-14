@@ -15,42 +15,8 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body class="theme-light">
-  <!-- Top Control Bar (Desktop view helper) -->
-  <div class="view-mode-bar">
-    <div class="brand-title">
-      <i data-lucide="wallet" class="brand-icon"></i>
-      <span>Smart Budget App</span>
-    </div>
-    <div class="control-actions">
-      <button id="toggle-frame-btn" class="pill-btn active">
-        <i data-lucide="smartphone"></i> 모바일 프레임
-      </button>
-      <button id="toggle-theme-btn" class="pill-btn">
-        <i data-lucide="sun" id="theme-icon"></i>
-      </button>
-    </div>
-  </div>
-
-  <div class="app-viewport frame-mode" id="app-viewport">
-    <!-- Phone Mockup Frame Wrapper -->
-    <div class="phone-frame">
-      <div class="phone-notch">
-        <div class="notch-camera"></div>
-        <div class="notch-speaker"></div>
-      </div>
-      
-      <!-- Status Bar -->
-      <div class="status-bar">
-        <span class="status-time" id="status-time">09:41</span>
-        <div class="status-icons">
-          <i data-lucide="signal" class="mini-icon"></i>
-          <i data-lucide="wifi" class="mini-icon"></i>
-          <i data-lucide="battery-charging" class="mini-icon"></i>
-        </div>
-      </div>
-
-      <!-- App Main Content Container -->
-      <div class="app-container">
+  <!-- App Main Content Container -->
+  <div class="app-container">
         
         <!-- HEADER SECTION -->
         <header class="app-header">
@@ -274,12 +240,7 @@
             <span>설정</span>
           </button>
         </nav>
-
-        <!-- Home Bar Indicator for Phone Frame -->
-        <div class="home-indicator"></div>
       </div>
-    </div>
-  </div>
 
   <!-- ADD / EDIT TRANSACTION MODAL (Bottom Sheet) -->
   <div class="modal-overlay" id="tx-modal-overlay">

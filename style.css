@@ -80,7 +80,8 @@ body {
   color: var(--text-main);
   min-height: 100vh;
   display: flex;
-  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
   overflow-x: hidden;
   transition: background-color 0.3s ease, color 0.3s ease;
 }
@@ -95,181 +96,17 @@ button {
   cursor: pointer;
 }
 
-/* Desktop View Control Header Bar */
-.view-mode-bar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 24px;
-  background: var(--header-bg);
-  border-bottom: 1px solid var(--border-color);
-  z-index: 100;
-}
-
-.brand-title {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-weight: 700;
-  font-size: 1.1rem;
-  color: var(--primary);
-}
-
-.brand-icon {
-  width: 24px;
-  height: 24px;
-}
-
-.control-actions {
-  display: flex;
-  gap: 10px;
-}
-
-.pill-btn {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 16px;
-  border-radius: var(--radius-full);
-  background: var(--card-bg);
-  color: var(--text-main);
-  border: 1px solid var(--border-color);
-  font-size: 0.85rem;
-  font-weight: 500;
-  transition: all 0.2s ease;
-}
-
-.pill-btn:hover {
-  border-color: var(--primary);
-  color: var(--primary);
-}
-
-.pill-btn.active {
-  background: var(--primary);
-  color: #ffffff;
-  border-color: var(--primary);
-}
-
-/* App Viewport Container */
-.app-viewport {
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 20px;
-  width: 100%;
-}
-
-/* Phone Frame Mockup (Desktop mode) */
-.app-viewport.frame-mode .phone-frame {
-  width: 390px;
-  height: 820px;
-  border-radius: 44px;
-  background: var(--app-bg);
-  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.4), 0 0 0 10px #1e293b, 0 0 0 12px rgba(255, 255, 255, 0.1);
-  position: relative;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-}
-
-/* Full Screen Mode */
-.app-viewport.full-mode {
-  padding: 0;
-}
-
-.app-viewport.full-mode .phone-frame {
-  width: 100%;
-  max-width: 600px;
-  height: 100vh;
-  border-radius: 0;
-  box-shadow: none;
-  background: var(--app-bg);
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  overflow: hidden;
-}
-
-.app-viewport.full-mode .phone-notch,
-.app-viewport.full-mode .home-indicator {
-  display: none;
-}
-
-/* Notch & Status Bar */
-.phone-notch {
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 150px;
-  height: 28px;
-  background: #1e293b;
-  border-bottom-left-radius: 16px;
-  border-bottom-right-radius: 16px;
-  z-index: 99;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 12px;
-}
-
-.notch-camera {
-  width: 10px;
-  height: 10px;
-  background: #090d16;
-  border-radius: 50%;
-}
-
-.notch-speaker {
-  width: 40px;
-  height: 4px;
-  background: #090d16;
-  border-radius: 4px;
-}
-
-.status-bar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 24px 6px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--text-muted);
-  z-index: 10;
-}
-
-.status-icons {
-  display: flex;
-  gap: 6px;
-}
-
-.mini-icon {
-  width: 14px;
-  height: 14px;
-}
-
-/* Home Indicator */
-.home-indicator {
-  position: absolute;
-  bottom: 8px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 130px;
-  height: 4px;
-  background: var(--text-muted);
-  opacity: 0.4;
-  border-radius: 4px;
-  z-index: 90;
-}
-
-/* Main App Layout Inside Frame */
+/* App Main Container (Full width on mobile, centered max-width on desktop) */
 .app-container {
-  flex: 1;
+  width: 100%;
+  max-width: 560px;
+  min-height: 100vh;
+  background: var(--app-bg);
   display: flex;
   flex-direction: column;
-  overflow: hidden;
   position: relative;
+  overflow: hidden;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.08);
 }
 
 /* APP HEADER */
