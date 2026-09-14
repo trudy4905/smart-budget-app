@@ -9,14 +9,26 @@ document.addEventListener('DOMContentLoaded', () => {
   const STORAGE_KEY_REC = 'smart_budget_recurring_v5.0';
 
   // --- STATE MANAGEMENT ---
-  let currentDate = new Date(); // Active Month / Year view
-  let selectedDateStr = formatDate(new Date()); // Active Selected Day ('YYYY-MM-DD')
+  const _initNow = new Date();
+  let currentDate = new Date(_initNow.getFullYear(), _initNow.getMonth(), 1); // Active Month / Year view (First of month)
+  let selectedDateStr = formatDate(_initNow); // Active Selected Day ('YYYY-MM-DD')
   let selectedAccountIds = ['all']; // Active account filters: ['all'] or array of account ids
   
   let accounts = [];
   let transactions = [];
   let recurringRules = [];
   let categoryChartInstance = null;
+
+  // --- DATE HELPER (Prevent UTC timezone offset issues on mobile browsers) ---
+  function parseLocalDateStr(dateStr) {
+    if (!dateStr) return new Date();
+    if (dateStr instanceof Date) return dateStr;
+    const parts = String(dateStr).split('T')[0].split('-');
+    if (parts.length >= 3) {
+      return new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+    }
+    return new Date(dateStr);
+  }
 
   // --- FILTER HELPER ---
   function isTransactionMatchingSelection(t) {
@@ -73,6 +85,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // --- INITIALIZATION ---
   init();
+  window.addEventListener('load', () => {
+    renderApp();
+  });
 
   function init() {
     loadAccounts();
@@ -242,7 +257,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function getCardBillForMonth(cardId, year, month) {
     return transactions.filter(t => {
-      const d = new Date(t.date);
+      const d = parseLocalDateStr(t.date);
       return t.accountId === cardId && d.getFullYear() === year && d.getMonth() === month && t.type === 'expense';
     }).reduce((sum, t) => sum + Number(t.amount || 0), 0);
   }
@@ -411,7 +426,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const isAllSelected = selectedAccountIds.includes('all') || selectedAccountIds.length === 0;
 
     const monthTxs = transactions.filter(t => {
-      const d = new Date(t.date);
+      const d = parseLocalDateStr(t.date);
       const isSameMonth = d.getFullYear() === year && d.getMonth() === month;
       return isSameMonth && isTransactionMatchingSelection(t);
     });
@@ -550,8 +565,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     cell.addEventListener('click', () => {
       selectedDateStr = dateStr;
-      const clickedDateObj = new Date(dateStr);
-      if (clickedDateObj.getMonth() !== currentDate.getMonth()) {
+      const clickedDateObj = parseLocalDateStr(dateStr);
+      if (clickedDateObj.getMonth() !== currentDate.getMonth() || clickedDateObj.getFullYear() !== currentDate.getFullYear()) {
         currentDate = new Date(clickedDateObj.getFullYear(), clickedDateObj.getMonth(), 1);
         applyRecurringRules();
       }
@@ -567,8 +582,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const sumEl = document.getElementById('selected-date-sum');
     const listEl = document.getElementById('transaction-list');
 
-    const [year, month, day] = selectedDateStr.split('-').map(Number);
-    const dateObj = new Date(year, month - 1, day);
+    const dateObj = parseLocalDateStr(selectedDateStr);
+    const year = dateObj.getFullYear();
+    const month = dateObj.getMonth() + 1;
+    const day = dateObj.getDate();
     const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
     
     let accSubTitle = selectedAccountIds.includes('all') ? '전체 계좌' : 
@@ -660,7 +677,7 @@ document.addEventListener('DOMContentLoaded', () => {
     periodText.textContent = `${year}년 ${month + 1}월 지출 통계 (${accName})`;
 
     const monthExpenses = transactions.filter(t => {
-      const d = new Date(t.date);
+      const d = parseLocalDateStr(t.date);
       const isSameMonth = d.getFullYear() === year && d.getMonth() === month && t.type === 'expense';
       return isSameMonth && isTransactionMatchingSelection(t);
     });
@@ -1059,20 +1076,21 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     document.getElementById('prev-month-btn').addEventListener('click', () => {
-      currentDate.setMonth(currentDate.getMonth() - 1);
+      currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1);
       applyRecurringRules();
       renderApp();
     });
 
     document.getElementById('next-month-btn').addEventListener('click', () => {
-      currentDate.setMonth(currentDate.getMonth() + 1);
+      currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1);
       applyRecurringRules();
       renderApp();
     });
 
     document.getElementById('today-btn').addEventListener('click', () => {
-      currentDate = new Date();
-      selectedDateStr = formatDate(currentDate);
+      const now = new Date();
+      currentDate = new Date(now.getFullYear(), now.getMonth(), 1);
+      selectedDateStr = formatDate(now);
       applyRecurringRules();
       renderApp();
     });
@@ -1356,7 +1374,7 @@ document.addEventListener('DOMContentLoaded', () => {
       saveTransactions();
 
       selectedDateStr = date;
-      const selectedObj = new Date(date);
+      const selectedObj = parseLocalDateStr(date);
       currentDate = new Date(selectedObj.getFullYear(), selectedObj.getMonth(), 1);
 
       closeTxModal();
@@ -1458,7 +1476,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const isAllSelected = selectedAccountIds.includes('all') || selectedAccountIds.length === 0;
 
     const monthTxs = transactions.filter(t => {
-      const d = new Date(t.date);
+      const d = parseLocalDateStr(t.date);
       const isSameMonth = d.getFullYear() === year && d.getMonth() === month;
       return isSameMonth && isTransactionMatchingSelection(t);
     });
@@ -1564,7 +1582,7 @@ document.addEventListener('DOMContentLoaded', () => {
       } else {
         creditCards.forEach(card => {
           const cardTxs = transactions.filter(t => {
-            const d = new Date(t.date);
+            const d = parseLocalDateStr(t.date);
             return t.accountId === card.id && d.getFullYear() === pYear && d.getMonth() === pMonth && t.type === 'expense';
           });
 
@@ -1632,7 +1650,7 @@ document.addEventListener('DOMContentLoaded', () => {
       } else {
         creditCards.forEach(card => {
           const cardTxs = transactions.filter(t => {
-            const d = new Date(t.date);
+            const d = parseLocalDateStr(t.date);
             return t.accountId === card.id && d.getFullYear() === year && d.getMonth() === month && t.type === 'expense';
           });
 
