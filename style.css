@@ -101,11 +101,12 @@ button {
   width: 100%;
   max-width: 560px;
   min-height: 100vh;
+  min-height: 100dvh;
   background: var(--app-bg);
   display: flex;
   flex-direction: column;
   position: relative;
-  overflow: hidden;
+  overflow-x: hidden;
   box-shadow: 0 0 30px rgba(0, 0, 0, 0.08);
 }
 
@@ -338,9 +339,10 @@ button {
 .main-content {
   flex: 1;
   overflow-y: auto;
-  padding: 12px 14px 80px; /* space for bottom nav */
+  padding: 12px 14px 110px; /* Generous bottom space for fixed bottom nav */
   position: relative;
   scrollbar-width: none; /* Firefox */
+  -webkit-overflow-scrolling: touch;
 }
 
 .main-content::-webkit-scrollbar {
@@ -380,15 +382,15 @@ button {
 .calendar-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 4px;
+  gap: 3px;
   margin-bottom: 18px;
 }
 
 .calendar-cell {
-  min-height: 54px;
+  min-height: 48px;
   background: var(--card-bg);
   border-radius: var(--radius-sm);
-  padding: 4px 3px;
+  padding: 3px 2px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -787,9 +789,9 @@ button {
 
 /* FAB BUTTON */
 .fab-add-btn {
-  position: absolute;
+  position: fixed;
   bottom: 74px;
-  right: 18px;
+  right: calc(50% - 280px + 18px);
   width: 52px;
   height: 52px;
   border-radius: 50%;
@@ -799,8 +801,14 @@ button {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 80;
+  z-index: 90;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+@media (max-width: 560px) {
+  .fab-add-btn {
+    right: 18px;
+  }
 }
 
 .fab-add-btn i {
@@ -819,17 +827,19 @@ button {
 
 /* BOTTOM NAVIGATION */
 .bottom-nav {
-  position: absolute;
+  position: fixed;
   bottom: 0;
-  left: 0;
-  right: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 560px;
   height: 62px;
   background: var(--header-bg);
   border-top: 1px solid var(--border-color);
   display: flex;
   justify-content: space-around;
   align-items: center;
-  z-index: 85;
+  z-index: 95;
   padding-bottom: 4px;
 }
 
@@ -1218,20 +1228,22 @@ button {
 .account-selector-wrapper {
   position: relative;
   width: 100%;
-  margin: 10px 0 14px 0;
+  margin: 8px 0 12px 0;
   display: block;
+  overflow: hidden;
 }
 
 .account-scroll-container {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   overflow-x: auto;
-  padding: 4px 2px 8px 2px;
+  padding: 4px 4px 10px 4px;
   width: 100%;
   scrollbar-width: none;
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
+  touch-action: pan-x;
   cursor: grab;
 }
 
@@ -1249,11 +1261,11 @@ button {
 }
 
 .account-tab-chip {
-  padding: 7px 13px;
+  padding: 8px 14px;
   background: var(--card-bg);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-full);
-  font-size: 0.78rem;
+  font-size: 0.8rem;
   font-weight: 600;
   color: var(--text-muted);
   white-space: nowrap;
@@ -1263,6 +1275,7 @@ button {
   cursor: pointer;
   user-select: none;
   flex-shrink: 0;
+  min-width: max-content;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
