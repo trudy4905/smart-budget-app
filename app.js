@@ -197,9 +197,9 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // --- RECURRING ENGINE ---
-  function applyRecurringRules() {
-    const year = currentDate.getFullYear();
-    const month = currentDate.getMonth();
+  function applyRecurringRulesForDate(targetDateObj) {
+    const year = targetDateObj.getFullYear();
+    const month = targetDateObj.getMonth();
     const monthStr = String(month + 1).padStart(2, '0');
 
     let addedCount = 0;
@@ -232,6 +232,16 @@ document.addEventListener('DOMContentLoaded', () => {
     if (addedCount > 0) {
       saveTransactions();
     }
+  }
+
+  function applyRecurringRules() {
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+    
+    // Auto-apply for previous month, active month, and next month
+    applyRecurringRulesForDate(new Date(year, month - 1, 1));
+    applyRecurringRulesForDate(new Date(year, month, 1));
+    applyRecurringRulesForDate(new Date(year, month + 1, 1));
   }
 
   function checkAutoCardSettlements() {
@@ -448,6 +458,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let totalIncome = 0;
     let cashDebitExpense = 0;
+    let creditCardExpense = 0;
 
     monthTxs.forEach(t => {
       const amt = Number(t.amount);
@@ -456,27 +467,15 @@ document.addEventListener('DOMContentLoaded', () => {
       if (t.type === 'income') {
         totalIncome += amt;
       } else if (t.type === 'expense') {
-        if (!txAcc || txAcc.type !== 'card' || txAcc.cardKind !== 'credit') {
+        if (txAcc && txAcc.type === 'card' && txAcc.cardKind === 'credit') {
+          creditCardExpense += amt;
+        } else {
           cashDebitExpense += amt;
         }
       }
     });
 
-    // A. 이번 달 카드 결제액 (전월 사용분 -> 이번 달 결제일에 출금)
-    let thisMonthCardBill = 0;
-    accounts.filter(a => a.type === 'card' && a.cardKind === 'credit').forEach(card => {
-      if (isAllSelected || selectedAccountIds.includes(card.id) || selectedAccountIds.includes(card.linkedBankAccountId)) {
-        thisMonthCardBill += getCardBillForMonth(card.id, pYear, pMonth);
-      }
-    });
-
-    // B. 다음 달 카드 출금 예정액 (당월 사용분 -> 다음 달 결제일에 출금)
-    let nextMonthCardBill = 0;
-    accounts.filter(a => a.type === 'card' && a.cardKind === 'credit').forEach(card => {
-      if (isAllSelected || selectedAccountIds.includes(card.id) || selectedAccountIds.includes(card.linkedBankAccountId)) {
-        nextMonthCardBill += getCardBillForMonth(card.id, year, month);
-      }
-    });
+    const totalExpense = cashDebitExpense + creditCardExpense;
 
     const incomeEl = document.getElementById('total-income-display');
     const cashExpenseEl = document.getElementById('total-cash-expense-display');
@@ -488,12 +487,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (incomeEl) incomeEl.textContent = `₩${formatNumber(totalIncome)}`;
     if (cashExpenseEl) cashExpenseEl.textContent = `₩${formatNumber(cashDebitExpense)}`;
-    if (thisBillEl) thisBillEl.textContent = `₩${formatNumber(thisMonthCardBill)}`;
-    if (nextBillEl) nextBillEl.textContent = `₩${formatNumber(nextMonthCardBill)}`;
+    if (thisBillEl) thisBillEl.textContent = `₩${formatNumber(creditCardExpense)}`;
+    if (nextBillEl) nextBillEl.textContent = `₩${formatNumber(totalExpense)}`;
 
-    const nextMonthNum = (month + 1) % 12 + 1;
-    if (thisBillSubEl) thisBillSubEl.textContent = `${month + 1}월 결제일 출금`;
-    if (nextBillSubEl) nextBillSubEl.textContent = `${nextMonthNum}월 결제일 예정`;
+    if (thisBillSubEl) thisBillSubEl.textContent = `${month + 1}월 신용카드 사용액`;
+    if (nextBillSubEl) nextBillSubEl.textContent = `현금/체크 + 카드 합계`;
   }
 
   // --- CALENDAR RENDER ENGINE ---
@@ -1569,12 +1567,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     } else if (detailType === 'this-card-bill') {
       emojiEl.textContent = '💳';
-      titleEl.textContent = `${month + 1}월 카드 출금 예정액 (전월 사용분)`;
-      totalLabelEl.textContent = `${month + 1}월 카드 출금 총액`;
-
-      const prevMonthObj = new Date(year, month - 1, 1);
-      const pYear = prevMonthObj.getFullYear();
-      const pMonth = prevMonthObj.getMonth();
+      titleEl.textContent = `${month + 1}월 신용카드 지출 상세`;
+      totalLabelEl.textContent = `${month + 1}월 카드 지출 합계`;
 
       const creditCards = accounts.filter(a => a.type === 'card' && a.cardKind === 'credit' && (isAllSelected || selectedAccountIds.includes(a.id) || selectedAccountIds.includes(a.linkedBankAccountId)));
 
@@ -1586,7 +1580,7 @@ document.addEventListener('DOMContentLoaded', () => {
         creditCards.forEach(card => {
           const cardTxs = transactions.filter(t => {
             const d = parseLocalDateStr(t.date);
-            return t.accountId === card.id && d.getFullYear() === pYear && d.getMonth() === pMonth && t.type === 'expense';
+            return t.accountId === card.id && d.getFullYear() === year && d.getMonth() === month && t.type === 'expense';
           });
 
           const cardTotal = cardTxs.reduce((sum, t) => sum + Number(t.amount || 0), 0);
@@ -1600,7 +1594,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
           let itemsHtml = '';
           if (cardTxs.length === 0) {
-            itemsHtml = `<div style="font-size: 0.78rem; color: var(--text-muted); padding: 4px 0;">전월 사용 내역 없음 (출금 예정액 ₩0)</div>`;
+            itemsHtml = `<div style="font-size: 0.78rem; color: var(--text-muted); padding: 4px 0;">이번 달 사용 내역 없음 (지출액 ₩0)</div>`;
           } else {
             cardTxs.forEach(t => {
               const categoryObj = CATEGORIES.find(c => c.name === t.category) || { emoji: '💳', color: '#a855f7' };
@@ -1639,72 +1633,45 @@ document.addEventListener('DOMContentLoaded', () => {
       totalAmountEl.textContent = `₩${formatNumber(grandTotal)}`;
 
     } else if (detailType === 'next-card-bill') {
-      emojiEl.textContent = '⏳';
-      const nextMonthNum = (month + 1) % 12 + 1;
-      titleEl.textContent = `${nextMonthNum}월 출금 예정 카드 내역 (당월 사용분)`;
-      totalLabelEl.textContent = `${nextMonthNum}월 청구 예정 총액`;
+      emojiEl.textContent = '📊';
+      titleEl.textContent = `${month + 1}월 전체 지출 상세 내역`;
+      totalLabelEl.textContent = `${month + 1}월 총 지출 합계`;
 
-      const creditCards = accounts.filter(a => a.type === 'card' && a.cardKind === 'credit' && (isAllSelected || selectedAccountIds.includes(a.id) || selectedAccountIds.includes(a.linkedBankAccountId)));
+      const monthExpenses = monthTxs.filter(t => t.type === 'expense');
+      const totalSum = monthExpenses.reduce((sum, t) => sum + Number(t.amount || 0), 0);
+      totalAmountEl.textContent = `-₩${formatNumber(totalSum)}`;
 
-      let grandTotal = 0;
-
-      if (creditCards.length === 0) {
-        listEl.innerHTML = `<div class="empty-state" style="padding: 24px;"><p>등록된 신용카드가 없습니다.</p></div>`;
+      if (monthExpenses.length === 0) {
+        listEl.innerHTML = `<div class="empty-state" style="padding: 24px;"><p>이번 달 등록된 지출 내역이 없습니다.</p></div>`;
       } else {
-        creditCards.forEach(card => {
-          const cardTxs = transactions.filter(t => {
-            const d = parseLocalDateStr(t.date);
-            return t.accountId === card.id && d.getFullYear() === year && d.getMonth() === month && t.type === 'expense';
-          });
+        monthExpenses.forEach(t => {
+          const acc = accounts.find(a => a.id === t.accountId) || { name: '계좌' };
+          const categoryObj = CATEGORIES.find(c => c.name === t.category) || { emoji: '📌', color: '#f43f5e' };
+          const isCredit = acc.type === 'card' && acc.cardKind === 'credit';
+          const isDebit = acc.type === 'card' && acc.cardKind === 'debit';
+          const badge = isCredit ? '💳[신용]' : (isDebit ? '💳[체크]' : '🏦[통장]');
 
-          const cardTotal = cardTxs.reduce((sum, t) => sum + Number(t.amount || 0), 0);
-          grandTotal += cardTotal;
-
-          const linkedBank = accounts.find(a => a.id === card.linkedBankAccountId);
-          const linkedBankName = linkedBank ? linkedBank.name : '연결 통장 없음';
-
-          const cardGroup = document.createElement('div');
-          cardGroup.className = 'summary-detail-card-group';
-
-          let itemsHtml = '';
-          if (cardTxs.length === 0) {
-            itemsHtml = `<div style="font-size: 0.78rem; color: var(--text-muted); padding: 4px 0;">이번 달 사용 내역 없음 (예정액 ₩0)</div>`;
-          } else {
-            cardTxs.forEach(t => {
-              const categoryObj = CATEGORIES.find(c => c.name === t.category) || { emoji: '💳', color: '#ec4899' };
-              itemsHtml += `
-                <div class="tx-item" style="padding: 6px 0; border: none;">
-                  <div class="tx-left">
-                    <span style="font-size: 0.9rem; margin-right: 6px;">${categoryObj.emoji}</span>
-                    <div class="tx-info">
-                      <span class="tx-title" style="font-size: 0.82rem;">${t.memo || t.category}</span>
-                      <div class="tx-meta" style="font-size: 0.72rem;">${t.date} • ${t.category}</div>
-                    </div>
-                  </div>
-                  <div class="tx-right">
-                    <span class="tx-amount expense" style="font-size: 0.85rem;">-₩${formatNumber(t.amount)}</span>
-                  </div>
-                </div>
-              `;
-            });
-          }
-
-          cardGroup.innerHTML = `
-            <div class="summary-detail-card-header">
-              <div>
-                <div class="summary-detail-card-name">💳 ${card.name}</div>
-                <div class="summary-detail-card-sub">${nextMonthNum}월 ${card.paymentDay || 25}일 예정 • 🏦 ${linkedBankName}</div>
+          const item = document.createElement('div');
+          item.className = 'tx-item';
+          item.innerHTML = `
+            <div class="tx-left">
+              <div class="tx-icon-pill" style="background: ${categoryObj.color}20; color: ${categoryObj.color}">
+                ${categoryObj.emoji}
               </div>
-              <span class="summary-detail-card-amount">₩${formatNumber(cardTotal)}</span>
+              <div class="tx-info">
+                <span class="tx-title">${t.memo || t.category}</span>
+                <div class="tx-meta">
+                  <span>${t.date}</span> • <span>${badge} ${acc.name}</span>
+                </div>
+              </div>
             </div>
-            ${itemsHtml}
+            <div class="tx-right">
+              <span class="tx-amount expense">-₩${formatNumber(t.amount)}</span>
+            </div>
           `;
-
-          listEl.appendChild(cardGroup);
+          listEl.appendChild(item);
         });
       }
-
-      totalAmountEl.textContent = `₩${formatNumber(grandTotal)}`;
     }
 
     modalOverlay.classList.add('active');
