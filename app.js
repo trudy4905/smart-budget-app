@@ -7,12 +7,13 @@
   const STORAGE_KEY_TX = 'smart_budget_transactions_v5.0';
   const STORAGE_KEY_ACC = 'smart_budget_accounts_v5.0';
   const STORAGE_KEY_REC = 'smart_budget_recurring_v5.0';
+  const STORAGE_KEY_LAST_DATE = 'smart_budget_last_date_v5.0';
 
   // --- STATE MANAGEMENT ---
   const _initNow = new Date();
-  let currentDate = new Date(_initNow.getFullYear(), _initNow.getMonth(), 1); // Active Month / Year view (First of month)
+  let currentDate = new Date(_initNow.getFullYear(), _initNow.getMonth(), 1); // Active Month / Year view
   let selectedDateStr = formatDate(_initNow); // Active Selected Day ('YYYY-MM-DD')
-  let selectedAccountIds = ['all']; // Active account filters: ['all'] or array of account ids
+  let selectedAccountIds = ['all']; // Active account filters
   
   let accounts = [];
   let transactions = [];
@@ -108,6 +109,7 @@
     loadAccounts();
     loadRecurringRules();
     loadTransactions();
+    loadActiveViewDate();
 
     applyRecurringRules();
     checkAutoCardSettlements();
@@ -118,6 +120,36 @@
 
     renderCategoryGrid();
     renderApp();
+  }
+
+  // --- SMART ACTIVE MONTH AUTO-FOCUS & PERSISTENCE ---
+  function loadActiveViewDate() {
+    const savedDateStr = localStorage.getItem(STORAGE_KEY_LAST_DATE);
+    if (savedDateStr) {
+      selectedDateStr = savedDateStr;
+      const d = parseLocalDateStr(savedDateStr);
+      currentDate = new Date(d.getFullYear(), d.getMonth(), 1);
+      return;
+    }
+
+    if (transactions && transactions.length > 0) {
+      const sortedTxs = [...transactions].sort((a, b) => b.date.localeCompare(a.date));
+      const latestTx = sortedTxs[0];
+      if (latestTx && latestTx.date) {
+        selectedDateStr = latestTx.date;
+        const d = parseLocalDateStr(latestTx.date);
+        currentDate = new Date(d.getFullYear(), d.getMonth(), 1);
+        return;
+      }
+    }
+
+    const now = new Date();
+    currentDate = new Date(now.getFullYear(), now.getMonth(), 1);
+    selectedDateStr = formatDate(now);
+  }
+
+  function saveActiveViewDate() {
+    localStorage.setItem(STORAGE_KEY_LAST_DATE, selectedDateStr);
   }
 
   // --- LOCAL STORAGE & DATA LOADING ---
@@ -583,6 +615,7 @@
         currentDate = new Date(clickedDateObj.getFullYear(), clickedDateObj.getMonth(), 1);
         applyRecurringRules();
       }
+      saveActiveViewDate();
       renderApp();
     });
 
@@ -1093,12 +1126,16 @@
 
     document.getElementById('prev-month-btn').addEventListener('click', () => {
       currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1);
+      selectedDateStr = formatDate(currentDate);
+      saveActiveViewDate();
       applyRecurringRules();
       renderApp();
     });
 
     document.getElementById('next-month-btn').addEventListener('click', () => {
       currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1);
+      selectedDateStr = formatDate(currentDate);
+      saveActiveViewDate();
       applyRecurringRules();
       renderApp();
     });
@@ -1107,6 +1144,7 @@
       const now = new Date();
       currentDate = new Date(now.getFullYear(), now.getMonth(), 1);
       selectedDateStr = formatDate(now);
+      saveActiveViewDate();
       applyRecurringRules();
       renderApp();
     });
@@ -1377,6 +1415,7 @@
       selectedDateStr = date;
       const selectedObj = parseLocalDateStr(date);
       currentDate = new Date(selectedObj.getFullYear(), selectedObj.getMonth(), 1);
+      saveActiveViewDate();
 
       closeTxModal();
       renderApp();
