@@ -83,11 +83,26 @@ document.addEventListener('DOMContentLoaded', () => {
     { name: '기타', emoji: '🎁', color: '#64748b', type: 'expense' }
   ];
 
-  // --- INITIALIZATION ---
-  init();
-  window.addEventListener('load', () => {
-    renderApp();
-  });
+  // --- INITIALIZATION ENGINE ---
+  let isInitialized = false;
+
+  function startApp() {
+    if (!isInitialized) {
+      init();
+      isInitialized = true;
+    } else {
+      renderApp();
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', startApp);
+  } else {
+    startApp();
+  }
+
+  window.addEventListener('load', startApp);
+  window.addEventListener('pageshow', startApp);
 
   function init() {
     loadAccounts();
@@ -264,16 +279,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // --- CORE RENDER FUNCTION ---
   function renderApp() {
-    renderAccountTabs();
-    renderAccountSelectOptions();
-    renderHeaderSummary();
-    renderCalendar();
-    renderDailyDetail();
-    renderStatsView();
-    renderSettingsView();
+    try { renderAccountTabs(); } catch (e) { console.error('renderAccountTabs error:', e); }
+    try { renderAccountSelectOptions(); } catch (e) { console.error('renderAccountSelectOptions error:', e); }
+    try { renderHeaderSummary(); } catch (e) { console.error('renderHeaderSummary error:', e); }
+    try { renderCalendar(); } catch (e) { console.error('renderCalendar error:', e); }
+    try { renderDailyDetail(); } catch (e) { console.error('renderDailyDetail error:', e); }
+    try { renderStatsView(); } catch (e) { console.error('renderStatsView error:', e); }
+    try { renderSettingsView(); } catch (e) { console.error('renderSettingsView error:', e); }
 
     if (window.lucide) {
-      lucide.createIcons();
+      try { lucide.createIcons(); } catch (e) { console.error('lucide error:', e); }
     }
   }
 
@@ -730,55 +745,58 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function renderChart(categoriesArray) {
-    const ctx = document.getElementById('categoryChart').getContext('2d');
+    const canvas = document.getElementById('categoryChart');
+    if (!canvas) return;
 
     if (categoryChartInstance) {
-      categoryChartInstance.destroy();
+      try { categoryChartInstance.destroy(); } catch (e) {}
+      categoryChartInstance = null;
     }
 
-    if (categoriesArray.length === 0) return;
+    if (!categoriesArray || categoriesArray.length === 0) return;
 
-    const labels = categoriesArray.map(c => `${c.emoji} ${c.name}`);
-    const data = categoriesArray.map(c => c.amount);
-    const colors = categoriesArray.map(c => c.color);
-
-    categoryChartInstance = new Chart(ctx, {
-      type: 'doughnut',
-      data: {
-        labels: labels,
-        datasets: [{
-          data: data,
-          backgroundColor: colors,
-          borderWidth: 2,
-          borderColor: 'transparent',
-          hoverOffset: 6
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            position: 'bottom',
-            labels: {
-              color: '#94a3b8',
-              font: { family: "'Outfit', 'Noto Sans KR', sans-serif", size: 11 },
-              boxWidth: 12,
-              padding: 10
-            }
-          },
-          tooltip: {
-            callbacks: {
-              label: function(context) {
-                const val = context.raw || 0;
-                return ` ₩${formatNumber(val)}`;
+    try {
+      const ctx = canvas.getContext('2d');
+      categoryChartInstance = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: categoriesArray.map(c => `${c.emoji} ${c.name}`),
+          datasets: [{
+            data: categoriesArray.map(c => c.amount),
+            backgroundColor: categoriesArray.map(c => c.color),
+            borderWidth: 2,
+            borderColor: 'transparent',
+            hoverOffset: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: {
+                color: '#94a3b8',
+                font: { family: "'Outfit', 'Noto Sans KR', sans-serif", size: 11 },
+                boxWidth: 12,
+                padding: 10
+              }
+            },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  const val = context.raw || 0;
+                  return ` ₩${formatNumber(val)}`;
+                }
               }
             }
-          }
-        },
-        cutout: '70%'
-      }
-    });
+          },
+          cutout: '70%'
+        }
+      });
+    } catch (e) {
+      console.warn('Chart render skipped on current layout pass:', e);
+    }
   }
 
   // --- SETTINGS VIEW ---
@@ -1095,10 +1113,8 @@ document.addEventListener('DOMContentLoaded', () => {
       renderApp();
     });
 
-    // Account tabs horizontal scrolling (Mouse drag + Mouse wheel + Arrow buttons)
+    // Account tabs horizontal touch/drag scrolling
     const tabsContainer = document.getElementById('account-tabs');
-    const scrollLeftBtn = document.getElementById('account-scroll-left');
-    const scrollRightBtn = document.getElementById('account-scroll-right');
 
     if (tabsContainer) {
       // 1. Mouse wheel vertical-to-horizontal conversion
@@ -1150,19 +1166,6 @@ document.addEventListener('DOMContentLoaded', () => {
           hasDragged = false;
         }
       }, true);
-
-      // 3. Left/Right Arrow button click navigation
-      if (scrollLeftBtn) {
-        scrollLeftBtn.addEventListener('click', () => {
-          tabsContainer.scrollBy({ left: -160, behavior: 'smooth' });
-        });
-      }
-
-      if (scrollRightBtn) {
-        scrollRightBtn.addEventListener('click', () => {
-          tabsContainer.scrollBy({ left: 160, behavior: 'smooth' });
-        });
-      }
     }
 
     const tabs = document.querySelectorAll('.nav-tab');

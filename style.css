@@ -1214,13 +1214,12 @@ button {
   opacity: 0.3;
 }
 
-/* ACCOUNT SELECTOR BAR */
+/* ACCOUNT SELECTOR BAR (Touch Slide Scroll) */
 .account-selector-wrapper {
   position: relative;
   width: 100%;
   margin: 10px 0 14px 0;
-  display: flex;
-  align-items: center;
+  display: block;
 }
 
 .account-scroll-container {
@@ -1228,7 +1227,7 @@ button {
   align-items: center;
   gap: 6px;
   overflow-x: auto;
-  padding: 4px 6px 8px 6px;
+  padding: 4px 2px 8px 2px;
   width: 100%;
   scrollbar-width: none;
   scroll-behavior: smooth;
@@ -1246,34 +1245,7 @@ button {
 }
 
 .tab-scroll-arrow {
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  background: var(--card-bg);
-  border: 1px solid var(--border-color);
-  color: var(--text-main);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  z-index: 5;
-  flex-shrink: 0;
-  box-shadow: var(--shadow-sm);
-  transition: all 0.2s ease;
-}
-
-.tab-scroll-arrow:hover {
-  background: var(--primary);
-  color: #ffffff;
-  border-color: var(--primary);
-}
-
-.tab-scroll-arrow.left {
-  margin-right: 4px;
-}
-
-.tab-scroll-arrow.right {
-  margin-left: 4px;
+  display: none !important;
 }
 
 .account-tab-chip {
