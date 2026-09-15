@@ -9,7 +9,7 @@ import { parseLocalDateStr, showToast } from './helpers.js';
 export function formatFormattedNumberInput(value) {
   if (value === undefined || value === null) return '';
   const str = String(value);
-  const isNegative = str.startsWith('-');
+  const isNegative = str.includes('-');
   const digits = str.replace(/\D/g, '');
   if (!digits) return isNegative ? '-' : '';
   const formatted = Number(digits).toLocaleString('ko-KR');
@@ -660,26 +660,11 @@ export function setupModalForms(onRenderApp) {
   });
 
   const accBalanceInput = document.getElementById('acc-balance');
-  const toggleSignBtn = document.getElementById('acc-balance-toggle-sign-btn');
 
   if (accBalanceInput) {
     accBalanceInput.addEventListener('input', (e) => {
       const formatted = formatFormattedNumberInput(e.target.value);
       e.target.value = formatted;
-    });
-  }
-
-  if (toggleSignBtn && accBalanceInput) {
-    toggleSignBtn.addEventListener('click', () => {
-      let rawVal = accBalanceInput.value.trim();
-      if (!rawVal || rawVal === '0') {
-        accBalanceInput.value = '-';
-      } else if (rawVal.startsWith('-')) {
-        accBalanceInput.value = formatFormattedNumberInput(rawVal.substring(1));
-      } else {
-        accBalanceInput.value = formatFormattedNumberInput('-' + rawVal);
-      }
-      accBalanceInput.focus();
     });
   }
 
