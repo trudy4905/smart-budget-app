@@ -60,20 +60,20 @@
 
           <!-- Monthly Summary Cards (2x2 Grid) -->
           <div class="summary-cards">
-            <div class="summary-card income">
+            <div class="summary-card income" id="summary-card-income" style="cursor: pointer;">
               <span class="card-label"><i data-lucide="arrow-down-left"></i> 이번 달 수입</span>
               <span class="card-amount" id="total-income-display">₩0</span>
             </div>
-            <div class="summary-card expense-cash">
+            <div class="summary-card expense-cash" id="summary-card-cash" style="cursor: pointer;">
               <span class="card-label" id="cash-expense-card-label"><i data-lucide="wallet"></i> 현금/체크 (즉시 출금)</span>
               <span class="card-amount" id="total-cash-expense-display">₩0</span>
             </div>
-            <div class="summary-card card-bill-this">
+            <div class="summary-card card-bill-this" id="summary-card-credit" style="cursor: pointer;">
               <span class="card-label" id="this-month-bill-label"><i data-lucide="credit-card"></i> 이번 달 카드 지출 <span style="font-size: 0.65rem; opacity: 0.9; font-weight: 500;">(다음달 25일 결제)</span></span>
               <span class="card-amount" id="this-month-bill-display">₩0</span>
               <span class="card-sub-info" id="this-month-bill-sub">당월 신용카드 사용액</span>
             </div>
-            <div class="summary-card card-bill-next">
+            <div class="summary-card card-bill-next" id="summary-card-total-expense" style="cursor: pointer;">
               <span class="card-label" id="next-month-bill-label"><i data-lucide="pie-chart"></i> 이번 달 총 지출</span>
               <span class="card-amount" id="next-month-bill-display">₩0</span>
               <span class="card-sub-info" id="next-month-bill-sub">현금/체크 + 카드 합계</span>

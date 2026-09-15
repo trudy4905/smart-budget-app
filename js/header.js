@@ -144,11 +144,20 @@ export function renderHeaderSummary() {
   if (thisBillEl) thisBillEl.textContent = `₩${formatNumber(creditCardExpense)}`;
   if (nextBillEl) nextBillEl.textContent = `₩${formatNumber(totalExpense)}`;
 
-  const creditCardAcc = state.accounts.find(a => a.type === 'card' && (a.cardKind === 'credit' || !a.cardKind) && a.paymentDay);
-  const pDay = creditCardAcc ? (creditCardAcc.paymentDay || 25) : 25;
+  const creditCardAccs = state.accounts.filter(a => a.type === 'card' && (a.cardKind === 'credit' || !a.cardKind));
+  const uniquePaymentDays = [...new Set(creditCardAccs.map(a => a.paymentDay || 25))];
+
+  let paymentTextTag = '(다음달 25일 결제)';
+  if (creditCardAccs.length <= 1 || uniquePaymentDays.length === 1) {
+    const pDay = uniquePaymentDays[0] || 25;
+    paymentTextTag = `(다음달 ${pDay}일 결제)`;
+  } else {
+    paymentTextTag = `(다음달 카드별 결제)`;
+  }
+
   const thisBillLabelEl = document.getElementById('this-month-bill-label');
   if (thisBillLabelEl) {
-    thisBillLabelEl.innerHTML = `<i data-lucide="credit-card"></i> 이번 달 카드 지출 <span style="font-size: 0.65rem; opacity: 0.9; font-weight: 500;">(다음달 ${pDay}일 결제)</span>`;
+    thisBillLabelEl.innerHTML = `<i data-lucide="credit-card"></i> 이번 달 카드 지출 <span style="font-size: 0.65rem; opacity: 0.9; font-weight: 500;">${paymentTextTag}</span>`;
   }
 
   if (thisBillSubEl) thisBillSubEl.textContent = `${month + 1}월 신용카드 사용액`;

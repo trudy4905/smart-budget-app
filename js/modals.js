@@ -2,9 +2,9 @@
    MODALS, DROPDOWNS & FORM CONTROLLERS
    ========================================================================== */
 
-import { state, setEditingAccountId, setSelectedDateStr, setCurrentDate, saveActiveViewDate, saveAccounts, saveTransactions, saveRecurringRules, setSelectedAccountIds } from './state.js';
+import { state, setEditingAccountId, setSelectedDateStr, setCurrentDate, saveActiveViewDate, saveAccounts, saveTransactions, saveRecurringRules, setSelectedAccountIds, getCardBillForMonth } from './state.js';
 import { BANKS_LIST, CARDS_LIST, CATEGORIES, EXPENSE_CATEGORIES, INCOME_CATEGORIES } from './constants.js';
-import { parseLocalDateStr, showToast } from './helpers.js';
+import { parseLocalDateStr, showToast, formatNumber } from './helpers.js';
 
 export function formatFormattedNumberInput(value) {
   if (value === undefined || value === null) return '';
@@ -845,4 +845,183 @@ export function setupModalForms(onRenderApp) {
       showToast(isRecurring ? '새 거래 내역과 고정 자동 등록 규칙이 추가되었습니다!' : '새로운 가계부 내역이 추가되었습니다!');
     });
   }
+
+  // Summary Card Detail Modal Triggers
+  const cardIncome = document.getElementById('summary-card-income');
+  const cardCash = document.getElementById('summary-card-cash');
+  const cardCredit = document.getElementById('summary-card-credit');
+  const cardTotalExpense = document.getElementById('summary-card-total-expense');
+
+  if (cardIncome) cardIncome.addEventListener('click', () => openSummaryDetailModal('income'));
+  if (cardCash) cardCash.addEventListener('click', () => openSummaryDetailModal('cash'));
+  if (cardCredit) cardCredit.addEventListener('click', () => openSummaryDetailModal('credit-card'));
+  if (cardTotalExpense) cardTotalExpense.addEventListener('click', () => openSummaryDetailModal('total-expense'));
+
+  const closeSummaryDetailBtn = document.getElementById('close-summary-detail-modal-btn');
+  const closeSummaryDetailBottomBtn = document.getElementById('close-summary-detail-modal-bottom-btn');
+  const summaryDetailOverlay = document.getElementById('summary-detail-modal-overlay');
+
+  if (closeSummaryDetailBtn) closeSummaryDetailBtn.addEventListener('click', closeSummaryDetailModal);
+  if (closeSummaryDetailBottomBtn) closeSummaryDetailBottomBtn.addEventListener('click', closeSummaryDetailModal);
+  if (summaryDetailOverlay) {
+    summaryDetailOverlay.addEventListener('click', (e) => {
+      if (e.target === summaryDetailOverlay) closeSummaryDetailModal();
+    });
+  }
+}
+
+export function openSummaryDetailModal(type = 'credit-card') {
+  const overlay = document.getElementById('summary-detail-modal-overlay');
+  const titleEl = document.getElementById('summary-detail-title');
+  const emojiEl = document.getElementById('summary-detail-emoji');
+  const totalLabelEl = document.getElementById('summary-detail-total-label');
+  const totalAmountEl = document.getElementById('summary-detail-total-amount');
+  const listEl = document.getElementById('summary-detail-list');
+
+  if (!overlay || !listEl) return;
+
+  const year = state.currentDate.getFullYear();
+  const month = state.currentDate.getMonth();
+
+  if (type === 'credit-card') {
+    if (emojiEl) emojiEl.textContent = '💳';
+    if (titleEl) titleEl.textContent = '신용카드별 지출 & 결제일';
+    if (totalLabelEl) totalLabelEl.textContent = '당월 카드 지출 총액';
+
+    const creditCards = state.accounts.filter(a => a.type === 'card' && (a.cardKind === 'credit' || !a.cardKind));
+    
+    let totalCardBill = 0;
+    listEl.innerHTML = '';
+
+    if (creditCards.length === 0) {
+      listEl.innerHTML = '<p style="font-size: 0.85rem; color: var(--text-muted); padding: 16px 0; text-align: center;">등록된 신용카드가 없습니다.</p>';
+    } else {
+      creditCards.forEach(card => {
+        const bill = getCardBillForMonth(card.id, year, month);
+        totalCardBill += bill;
+        const pDay = card.paymentDay || 25;
+
+        const item = document.createElement('div');
+        item.style.cssText = 'display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border-color);';
+        item.innerHTML = `
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <span class="acc-color-dot" style="background: ${card.color || '#ec4899'}; width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0;"></span>
+            <div>
+              <div style="font-weight: 700; font-size: 0.9rem; color: var(--text-main);">${card.name} (${card.bank})</div>
+              <div style="font-size: 0.76rem; color: var(--text-muted); margin-top: 2px;">다음달 ${pDay}일 결제</div>
+            </div>
+          </div>
+          <div style="font-weight: 700; font-size: 0.95rem; color: #a855f7;">₩${formatNumber(bill)}</div>
+        `;
+        listEl.appendChild(item);
+      });
+    }
+
+    if (totalAmountEl) totalAmountEl.textContent = `₩${formatNumber(totalCardBill)}`;
+
+  } else if (type === 'income') {
+    if (emojiEl) emojiEl.textContent = '💵';
+    if (titleEl) titleEl.textContent = '이번 달 수입 상세';
+    if (totalLabelEl) totalLabelEl.textContent = '수입 총액';
+    
+    const incomeTxs = state.transactions.filter(t => {
+      const d = parseLocalDateStr(t.date);
+      return t.type === 'income' && d.getFullYear() === year && d.getMonth() === month;
+    });
+
+    let total = 0;
+    listEl.innerHTML = '';
+    if (incomeTxs.length === 0) {
+      listEl.innerHTML = '<p style="font-size: 0.85rem; color: var(--text-muted); padding: 16px 0; text-align: center;">이번 달 수입 내역이 없습니다.</p>';
+    } else {
+      incomeTxs.forEach(tx => {
+        total += Number(tx.amount);
+        const item = document.createElement('div');
+        item.style.cssText = 'display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border-color);';
+        item.innerHTML = `
+          <div>
+            <div style="font-weight: 600; font-size: 0.85rem; color: var(--text-main);">${tx.category} - ${tx.memo || '수입'}</div>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">${tx.date}</div>
+          </div>
+          <div style="font-weight: 700; font-size: 0.9rem; color: var(--income-color);">+₩${formatNumber(tx.amount)}</div>
+        `;
+        listEl.appendChild(item);
+      });
+    }
+    if (totalAmountEl) totalAmountEl.textContent = `₩${formatNumber(total)}`;
+
+  } else if (type === 'cash') {
+    if (emojiEl) emojiEl.textContent = '👛';
+    if (titleEl) titleEl.textContent = '현금 / 체크 지출 내역';
+    if (totalLabelEl) totalLabelEl.textContent = '즉시 출금 총액';
+
+    const cashTxs = state.transactions.filter(t => {
+      const d = parseLocalDateStr(t.date);
+      const acc = state.accounts.find(a => a.id === t.accountId);
+      const isCashDebit = !acc || acc.type === 'bank' || acc.cardKind === 'debit';
+      return t.type === 'expense' && isCashDebit && d.getFullYear() === year && d.getMonth() === month;
+    });
+
+    let total = 0;
+    listEl.innerHTML = '';
+    if (cashTxs.length === 0) {
+      listEl.innerHTML = '<p style="font-size: 0.85rem; color: var(--text-muted); padding: 16px 0; text-align: center;">이번 달 현금/체크 지출이 없습니다.</p>';
+    } else {
+      cashTxs.forEach(tx => {
+        total += Number(tx.amount);
+        const item = document.createElement('div');
+        item.style.cssText = 'display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border-color);';
+        item.innerHTML = `
+          <div>
+            <div style="font-weight: 600; font-size: 0.85rem; color: var(--text-main);">${tx.category} - ${tx.memo || '지출'}</div>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">${tx.date}</div>
+          </div>
+          <div style="font-weight: 700; font-size: 0.9rem; color: var(--expense-color);">-₩${formatNumber(tx.amount)}</div>
+        `;
+        listEl.appendChild(item);
+      });
+    }
+    if (totalAmountEl) totalAmountEl.textContent = `₩${formatNumber(total)}`;
+
+  } else if (type === 'total-expense') {
+    if (emojiEl) emojiEl.textContent = '📊';
+    if (titleEl) titleEl.textContent = '이번 달 총 지출 요약';
+    if (totalLabelEl) totalLabelEl.textContent = '총 지출 합계';
+
+    const expenseTxs = state.transactions.filter(t => {
+      const d = parseLocalDateStr(t.date);
+      return t.type === 'expense' && d.getFullYear() === year && d.getMonth() === month;
+    });
+
+    let total = 0;
+    listEl.innerHTML = '';
+    if (expenseTxs.length === 0) {
+      listEl.innerHTML = '<p style="font-size: 0.85rem; color: var(--text-muted); padding: 16px 0; text-align: center;">이번 달 총 지출 내역이 없습니다.</p>';
+    } else {
+      expenseTxs.forEach(tx => {
+        total += Number(tx.amount);
+        const acc = state.accounts.find(a => a.id === tx.accountId);
+        const accBadge = acc ? `${acc.name}` : '기타';
+        const item = document.createElement('div');
+        item.style.cssText = 'display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border-color);';
+        item.innerHTML = `
+          <div>
+            <div style="font-weight: 600; font-size: 0.85rem; color: var(--text-main);">${tx.category} <span style="font-size: 0.75rem; color: var(--text-muted);">(${accBadge})</span></div>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">${tx.date} - ${tx.memo || ''}</div>
+          </div>
+          <div style="font-weight: 700; font-size: 0.9rem; color: #ec4899;">-₩${formatNumber(tx.amount)}</div>
+        `;
+        listEl.appendChild(item);
+      });
+    }
+    if (totalAmountEl) totalAmountEl.textContent = `₩${formatNumber(total)}`;
+  }
+
+  if (window.lucide) lucide.createIcons();
+  overlay.classList.add('active');
+}
+
+export function closeSummaryDetailModal() {
+  const overlay = document.getElementById('summary-detail-modal-overlay');
+  if (overlay) overlay.classList.remove('active');
 }
