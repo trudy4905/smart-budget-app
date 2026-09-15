@@ -325,8 +325,22 @@
     }).reduce((sum, t) => sum + Number(t.amount || 0), 0);
   }
 
+  function updateHeaderVisibilityForView(viewId) {
+    const appHeader = document.querySelector('.app-header');
+    if (!appHeader) return;
+    if (viewId === 'settings') {
+      appHeader.style.display = 'none';
+    } else {
+      appHeader.style.display = 'block';
+    }
+  }
+
   // --- CORE RENDER FUNCTION ---
   function renderApp() {
+    const activeTab = document.querySelector('.nav-tab.active');
+    const activeViewId = activeTab ? activeTab.dataset.view : 'calendar';
+    updateHeaderVisibilityForView(activeViewId);
+
     try { renderAccountTabs(); } catch (e) { console.error('renderAccountTabs error:', e); }
     try { renderAccountSelectOptions(); } catch (e) { console.error('renderAccountSelectOptions error:', e); }
     try { renderHeaderSummary(); } catch (e) { console.error('renderHeaderSummary error:', e); }
@@ -1246,6 +1260,8 @@
         if (fab) {
           fab.style.display = (viewId === 'calendar') ? 'flex' : 'none';
         }
+
+        updateHeaderVisibilityForView(viewId);
       });
     });
 
