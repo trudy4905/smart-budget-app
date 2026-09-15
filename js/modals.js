@@ -6,6 +6,16 @@ import { state, setEditingAccountId, setSelectedDateStr, setCurrentDate, saveAct
 import { BANKS_LIST, CARDS_LIST, CATEGORIES } from './constants.js';
 import { parseLocalDateStr, showToast } from './helpers.js';
 
+export function formatFormattedNumberInput(value) {
+  if (value === undefined || value === null) return '';
+  const str = String(value);
+  const isNegative = str.startsWith('-');
+  const digits = str.replace(/\D/g, '');
+  if (!digits) return isNegative ? '-' : '';
+  const formatted = Number(digits).toLocaleString('ko-KR');
+  return isNegative ? `-${formatted}` : formatted;
+}
+
 export function toggleAccTypeFields() {
   const accTypeCard = document.getElementById('acc-type-card');
   const accTypeDebit = document.getElementById('acc-type-debit');
@@ -176,7 +186,7 @@ export function openAccModal(targetType = 'bank', editAccountObj = null) {
       }
     }
     if (accNumberInput) accNumberInput.value = editAccountObj.accountNumber || '';
-    if (accBalanceInput) accBalanceInput.value = editAccountObj.initialBalance || 0;
+    if (accBalanceInput) accBalanceInput.value = formatFormattedNumberInput(editAccountObj.initialBalance || 0);
     if (accPaymentDayInput && editAccountObj.paymentDay) accPaymentDayInput.value = editAccountObj.paymentDay;
 
     const linkedSelect = document.getElementById('acc-linked-bank');
@@ -253,6 +263,14 @@ export function closeTxModal() {
 }
 
 export function setupModalForms(onRenderApp) {
+  const accBalanceInput = document.getElementById('acc-balance');
+  if (accBalanceInput) {
+    accBalanceInput.addEventListener('input', (e) => {
+      const formatted = formatFormattedNumberInput(e.target.value);
+      e.target.value = formatted;
+    });
+  }
+
   const accForm = document.getElementById('acc-form');
   if (accForm) {
     accForm.addEventListener('submit', (e) => {
@@ -263,8 +281,8 @@ export function setupModalForms(onRenderApp) {
       const name = (document.getElementById('acc-name')?.value || '').trim();
       const bank = document.getElementById('acc-bank')?.value || '신한은행';
       const accountNumber = (document.getElementById('acc-number')?.value || '').trim();
-      const rawBalance = document.getElementById('acc-balance')?.value;
-      const initialBalance = (rawBalance !== undefined && rawBalance !== '' && !isNaN(Number(rawBalance))) ? Number(rawBalance) : 0;
+      const rawBalanceStr = (document.getElementById('acc-balance')?.value || '').replace(/,/g, '');
+      const initialBalance = (rawBalanceStr !== '' && !isNaN(Number(rawBalanceStr))) ? Number(rawBalanceStr) : 0;
       const linkedBankAccountId = document.getElementById('acc-linked-bank')?.value || null;
       const paymentDay = Number(document.getElementById('acc-payment-day')?.value) || 25;
       const color = document.getElementById('acc-color')?.value || '#6366f1';
