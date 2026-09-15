@@ -891,10 +891,10 @@
               <div class="acc-manage-sub">${acc.bank} ${acc.accountNumber ? '• ' + acc.accountNumber : ''}</div>
             </div>
           </div>
-          <div style="display: flex; align-items: center; gap: 8px;">
+          <div style="display: flex; align-items: center; gap: 6px;">
             <span class="acc-manage-balance">₩${formatNumber(currentBalance)}</span>
-            <button class="tx-delete-btn edit-acc-btn" data-id="${acc.id}" title="통장 정보 수정" style="color: var(--primary);">
-              <i data-lucide="pencil"></i>
+            <button class="action-btn-sm edit-acc-btn" data-id="${acc.id}" title="통장 정보 수정" style="padding: 4px 10px; border-radius: 12px; font-size: 0.78rem; border: 1px solid var(--primary); color: var(--primary); background: transparent; display: flex; align-items: center; gap: 4px; font-weight: 600; cursor: pointer;">
+              <i data-lucide="pencil" style="width: 12px; height: 12px;"></i> 수정
             </button>
             <button class="tx-delete-btn delete-acc-btn" data-id="${acc.id}" title="통장 삭제">
               <i data-lucide="trash-2"></i>
@@ -903,10 +903,8 @@
         `;
 
         item.addEventListener('click', (e) => {
-          if (!e.target.closest('.delete-acc-btn') && !e.target.closest('.edit-acc-btn')) {
-            selectedAccountIds = [acc.id];
-            renderApp();
-            showToast(`'${acc.name}' 통장이 선택되었습니다.`);
+          if (!e.target.closest('.delete-acc-btn')) {
+            openAccModal('bank', acc);
           }
         });
 
@@ -962,11 +960,11 @@
               <div class="acc-manage-sub">${acc.bank} ${acc.accountNumber ? '• ' + acc.accountNumber : ''}${linkedName}</div>
             </div>
           </div>
-          <div style="display: flex; align-items: center; gap: 8px;">
+          <div style="display: flex; align-items: center; gap: 6px;">
             <span class="acc-manage-balance">${balanceDisplayStr}</span>
             ${settleBtnHtml}
-            <button class="tx-delete-btn edit-acc-btn" data-id="${acc.id}" title="카드 정보 수정" style="color: var(--primary);">
-              <i data-lucide="pencil"></i>
+            <button class="action-btn-sm edit-acc-btn" data-id="${acc.id}" title="카드 정보 수정" style="padding: 4px 10px; border-radius: 12px; font-size: 0.78rem; border: 1px solid var(--primary); color: var(--primary); background: transparent; display: flex; align-items: center; gap: 4px; font-weight: 600; cursor: pointer;">
+              <i data-lucide="pencil" style="width: 12px; height: 12px;"></i> 수정
             </button>
             <button class="tx-delete-btn delete-acc-btn" data-id="${acc.id}" title="카드 삭제">
               <i data-lucide="trash-2"></i>
@@ -975,10 +973,8 @@
         `;
 
         item.addEventListener('click', (e) => {
-          if (!e.target.closest('.delete-acc-btn') && !e.target.closest('.edit-acc-btn') && !e.target.closest('.settle-card-btn')) {
-            selectedAccountIds = [acc.id];
-            renderApp();
-            showToast(`'${acc.name}' 카드가 선택되었습니다.`);
+          if (!e.target.closest('.delete-acc-btn') && !e.target.closest('.settle-card-btn')) {
+            openAccModal('card', acc);
           }
         });
 
