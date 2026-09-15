@@ -267,11 +267,11 @@
 
         <!-- Recurring Auto-Entry Checkbox -->
         <div class="form-group">
-          <label class="custom-checkbox-wrapper">
+          <label class="custom-checkbox-wrapper" style="display: flex; align-items: center; gap: 8px; cursor: pointer; white-space: nowrap; width: 100%;">
             <input type="checkbox" id="tx-is-recurring">
             <span class="checkbox-box"><i data-lucide="check"></i></span>
-            <span class="checkbox-text">
-              <strong>🔄 매월 이 날짜에 자동 등록</strong> (고정 수입/지출)
+            <span class="checkbox-text" style="white-space: nowrap; font-size: 0.83rem;">
+              <strong>매월 이 날짜에 자동 등록</strong> (고정 수입/지출)
             </span>
           </label>
         </div>
@@ -283,19 +283,6 @@
             <!-- Categories injected by JS -->
           </div>
           <input type="hidden" id="tx-category" required value="식당">
-        </div>
-
-        <!-- Payment Method Pills -->
-        <div class="form-group">
-          <label>결제 수단</label>
-          <div class="payment-method-selector" id="payment-selector">
-            <button type="button" class="pm-pill active" data-pm="신용카드">💳 신용카드</button>
-            <button type="button" class="pm-pill" data-pm="체크카드">💳 체크카드</button>
-            <button type="button" class="pm-pill" data-pm="카카오페이">💛 카카오페이</button>
-            <button type="button" class="pm-pill" data-pm="현금">💵 현금</button>
-            <button type="button" class="pm-pill" data-pm="계좌이체">🏦 계좌이체</button>
-          </div>
-          <input type="hidden" id="tx-payment" value="신용카드">
         </div>
 
         <!-- Memo / Note -->

@@ -43,6 +43,5 @@ export const CATEGORIES = [
   { name: '카페/디저트', emoji: '☕', color: '#a855f7', type: 'expense' },
   { name: '교통/차량', emoji: '🚌', color: '#06b6d4', type: 'expense' },
   { name: '문화/쇼핑', emoji: '🎬', color: '#ec4899', type: 'expense' },
-  { name: '수입/월급', emoji: '💵', color: '#10b981', type: 'income' },
-  { name: '기타', emoji: '🎁', color: '#64748b', type: 'expense' }
+  { name: '수입/월급', emoji: '💵', color: '#10b981', type: 'income' }
 ];

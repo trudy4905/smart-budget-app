@@ -118,9 +118,13 @@ export function renderCategoryGrid() {
   if (!grid) return;
   grid.innerHTML = '';
 
-  CATEGORIES.forEach((cat, idx) => {
+  const catInput = document.getElementById('tx-category');
+  const selectedCatName = catInput ? catInput.value : (CATEGORIES[0]?.name || '식당');
+
+  CATEGORIES.forEach((cat) => {
     const chip = document.createElement('div');
-    chip.className = `category-chip ${idx === 0 ? 'selected' : ''}`;
+    const isSelected = cat.name === selectedCatName;
+    chip.className = `category-chip ${isSelected ? 'selected' : ''}`;
     chip.dataset.name = cat.name;
 
     chip.innerHTML = `
@@ -131,12 +135,38 @@ export function renderCategoryGrid() {
     chip.addEventListener('click', () => {
       document.querySelectorAll('.category-chip').forEach(c => c.classList.remove('selected'));
       chip.classList.add('selected');
-      const catInput = document.getElementById('tx-category');
       if (catInput) catInput.value = cat.name;
     });
 
     grid.appendChild(chip);
   });
+
+  // Render [+] Add Category Chip
+  const addChip = document.createElement('div');
+  addChip.className = 'category-chip add-category-chip';
+  addChip.style.borderStyle = 'dashed';
+  addChip.style.borderColor = 'var(--primary)';
+  addChip.innerHTML = `
+    <span class="cat-emoji" style="color: var(--primary);">➕</span>
+    <span class="cat-label" style="color: var(--primary); font-weight: 700;">추가</span>
+  `;
+
+  addChip.addEventListener('click', () => {
+    const newName = prompt('추가할 새 카테고리 명칭을 입력하세요 (예: 의료비, 경조사):');
+    if (newName && newName.trim()) {
+      const cleanName = newName.trim();
+      if (!CATEGORIES.some(c => c.name === cleanName)) {
+        CATEGORIES.push({ name: cleanName, emoji: '📌', color: '#6366f1', type: 'expense' });
+        if (catInput) catInput.value = cleanName;
+        renderCategoryGrid();
+        showToast(`'${cleanName}' 카테고리가 추가되었습니다!`);
+      } else {
+        alert('이미 존재하는 카테고리 명칭입니다.');
+      }
+    }
+  });
+
+  grid.appendChild(addChip);
 }
 
 export function openAccModal(targetType = 'bank', editAccountObj = null) {
@@ -356,9 +386,19 @@ export function setupModalForms(onRenderApp) {
       const accountId = document.getElementById('tx-account-select')?.value;
       const amount = Number(document.getElementById('tx-amount')?.value);
       const date = document.getElementById('tx-date')?.value;
-      const isRecurring = document.getElementById('tx-is-recurring')?.checked || false;
       const category = document.getElementById('tx-category')?.value || '식당';
-      const payment = document.getElementById('tx-payment')?.value || '신용카드';
+      
+      // Auto-derive payment method from selected account
+      const selectedAcc = state.accounts.find(a => a.id === accountId);
+      let derivedPayment = '현금';
+      if (selectedAcc) {
+        if (selectedAcc.type === 'card') {
+          derivedPayment = selectedAcc.cardKind === 'debit' ? '체크카드' : '신용카드';
+        } else if (selectedAcc.type === 'bank') {
+          derivedPayment = '계좌이체';
+        }
+      }
+      const payment = derivedPayment;
       const memo = (document.getElementById('tx-memo')?.value || '').trim();
 
       if (!amount || amount <= 0) {
