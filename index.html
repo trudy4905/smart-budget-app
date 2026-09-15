@@ -326,21 +326,21 @@
 
       <form id="acc-form">
         <!-- Account Type Segment (Bank vs Credit Card vs Debit Card) -->
-        <div class="form-group">
-          <label>자금/계좌 유형</label>
+        <div class="form-group" id="acc-type-group">
+          <label id="acc-type-label">자금/계좌 유형</label>
           <div class="type-segment">
-            <input type="radio" name="acc-type" id="acc-type-bank" value="bank" checked>
-            <label for="acc-type-bank" class="segment-label income">
+            <input type="radio" name="acc-type" id="acc-type-bank" value="bank">
+            <label for="acc-type-bank" class="segment-label income" id="acc-type-bank-label">
               <i data-lucide="building-2"></i> 통장
             </label>
 
-            <input type="radio" name="acc-type" id="acc-type-card" value="card">
-            <label for="acc-type-card" class="segment-label expense">
+            <input type="radio" name="acc-type" id="acc-type-card" value="card" checked>
+            <label for="acc-type-card" class="segment-label expense" id="acc-type-card-label">
               <i data-lucide="credit-card"></i> 신용카드
             </label>
 
             <input type="radio" name="acc-type" id="acc-type-debit" value="debit">
-            <label for="acc-type-debit" class="segment-label savings">
+            <label for="acc-type-debit" class="segment-label savings" id="acc-type-debit-label">
               <i data-lucide="check-square"></i> 체크카드
             </label>
           </div>

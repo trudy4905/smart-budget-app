@@ -121,20 +121,23 @@ export function openAccModal(targetType = 'bank', editAccountObj = null) {
   const accCardRadio = document.getElementById('acc-type-card');
   const accDebitRadio = document.getElementById('acc-type-debit');
   const accBankRadio = document.getElementById('acc-type-bank');
+  const accTypeGroup = document.getElementById('acc-type-group');
+  const accTypeLabel = document.getElementById('acc-type-label');
+  const accTypeBankLabel = document.getElementById('acc-type-bank-label');
 
-  if (editAccountObj) {
-    if (titleEl) titleEl.textContent = editAccountObj.type === 'card' ? '카드 정보 수정' : '통장 정보 수정';
+  const isEditing = !!editAccountObj;
+  const isCardMode = isEditing ? editAccountObj.type === 'card' : targetType === 'card';
+
+  if (isEditing) {
+    if (titleEl) titleEl.textContent = isCardMode ? '카드 정보 수정' : '통장 정보 수정';
     if (saveBtn) saveBtn.innerHTML = '<i data-lucide="check"></i> 수정 완료';
 
-    if (editAccountObj.type === 'card') {
+    if (isCardMode) {
       if (editAccountObj.cardKind === 'debit' && accDebitRadio) accDebitRadio.checked = true;
       else if (accCardRadio) accCardRadio.checked = true;
     } else if (accBankRadio) {
       accBankRadio.checked = true;
     }
-
-    toggleAccTypeFields();
-    renderAccountSelectOptions();
 
     if (accNameInput) accNameInput.value = editAccountObj.name || '';
     if (accBankSelect) {
@@ -161,21 +164,18 @@ export function openAccModal(targetType = 'bank', editAccountObj = null) {
     });
 
   } else {
-    if (titleEl) titleEl.textContent = targetType === 'card' ? '새 카드 등록' : '새 계좌 / 통장 등록';
+    if (titleEl) titleEl.textContent = isCardMode ? '새 카드 등록' : '새 계좌 / 통장 등록';
     if (saveBtn) saveBtn.innerHTML = '<i data-lucide="check"></i> 등록하기';
 
     if (accNameInput) accNameInput.value = '';
     if (accNumberInput) accNumberInput.value = '';
     if (accBalanceInput) accBalanceInput.value = '0';
 
-    if (targetType === 'card' && accCardRadio) {
+    if (isCardMode && accCardRadio) {
       accCardRadio.checked = true;
     } else if (accBankRadio) {
       accBankRadio.checked = true;
     }
-
-    toggleAccTypeFields();
-    renderAccountSelectOptions();
 
     const defaultColor = '#6366f1';
     if (accColorInput) accColorInput.value = defaultColor;
@@ -183,6 +183,18 @@ export function openAccModal(targetType = 'bank', editAccountObj = null) {
       c.classList.toggle('active', c.dataset.color === defaultColor);
     });
   }
+
+  // Hide or show the Account Type section based on mode
+  if (isCardMode) {
+    if (accTypeGroup) accTypeGroup.style.display = 'block';
+    if (accTypeLabel) accTypeLabel.textContent = '카드 종류';
+    if (accTypeBankLabel) accTypeBankLabel.style.display = 'none';
+  } else {
+    if (accTypeGroup) accTypeGroup.style.display = 'none';
+  }
+
+  toggleAccTypeFields();
+  renderAccountSelectOptions();
 
   if (window.lucide) lucide.createIcons();
   if (accModalOverlay) accModalOverlay.classList.add('active');
