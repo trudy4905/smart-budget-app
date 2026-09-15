@@ -121,13 +121,16 @@ export function handleCategoryLongPress(cat, txType) {
   const targetList = txType === 'income' ? INCOME_CATEGORIES : EXPENSE_CATEGORIES;
 
   const action = prompt(
-    `[${cat.name}] 카테고리 관리\n\n1. 카테고리 이름 수정 (기존 등록 내역 전체 일괄 변경)\n2. 카테고리 삭제\n\n1 또는 2를 입력하세요:`,
+    `[${cat.name}] 카테고리 관리\n\n1. 수정\n2. 삭제\n\n원하는 작업의 번호(1 또는 2)를 입력하세요:`,
     '1'
   );
 
   if (!action) return;
 
-  if (action.trim() === '1') {
+  const trimmedAction = action.trim();
+
+  // === 1. 수정 (EDIT) ===
+  if (trimmedAction === '1' || trimmedAction.includes('수정')) {
     const newName = prompt(`'${cat.name}' 카테고리의 새 이름을 입력하세요:`, cat.name);
     if (newName && newName.trim() && newName.trim() !== cat.name) {
       const cleanNewName = newName.trim();
@@ -164,10 +167,11 @@ export function handleCategoryLongPress(cat, txType) {
       }
 
       renderCategoryGrid(txType);
-      showToast(`'${oldName}' ➔ '${cleanNewName}' (관련 내역 ${txCount}개 일괄 변경)`);
+      showToast(`'${oldName}' ➔ '${cleanNewName}' (관련 내역 ${txCount}개 일괄 변경 완료)`);
     }
 
-  } else if (action.trim() === '2') {
+  // === 2. 삭제 (DELETE) ===
+  } else if (trimmedAction === '2' || trimmedAction.includes('삭제')) {
     if (targetList.length <= 1) {
       alert('최소 1개 이상의 카테고리는 유지되어야 합니다.');
       return;
@@ -180,35 +184,75 @@ export function handleCategoryLongPress(cat, txType) {
       const remainingCats = targetList.filter(c => c.name !== cat.name);
       const remainingNames = remainingCats.map(c => c.name).join(', ');
 
-      const inputReassign = prompt(
-        `'${cat.name}' 카테고리를 사용 중인 내역이 ${affectedTxs.length}개 있습니다.\n\n이 내역들을 어느 카테고리로 변경하시겠습니까?\n선택 가능: [ ${remainingNames} ]`,
-        remainingCats[0]?.name || ''
+      const delMode = prompt(
+        `'${cat.name}' 카테고리를 사용 중인 내역이 ${affectedTxs.length}개 있습니다.\n\n이 내역들을 처리할 방식을 선택하세요:\n1. 기존 카테고리 목록에서 선택하여 변경\n2. 새 카테고리를 직접 입력하여 생성 후 변경\n\n번호(1 또는 2)를 입력하세요:`,
+        '1'
       );
 
-      if (!inputReassign || !inputReassign.trim()) {
+      if (!delMode) {
         showToast('카테고리 삭제가 취소되었습니다.');
         return;
       }
 
-      const cleanReassign = inputReassign.trim();
-      if (!remainingCats.some(c => c.name === cleanReassign)) {
-        alert(`'${cleanReassign}'은(는) 유효한 카테고리가 아닙니다.`);
+      const trimmedDelMode = delMode.trim();
+
+      if (trimmedDelMode === '1') {
+        // Option 1: Pick from existing list
+        const chosen = prompt(
+          `기존 내역을 이관할 카테고리 이름을 입력하세요:\n선택 가능한 카테고리: [ ${remainingNames} ]`,
+          remainingCats[0]?.name || ''
+        );
+
+        if (!chosen || !chosen.trim()) {
+          showToast('카테고리 삭제가 취소되었습니다.');
+          return;
+        }
+
+        const cleanChosen = chosen.trim();
+        if (!remainingCats.some(c => c.name === cleanChosen)) {
+          alert(`'${cleanChosen}'은(는) 유효한 기존 카테고리가 아닙니다.`);
+          return;
+        }
+        reassignCatName = cleanChosen;
+
+      } else if (trimmedDelMode === '2') {
+        // Option 2: Create a new category & reassign
+        const newCreatedName = prompt(`새로 생성하여 기존 내역을 이관할 카테고리 이름을 입력하세요:`);
+        if (!newCreatedName || !newCreatedName.trim()) {
+          showToast('카테고리 삭제가 취소되었습니다.');
+          return;
+        }
+
+        const cleanNewCreated = newCreatedName.trim();
+        if (targetList.some(c => c.name === cleanNewCreated)) {
+          alert(`이미 존재하는 카테고리 이름입니다: '${cleanNewCreated}'`);
+          return;
+        }
+
+        // Add new category to targetList
+        targetList.push({ name: cleanNewCreated, emoji: '📌', color: '#6366f1', type: txType });
+        reassignCatName = cleanNewCreated;
+
+      } else {
+        alert('올바른 번호를 입력하지 않아 삭제가 취소되었습니다.');
         return;
       }
-      reassignCatName = cleanReassign;
 
+      // Perform re-assignment of transactions
       state.transactions.forEach(t => {
         if (t.category === cat.name) {
           t.category = reassignCatName;
         }
       });
       saveTransactions();
+
     } else {
       if (!confirm(`'${cat.name}' 카테고리를 정말 삭제하시겠습니까?`)) {
         return;
       }
     }
 
+    // Remove old category from list
     const catIdx = targetList.findIndex(c => c.name === cat.name);
     if (catIdx !== -1) {
       targetList.splice(catIdx, 1);
@@ -222,7 +266,7 @@ export function handleCategoryLongPress(cat, txType) {
     renderCategoryGrid(txType);
     showToast(
       reassignCatName
-        ? `'${cat.name}' 삭제 완료 (기존 내역 ➔ '${reassignCatName}')`
+        ? `'${cat.name}' 삭제 완료 (기존 내역 ➔ '${reassignCatName}' 변경)`
         : `'${cat.name}' 카테고리가 삭제되었습니다.`
     );
   }
