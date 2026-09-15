@@ -24,7 +24,6 @@ export function renderSettingsView(onRenderApp) {
   } else {
     bankAccounts.forEach(acc => {
       const isSelected = state.selectedAccountIds.includes('all') || state.selectedAccountIds.includes(acc.id);
-      const activeBadge = isSelected ? `<span class="account-selected-badge">✔ 선택됨</span>` : '';
 
       let accInc = 0, accExp = 0;
       state.transactions.forEach(t => {
@@ -42,7 +41,7 @@ export function renderSettingsView(onRenderApp) {
         <div class="acc-manage-info">
           <span class="acc-color-dot" style="background: ${acc.color || '#6366f1'}"></span>
           <div>
-            <div class="acc-manage-title">🏦 ${acc.name} ${activeBadge}</div>
+            <div class="acc-manage-title">🏦 ${acc.name}</div>
             <div class="acc-manage-sub">${acc.bank} ${acc.accountNumber ? '• ' + acc.accountNumber : ''}</div>
           </div>
         </div>
@@ -89,7 +88,6 @@ export function renderSettingsView(onRenderApp) {
     cardAccounts.forEach(acc => {
       const isSelected = state.selectedAccountIds.includes('all') || state.selectedAccountIds.includes(acc.id);
       const isCredit = acc.cardKind === 'credit';
-      const activeBadge = isSelected ? `<span class="account-selected-badge">✔ 선택됨</span>` : '';
       const typeBadge = isCredit ? `<span class="acc-type-badge card">신용카드</span>` : `<span class="acc-type-badge bank" style="background: rgba(6, 182, 212, 0.15); color: #06b6d4;">체크카드</span>`;
 
       let balanceDisplayStr = '';
@@ -117,7 +115,7 @@ export function renderSettingsView(onRenderApp) {
         <div class="acc-manage-info">
           <span class="acc-color-dot" style="background: ${acc.color || '#ec4899'}"></span>
           <div>
-            <div class="acc-manage-title">💳 ${acc.name} ${typeBadge} ${activeBadge}</div>
+            <div class="acc-manage-title">💳 ${acc.name} ${typeBadge}</div>
             <div class="acc-manage-sub">${acc.bank} ${acc.accountNumber ? '• ' + acc.accountNumber : ''}${linkedName}</div>
           </div>
         </div>
