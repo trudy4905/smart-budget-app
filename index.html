@@ -109,9 +109,6 @@
                   <h3 id="selected-date-title">9월 14일 (월)</h3>
                   <span class="selected-date-sum" id="selected-date-sum">일일 총 지출: ₩0</span>
                 </div>
-                <button class="add-tx-btn-sm" id="open-add-modal-btn">
-                  <i data-lucide="plus"></i> 항목 추가
-                </button>
               </div>
 
               <!-- Transaction List for Selected Date -->
@@ -181,10 +178,15 @@
 
         </main>
 
-        <!-- Floating Quick Add Button (Visible in Calendar view) -->
-        <button class="fab-add-btn" id="fab-add-btn" title="새 지출/수입 등록">
-          <i data-lucide="plus"></i>
-        </button>
+        <!-- Floating Quick Add Buttons (Visible in Calendar view) -->
+        <div class="fab-group" id="fab-group">
+          <button class="fab-btn fab-income" id="fab-income-btn" title="수입 항목 추가">
+            <i data-lucide="plus"></i>
+          </button>
+          <button class="fab-btn fab-expense" id="fab-expense-btn" title="지출 항목 추가">
+            <i data-lucide="minus"></i>
+          </button>
+        </div>
 
         <!-- BOTTOM TAB NAVIGATION -->
         <nav class="bottom-nav">

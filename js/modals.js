@@ -612,23 +612,32 @@ export function closeAccModal() {
   if (accModalOverlay) accModalOverlay.classList.remove('active');
 }
 
-export function openTxModal() {
+export function openTxModal(defaultType = 'expense') {
   const txModalOverlay = document.getElementById('tx-modal-overlay');
   const txDateInput = document.getElementById('tx-date');
   const txAmountInput = document.getElementById('tx-amount');
   const txMemoInput = document.getElementById('tx-memo');
   const txRecurringInput = document.getElementById('tx-is-recurring');
 
-  const typeExpense = document.getElementById('type-expense');
-  if (typeExpense) typeExpense.checked = true;
+  const typeExpenseRadio = document.getElementById('type-expense');
+  const typeIncomeRadio = document.getElementById('type-income');
+
+  const txType = (defaultType === 'income') ? 'income' : 'expense';
+
+  if (txType === 'income') {
+    if (typeIncomeRadio) typeIncomeRadio.checked = true;
+  } else {
+    if (typeExpenseRadio) typeExpenseRadio.checked = true;
+  }
 
   if (txDateInput) txDateInput.value = state.selectedDateStr;
   if (txAmountInput) txAmountInput.value = '';
   if (txMemoInput) txMemoInput.value = '';
   if (txRecurringInput) txRecurringInput.checked = false;
 
-  renderAccountSelectOptions('expense');
-  renderCategoryGrid('expense');
+  renderAccountSelectOptions(txType);
+  renderCategoryGrid(txType);
+  if (window.lucide) lucide.createIcons();
   if (txModalOverlay) txModalOverlay.classList.add('active');
 }
 

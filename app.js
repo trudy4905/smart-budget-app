@@ -200,9 +200,9 @@ function setupEventListeners() {
       const targetView = document.getElementById(`view-${viewId}`);
       if (targetView) targetView.classList.add('active');
 
-      const fab = document.getElementById('fab-add-btn');
-      if (fab) {
-        fab.style.display = (viewId === 'calendar') ? 'flex' : 'none';
+      const fabGroup = document.getElementById('fab-group');
+      if (fabGroup) {
+        fabGroup.style.display = (viewId === 'calendar') ? 'flex' : 'none';
       }
 
       updateHeaderVisibilityForView(viewId);
@@ -211,12 +211,12 @@ function setupEventListeners() {
 
   // Modal Buttons
   const txModalOverlay = document.getElementById('tx-modal-overlay');
-  const openModalBtn = document.getElementById('open-add-modal-btn');
-  const fabAddBtn = document.getElementById('fab-add-btn');
+  const fabIncomeBtn = document.getElementById('fab-income-btn');
+  const fabExpenseBtn = document.getElementById('fab-expense-btn');
   const closeModalBtn = document.getElementById('close-modal-btn');
 
-  if (openModalBtn) openModalBtn.addEventListener('click', openTxModal);
-  if (fabAddBtn) fabAddBtn.addEventListener('click', openTxModal);
+  if (fabIncomeBtn) fabIncomeBtn.addEventListener('click', () => openTxModal('income'));
+  if (fabExpenseBtn) fabExpenseBtn.addEventListener('click', () => openTxModal('expense'));
   if (closeModalBtn) closeModalBtn.addEventListener('click', closeTxModal);
 
   if (txModalOverlay) {

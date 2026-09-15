@@ -787,42 +787,67 @@ button {
   color: var(--text-muted);
 }
 
-/* FAB BUTTON */
-.fab-add-btn {
+/* FAB BUTTON GROUP */
+.fab-group {
   position: fixed;
   bottom: 74px;
   right: calc(50% - 280px + 18px);
-  width: 52px;
-  height: 52px;
-  border-radius: 50%;
-  background: var(--primary-gradient);
-  color: #fff;
-  box-shadow: 0 8px 20px var(--primary-glow);
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column;
+  gap: 12px;
   z-index: 90;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 @media (max-width: 560px) {
-  .fab-add-btn {
+  .fab-group {
     right: 18px;
   }
 }
 
-.fab-add-btn i {
+.fab-btn {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease;
+  outline: none;
+}
+
+.fab-btn i {
   width: 26px;
   height: 26px;
+  stroke-width: 3;
 }
 
-.fab-add-btn:hover {
-  transform: scale(1.08);
-  box-shadow: 0 10px 25px var(--primary-glow);
+.fab-btn:hover {
+  transform: scale(1.1);
 }
 
-.fab-add-btn:active {
-  transform: scale(0.95);
+.fab-btn:active {
+  transform: scale(0.92);
+}
+
+.fab-income {
+  background: linear-gradient(135deg, #10b981, #059669);
+  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.45);
+}
+
+.fab-income:hover {
+  box-shadow: 0 6px 22px rgba(16, 185, 129, 0.6);
+}
+
+.fab-expense {
+  background: linear-gradient(135deg, #f43f5e, #e11d48);
+  box-shadow: 0 4px 16px rgba(244, 63, 94, 0.45);
+}
+
+.fab-expense:hover {
+  box-shadow: 0 6px 22px rgba(244, 63, 94, 0.6);
 }
 
 /* BOTTOM NAVIGATION */
