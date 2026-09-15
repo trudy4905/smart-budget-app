@@ -805,24 +805,18 @@ button {
 }
 
 .fab-btn {
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
-  border: none;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #ffffff;
-  font-size: 24px;
-  font-weight: 700;
-  line-height: 1;
-  box-shadow: none;
-  filter: none;
-  transition: transform 0.15s ease, opacity 0.15s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  transition: transform 0.15s ease, background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
   outline: none;
   user-select: none;
-  padding-bottom: 2px;
+  padding: 0;
 }
 
 .fab-btn:hover {
@@ -830,15 +824,31 @@ button {
 }
 
 .fab-btn:active {
-  transform: scale(0.92);
+  transform: scale(0.94);
 }
 
 .fab-income {
+  background: var(--bg-card, #ffffff);
+  border: 1px solid rgba(16, 185, 129, 0.45);
+  color: #10b981;
+}
+
+.fab-income:hover {
   background: #10b981;
+  color: #ffffff;
+  border-color: #10b981;
 }
 
 .fab-expense {
-  background: #ef4444;
+  background: var(--bg-card, #ffffff);
+  border: 1px solid rgba(244, 63, 94, 0.45);
+  color: #f43f5e;
+}
+
+.fab-expense:hover {
+  background: #f43f5e;
+  color: #ffffff;
+  border-color: #f43f5e;
 }
 
 /* BOTTOM NAVIGATION */
