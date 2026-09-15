@@ -117,6 +117,117 @@ export function renderAccountSelectOptions(txType = 'expense') {
   }
 }
 
+export function handleCategoryLongPress(cat, txType) {
+  const targetList = txType === 'income' ? INCOME_CATEGORIES : EXPENSE_CATEGORIES;
+
+  const action = prompt(
+    `[${cat.name}] 카테고리 관리\n\n1. 카테고리 이름 수정 (기존 등록 내역 전체 일괄 변경)\n2. 카테고리 삭제\n\n1 또는 2를 입력하세요:`,
+    '1'
+  );
+
+  if (!action) return;
+
+  if (action.trim() === '1') {
+    const newName = prompt(`'${cat.name}' 카테고리의 새 이름을 입력하세요:`, cat.name);
+    if (newName && newName.trim() && newName.trim() !== cat.name) {
+      const cleanNewName = newName.trim();
+      const oldName = cat.name;
+
+      if (targetList.some(c => c.name === cleanNewName)) {
+        alert(`이미 존재하는 카테고리 이름입니다: '${cleanNewName}'`);
+        return;
+      }
+
+      cat.name = cleanNewName;
+
+      let txCount = 0;
+      state.transactions.forEach(t => {
+        if (t.category === oldName) {
+          t.category = cleanNewName;
+          txCount++;
+        }
+      });
+      if (txCount > 0) saveTransactions();
+
+      let recCount = 0;
+      state.recurringRules.forEach(r => {
+        if (r.category === oldName) {
+          r.category = cleanNewName;
+          recCount++;
+        }
+      });
+      if (recCount > 0) saveRecurringRules();
+
+      const catInput = document.getElementById('tx-category');
+      if (catInput && catInput.value === oldName) {
+        catInput.value = cleanNewName;
+      }
+
+      renderCategoryGrid(txType);
+      showToast(`'${oldName}' ➔ '${cleanNewName}' (관련 내역 ${txCount}개 일괄 변경)`);
+    }
+
+  } else if (action.trim() === '2') {
+    if (targetList.length <= 1) {
+      alert('최소 1개 이상의 카테고리는 유지되어야 합니다.');
+      return;
+    }
+
+    const affectedTxs = state.transactions.filter(t => t.category === cat.name);
+    let reassignCatName = null;
+
+    if (affectedTxs.length > 0) {
+      const remainingCats = targetList.filter(c => c.name !== cat.name);
+      const remainingNames = remainingCats.map(c => c.name).join(', ');
+
+      const inputReassign = prompt(
+        `'${cat.name}' 카테고리를 사용 중인 내역이 ${affectedTxs.length}개 있습니다.\n\n이 내역들을 어느 카테고리로 변경하시겠습니까?\n선택 가능: [ ${remainingNames} ]`,
+        remainingCats[0]?.name || ''
+      );
+
+      if (!inputReassign || !inputReassign.trim()) {
+        showToast('카테고리 삭제가 취소되었습니다.');
+        return;
+      }
+
+      const cleanReassign = inputReassign.trim();
+      if (!remainingCats.some(c => c.name === cleanReassign)) {
+        alert(`'${cleanReassign}'은(는) 유효한 카테고리가 아닙니다.`);
+        return;
+      }
+      reassignCatName = cleanReassign;
+
+      state.transactions.forEach(t => {
+        if (t.category === cat.name) {
+          t.category = reassignCatName;
+        }
+      });
+      saveTransactions();
+    } else {
+      if (!confirm(`'${cat.name}' 카테고리를 정말 삭제하시겠습니까?`)) {
+        return;
+      }
+    }
+
+    const catIdx = targetList.findIndex(c => c.name === cat.name);
+    if (catIdx !== -1) {
+      targetList.splice(catIdx, 1);
+    }
+
+    const catInput = document.getElementById('tx-category');
+    if (catInput && catInput.value === cat.name) {
+      catInput.value = reassignCatName || targetList[0]?.name || '';
+    }
+
+    renderCategoryGrid(txType);
+    showToast(
+      reassignCatName
+        ? `'${cat.name}' 삭제 완료 (기존 내역 ➔ '${reassignCatName}')`
+        : `'${cat.name}' 카테고리가 삭제되었습니다.`
+    );
+  }
+}
+
 export function renderCategoryGrid(txType = 'expense') {
   const grid = document.getElementById('category-grid');
   if (!grid) return;
@@ -142,7 +253,38 @@ export function renderCategoryGrid(txType = 'expense') {
       <span class="cat-label">${cat.name}</span>
     `;
 
-    chip.addEventListener('click', () => {
+    let pressTimer = null;
+    let isLongPress = false;
+
+    const startPress = () => {
+      isLongPress = false;
+      pressTimer = setTimeout(() => {
+        isLongPress = true;
+        handleCategoryLongPress(cat, txType);
+      }, 550);
+    };
+
+    const cancelPress = () => {
+      if (pressTimer) {
+        clearTimeout(pressTimer);
+        pressTimer = null;
+      }
+    };
+
+    chip.addEventListener('mousedown', startPress);
+    chip.addEventListener('touchstart', startPress, { passive: true });
+    chip.addEventListener('mouseup', cancelPress);
+    chip.addEventListener('mouseleave', cancelPress);
+    chip.addEventListener('touchend', cancelPress);
+    chip.addEventListener('touchcancel', cancelPress);
+
+    chip.addEventListener('click', (e) => {
+      if (isLongPress) {
+        e.stopPropagation();
+        e.preventDefault();
+        isLongPress = false;
+        return;
+      }
       document.querySelectorAll('.category-chip').forEach(c => c.classList.remove('selected'));
       chip.classList.add('selected');
       if (catInput) catInput.value = cat.name;
