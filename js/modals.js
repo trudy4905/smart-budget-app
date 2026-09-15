@@ -9,20 +9,45 @@ import { parseLocalDateStr, showToast } from './helpers.js';
 export function toggleAccTypeFields() {
   const accTypeCard = document.getElementById('acc-type-card');
   const accTypeDebit = document.getElementById('acc-type-debit');
+  const accTypeBank = document.getElementById('acc-type-bank');
+
+  const cardLabel = document.getElementById('acc-type-card-label');
+  const debitLabel = document.getElementById('acc-type-debit-label');
+  const bankLabel = document.getElementById('acc-type-bank-label');
+
   const linkedGroup = document.getElementById('card-linked-bank-group');
   const paymentDayGroup = document.getElementById('card-payment-day-group');
+  const paymentDayInput = document.getElementById('acc-payment-day');
   const balanceGroup = document.getElementById('acc-balance-group');
+
+  // Update active label styling
+  if (cardLabel) cardLabel.classList.toggle('active', !!(accTypeCard && accTypeCard.checked));
+  if (debitLabel) debitLabel.classList.toggle('active', !!(accTypeDebit && accTypeDebit.checked));
+  if (bankLabel) bankLabel.classList.toggle('active', !!(accTypeBank && accTypeBank.checked));
 
   if (accTypeCard && accTypeCard.checked) {
     if (linkedGroup) linkedGroup.style.display = 'block';
     if (paymentDayGroup) paymentDayGroup.style.display = 'block';
+    if (paymentDayInput) {
+      paymentDayInput.disabled = false;
+      paymentDayInput.style.opacity = '1';
+      paymentDayInput.style.cursor = 'default';
+    }
     if (balanceGroup) balanceGroup.style.display = 'none';
     updateBankOrCardDropdownOptions(true);
+
   } else if (accTypeDebit && accTypeDebit.checked) {
     if (linkedGroup) linkedGroup.style.display = 'block';
-    if (paymentDayGroup) paymentDayGroup.style.display = 'none';
+    // Keep payment day group visible to prevent height layout shift, but disable the input
+    if (paymentDayGroup) paymentDayGroup.style.display = 'block';
+    if (paymentDayInput) {
+      paymentDayInput.disabled = true;
+      paymentDayInput.style.opacity = '0.4';
+      paymentDayInput.style.cursor = 'not-allowed';
+    }
     if (balanceGroup) balanceGroup.style.display = 'none';
     updateBankOrCardDropdownOptions(true);
+
   } else {
     if (linkedGroup) linkedGroup.style.display = 'none';
     if (paymentDayGroup) paymentDayGroup.style.display = 'none';

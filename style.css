@@ -973,27 +973,30 @@ button {
 .segment-label i { width: 16px; height: 16px; }
 
 #type-expense:checked ~ .segment-label.expense,
-#acc-type-card:checked ~ #acc-type-card-label {
-  background: var(--expense-color);
-  color: #ffffff;
-  font-weight: 700;
-  box-shadow: 0 2px 8px rgba(244, 63, 94, 0.4);
+#acc-type-card:checked ~ #acc-type-card-label,
+#acc-type-card-label.active {
+  background: var(--expense-color) !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  box-shadow: 0 2px 10px rgba(244, 63, 94, 0.45) !important;
 }
 
 #type-income:checked ~ .segment-label.income,
-#acc-type-bank:checked ~ #acc-type-bank-label {
-  background: var(--income-color);
-  color: #ffffff;
-  font-weight: 700;
-  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.4);
+#acc-type-bank:checked ~ #acc-type-bank-label,
+#acc-type-bank-label.active {
+  background: var(--income-color) !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  box-shadow: 0 2px 10px rgba(16, 185, 129, 0.45) !important;
 }
 
 #type-savings:checked ~ .segment-label.savings,
-#acc-type-debit:checked ~ #acc-type-debit-label {
-  background: #06b6d4;
-  color: #ffffff;
-  font-weight: 700;
-  box-shadow: 0 2px 8px rgba(6, 182, 212, 0.4);
+#acc-type-debit:checked ~ #acc-type-debit-label,
+#acc-type-debit-label.active {
+  background: #06b6d4 !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  box-shadow: 0 2px 10px rgba(6, 182, 212, 0.45) !important;
 }
 
 /* FORM FIELDS */
