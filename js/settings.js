@@ -24,16 +24,7 @@ export function renderSettingsView(onRenderApp) {
   } else {
     bankAccounts.forEach(acc => {
       const isSelected = state.selectedAccountIds.includes('all') || state.selectedAccountIds.includes(acc.id);
-
-      let accInc = 0, accExp = 0;
-      state.transactions.forEach(t => {
-        const txAcc = state.accounts.find(a => a.id === t.accountId);
-        if (t.accountId === acc.id || (txAcc && txAcc.cardKind === 'debit' && txAcc.linkedBankAccountId === acc.id)) {
-          if (t.type === 'income') accInc += Number(t.amount);
-          if (t.type === 'expense') accExp += Number(t.amount);
-        }
-      });
-      const currentBalance = Number(acc.initialBalance || 0) + accInc - accExp;
+      const initBal = Number(acc.initialBalance || 0);
 
       const item = document.createElement('div');
       item.className = `account-manage-item ${isSelected ? 'active' : ''}`;
@@ -45,8 +36,8 @@ export function renderSettingsView(onRenderApp) {
             <div class="acc-manage-sub">${acc.bank} ${acc.accountNumber ? '• ' + acc.accountNumber : ''}</div>
           </div>
         </div>
-        <div style="display: flex; align-items: center; gap: 6px;">
-          <span class="acc-manage-balance">₩${formatNumber(currentBalance)}</span>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span class="acc-manage-balance" style="font-size: 0.82rem; color: var(--text-muted);">(초기 설정금액: ₩${formatNumber(initBal)})</span>
           <button class="action-btn-sm edit-acc-btn" data-id="${acc.id}" title="통장 정보 수정" style="padding: 4px 10px; border-radius: 12px; font-size: 0.78rem; border: 1px solid var(--primary); color: var(--primary); background: transparent; display: flex; align-items: center; gap: 4px; font-weight: 600; cursor: pointer;">
             <i data-lucide="pencil" style="width: 12px; height: 12px;"></i> 수정
           </button>
@@ -90,24 +81,12 @@ export function renderSettingsView(onRenderApp) {
       const isCredit = acc.cardKind === 'credit';
       const typeBadge = isCredit ? `<span class="acc-type-badge card">신용카드</span>` : `<span class="acc-type-badge bank" style="background: rgba(6, 182, 212, 0.15); color: #06b6d4;">체크카드</span>`;
 
-      let balanceDisplayStr = '';
-      let settleBtnHtml = '';
-
       const linkedBank = state.accounts.find(a => a.id === acc.linkedBankAccountId);
       const linkedName = linkedBank ? ` ➔ ${linkedBank.name}` : '';
 
-      if (isCredit) {
-        const cardBill = getCardBillForMonth(acc.id, state.currentDate.getFullYear(), state.currentDate.getMonth());
-        balanceDisplayStr = `예정액 ₩${formatNumber(cardBill)} (${acc.paymentDay || 25}일)`;
-
-        if (cardBill > 0 && linkedBank) {
-          settleBtnHtml = `<button class="settle-card-btn" data-card-id="${acc.id}" title="카드값 즉시 정산">💳 정산</button>`;
-        }
-      } else {
-        let debitExp = 0;
-        state.transactions.filter(t => t.accountId === acc.id && t.type === 'expense').forEach(t => debitExp += Number(t.amount));
-        balanceDisplayStr = `이번 달 ₩${formatNumber(debitExp)}`;
-      }
+      const balanceDisplayHtml = isCredit
+        ? `<span class="acc-manage-balance" style="font-size: 0.82rem; color: var(--text-muted);">결제일: 매월 ${acc.paymentDay || 25}일</span>`
+        : ``;
 
       const item = document.createElement('div');
       item.className = `account-manage-item ${isSelected ? 'active' : ''}`;
@@ -119,9 +98,8 @@ export function renderSettingsView(onRenderApp) {
             <div class="acc-manage-sub">${acc.bank} ${acc.accountNumber ? '• ' + acc.accountNumber : ''}${linkedName}</div>
           </div>
         </div>
-        <div style="display: flex; align-items: center; gap: 6px;">
-          <span class="acc-manage-balance">${balanceDisplayStr}</span>
-          ${settleBtnHtml}
+        <div style="display: flex; align-items: center; gap: 8px;">
+          ${balanceDisplayHtml}
           <button class="action-btn-sm edit-acc-btn" data-id="${acc.id}" title="카드 정보 수정" style="padding: 4px 10px; border-radius: 12px; font-size: 0.78rem; border: 1px solid var(--primary); color: var(--primary); background: transparent; display: flex; align-items: center; gap: 4px; font-weight: 600; cursor: pointer;">
             <i data-lucide="pencil" style="width: 12px; height: 12px;"></i> 수정
           </button>
