@@ -214,7 +214,9 @@ function setupEventListeners() {
   const fabIncomeBtn = document.getElementById('fab-income-btn');
   const fabExpenseBtn = document.getElementById('fab-expense-btn');
   const closeModalBtn = document.getElementById('close-modal-btn');
+  const fabGroup = document.getElementById('fab-group');
 
+  if (fabGroup) fabGroup.style.display = 'flex';
   if (fabIncomeBtn) fabIncomeBtn.addEventListener('click', () => openTxModal('income'));
   if (fabExpenseBtn) fabExpenseBtn.addEventListener('click', () => openTxModal('expense'));
   if (closeModalBtn) closeModalBtn.addEventListener('click', closeTxModal);
