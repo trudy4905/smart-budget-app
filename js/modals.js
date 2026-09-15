@@ -142,27 +142,27 @@ export function openCategoryActionModal(cat, txType) {
   };
 
   if (closeBtn) closeBtn.onclick = closeModal;
+  overlay.onclick = (e) => {
+    if (e.target === overlay) closeModal();
+  };
 
-  // View 1: Main Choice (수정 / 삭제 / 취소 버튼)
+  // View 1: Main Choice (수정 / 삭제 버튼만 깔끔히 표시)
   const renderMainChoice = () => {
-    if (titleEl) titleEl.textContent = `${cat.emoji} [${cat.name}] 카테고리 관리`;
+    if (titleEl) titleEl.textContent = `${cat.emoji} ${cat.name}`;
 
     bodyEl.innerHTML = `
-      <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 14px;">원하시는 작업을 버튼으로 선택해 주세요.</p>
-      <button class="action-choice-btn" id="cat-btn-edit">
-        <i data-lucide="pencil"></i> ✏️ 카테고리 이름 수정
-      </button>
-      <button class="action-choice-btn danger" id="cat-btn-delete">
-        <i data-lucide="trash-2"></i> 🗑️ 카테고리 삭제
-      </button>
-      <button class="btn-secondary" id="cat-btn-cancel" style="width: 100%; margin-top: 6px;">
-        취소
-      </button>
+      <div style="display: flex; gap: 10px; margin-top: 6px;">
+        <button class="action-choice-btn" id="cat-btn-edit" style="flex: 1; margin: 0; justify-content: center; padding: 12px; font-size: 0.95rem; font-weight: 700;">
+          ✏️ 수정
+        </button>
+        <button class="action-choice-btn danger" id="cat-btn-delete" style="flex: 1; margin: 0; justify-content: center; padding: 12px; font-size: 0.95rem; font-weight: 700;">
+          🗑️ 삭제
+        </button>
+      </div>
     `;
 
     document.getElementById('cat-btn-edit')?.addEventListener('click', () => renderEditView());
     document.getElementById('cat-btn-delete')?.addEventListener('click', () => renderDeleteView());
-    document.getElementById('cat-btn-cancel')?.addEventListener('click', closeModal);
     if (window.lucide) lucide.createIcons();
   };
 
