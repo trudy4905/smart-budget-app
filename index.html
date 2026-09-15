@@ -368,7 +368,12 @@
 
         <div class="form-group" id="acc-balance-group">
           <label for="acc-balance">초기 잔액 (단위: 원)</label>
-          <input type="text" id="acc-balance" class="form-input" placeholder="0" value="0" inputmode="numeric" autocomplete="off">
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <button type="button" id="acc-balance-toggle-sign-btn" title="음수(-) / 양수(+) 전환" style="height: 42px; padding: 0 14px; border-radius: var(--radius-md); border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-main); font-weight: 700; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; min-width: 54px; user-select: none;">
+              + / −
+            </button>
+            <input type="text" id="acc-balance" class="form-input" placeholder="0" value="0" inputmode="text" autocomplete="off" style="flex: 1;">
+          </div>
         </div>
 
         <div class="form-group">
