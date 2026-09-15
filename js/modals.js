@@ -476,7 +476,7 @@ export function setSelectedColor(targetColor = '#6366f1') {
   const customInput = document.getElementById('acc-custom-color-input');
   const customIconEl = document.getElementById('acc-custom-color-icon');
 
-  const checkSvg = '<svg viewBox="0 0 24 24" width="20" height="20" stroke="#ffffff" stroke-width="3.5" fill="none" stroke-linecap="round" stroke-linejoin="round" style="filter: drop-shadow(0 1px 3px rgba(0,0,0,0.9)); pointer-events: none;"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+  const checkSvg = '<svg viewBox="0 0 24 24" width="22" height="22" stroke="#ffffff" stroke-width="3.5" fill="none" stroke-linecap="round" stroke-linejoin="round" style="pointer-events: none;"><polyline points="20 6 9 17 4 12"></polyline></svg>';
 
   let foundPreset = false;
 
@@ -502,7 +502,7 @@ export function setSelectedColor(targetColor = '#6366f1') {
       customChip.classList.remove('active');
       customChip.style.background = 'conic-gradient(from 180deg at 50% 50%, #FF0000 0deg, #FFFF00 60deg, #00FF00 120deg, #00FFFF 180deg, #0000FF 240deg, #FF00FF 300deg, #FF0000 360deg)';
       delete customChip.dataset.color;
-      if (customIconEl) customIconEl.innerHTML = '<span style="font-size: 18px; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.7)); pointer-events: none;">🎨</span>';
+      if (customIconEl) customIconEl.innerHTML = '<span style="font-size: 18px; pointer-events: none;">🎨</span>';
     }
   }
 }
