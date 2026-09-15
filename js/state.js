@@ -51,30 +51,12 @@ export function isTransactionMatchingSelection(t) {
   return false;
 }
 
-// --- ACTIVE MONTH AUTO-FOCUS & PERSISTENCE ---
+// --- ACTIVE MONTH AUTO-FOCUS & TODAY AUTO-SELECTION ---
 export function loadActiveViewDate() {
-  const savedDateStr = localStorage.getItem(STORAGE_KEYS.LAST_DATE);
-  if (savedDateStr) {
-    state.selectedDateStr = savedDateStr;
-    const d = parseLocalDateStr(savedDateStr);
-    state.currentDate = new Date(d.getFullYear(), d.getMonth(), 1);
-    return;
-  }
-
-  if (state.transactions && state.transactions.length > 0) {
-    const sortedTxs = [...state.transactions].sort((a, b) => b.date.localeCompare(a.date));
-    const latestTx = sortedTxs[0];
-    if (latestTx && latestTx.date) {
-      state.selectedDateStr = latestTx.date;
-      const d = parseLocalDateStr(latestTx.date);
-      state.currentDate = new Date(d.getFullYear(), d.getMonth(), 1);
-      return;
-    }
-  }
-
   const now = new Date();
   state.currentDate = new Date(now.getFullYear(), now.getMonth(), 1);
   state.selectedDateStr = formatDate(now);
+  saveActiveViewDate();
 }
 
 export function saveActiveViewDate() {
