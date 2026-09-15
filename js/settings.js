@@ -37,7 +37,7 @@ export function renderSettingsView(onRenderApp) {
           </div>
         </div>
         <div style="display: flex; align-items: center; gap: 8px;">
-          <span class="acc-manage-balance" style="font-size: 0.82rem; color: var(--text-muted);">(초기 설정금액: ₩${formatNumber(initBal)})</span>
+          <span class="acc-manage-balance" style="font-size: 0.82rem; color: var(--text-muted);">(초기 금액: ₩${formatNumber(initBal)})</span>
           <button class="action-btn-sm edit-acc-btn" data-id="${acc.id}" title="통장 정보 수정" style="padding: 4px 10px; border-radius: 12px; font-size: 0.78rem; border: 1px solid var(--primary); color: var(--primary); background: transparent; display: flex; align-items: center; gap: 4px; font-weight: 600; cursor: pointer;">
             <i data-lucide="pencil" style="width: 12px; height: 12px;"></i> 수정
           </button>
