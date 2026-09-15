@@ -1021,9 +1021,16 @@ button {
 .currency-symbol {
   position: absolute;
   left: 14px;
-  font-size: 1.4rem;
+  font-size: 1.2rem;
   font-weight: 700;
   color: var(--primary);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.amount-input-wrapper .form-input,
+.amount-input-wrapper input {
+  padding-left: 38px !important;
 }
 
 #tx-amount {

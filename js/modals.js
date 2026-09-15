@@ -263,7 +263,8 @@ export function setupModalForms(onRenderApp) {
       const name = (document.getElementById('acc-name')?.value || '').trim();
       const bank = document.getElementById('acc-bank')?.value || '신한은행';
       const accountNumber = (document.getElementById('acc-number')?.value || '').trim();
-      const initialBalance = Number(document.getElementById('acc-balance')?.value) || 0;
+      const rawBalance = document.getElementById('acc-balance')?.value;
+      const initialBalance = (rawBalance !== undefined && rawBalance !== '' && !isNaN(Number(rawBalance))) ? Number(rawBalance) : 0;
       const linkedBankAccountId = document.getElementById('acc-linked-bank')?.value || null;
       const paymentDay = Number(document.getElementById('acc-payment-day')?.value) || 25;
       const color = document.getElementById('acc-color')?.value || '#6366f1';
