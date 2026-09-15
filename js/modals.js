@@ -699,7 +699,8 @@ export function setupModalForms(onRenderApp) {
       const type = typeRadioEl ? typeRadioEl.value : 'expense';
       const accountId = document.getElementById('tx-account-select')?.value;
       const amount = Number(document.getElementById('tx-amount')?.value);
-      const date = document.getElementById('tx-date')?.value;
+      const date = document.getElementById('tx-date')?.value || state.selectedDateStr;
+      const isRecurring = document.getElementById('tx-is-recurring')?.checked || false;
       const category = document.getElementById('tx-category')?.value || '식당';
       
       // Auto-derive payment method from selected account
