@@ -231,7 +231,7 @@ export function openCategoryActionModal(cat, txType) {
     document.getElementById('cat-edit-cancel-btn')?.addEventListener('click', closeModal);
   };
 
-  // View 2B: Delete Category Selection
+  // View 2B: Delete Category Selection (ALWAYS shows transfer / re-assignment options)
   const renderDeleteView = () => {
     if (targetList.length <= 1) {
       alert('최소 1개 이상의 카테고리는 유지되어야 합니다.');
@@ -239,54 +239,26 @@ export function openCategoryActionModal(cat, txType) {
     }
 
     const affectedTxs = state.transactions.filter(t => t.category === cat.name);
+    const countText = affectedTxs.length > 0 ? ` (관련 내역 ${affectedTxs.length}개)` : '';
 
-    if (affectedTxs.length === 0) {
-      if (titleEl) titleEl.textContent = `🗑️ '${cat.name}' 삭제`;
+    if (titleEl) titleEl.textContent = `🗑️ '${cat.name}' 삭제 & 내역 이관`;
 
-      bodyEl.innerHTML = `
-        <p style="font-size: 0.9rem; margin-bottom: 16px;">'${cat.name}' 카테고리를 정말 삭제하시겠습니까?</p>
-        <div style="display: flex; gap: 8px;">
-          <button class="submit-btn" id="cat-del-confirm-btn" style="background: var(--expense-color);">삭제하기</button>
-          <button class="btn-secondary" id="cat-del-cancel-btn">취소</button>
-        </div>
-      `;
+    bodyEl.innerHTML = `
+      <p style="font-size: 0.86rem; color: var(--text-muted); margin-bottom: 14px; line-height: 1.4;">
+        '${cat.name}' 카테고리를 삭제합니다${countText}.<br>이관받을 카테고리를 아래 방법으로 선택해 주세요.
+      </p>
+      <button class="action-choice-btn" id="cat-reassign-existing-btn">
+        📋 기존 카테고리 목록에서 선택하여 이관
+      </button>
+      <button class="action-choice-btn" id="cat-reassign-new-btn">
+        ✨ 새 카테고리 직접 생성 후 이관
+      </button>
+      <button class="btn-secondary" id="cat-del-cancel-btn" style="width: 100%; margin-top: 6px;">취소</button>
+    `;
 
-      document.getElementById('cat-del-confirm-btn')?.addEventListener('click', () => {
-        const catIdx = targetList.findIndex(c => c.name === cat.name);
-        if (catIdx !== -1) targetList.splice(catIdx, 1);
-
-        const catInput = document.getElementById('tx-category');
-        if (catInput && catInput.value === cat.name) {
-          catInput.value = targetList[0]?.name || '';
-        }
-
-        renderCategoryGrid(txType);
-        showToast(`'${cat.name}' 카테고리가 삭제되었습니다.`);
-        closeModal();
-      });
-
-      document.getElementById('cat-del-cancel-btn')?.addEventListener('click', closeModal);
-
-    } else {
-      if (titleEl) titleEl.textContent = `🗑️ '${cat.name}' 삭제 & 내역 이관`;
-
-      bodyEl.innerHTML = `
-        <p style="font-size: 0.84rem; color: var(--text-muted); margin-bottom: 14px; line-height: 1.4;">
-          '${cat.name}' 카테고리를 사용 중인 내역이 <strong>${affectedTxs.length}개</strong> 있습니다.<br>기존 내역을 어떻게 이관하시겠습니까?
-        </p>
-        <button class="action-choice-btn" id="cat-reassign-existing-btn">
-          📋 기존 카테고리 목록에서 선택하여 이관
-        </button>
-        <button class="action-choice-btn" id="cat-reassign-new-btn">
-          ✨ 새 카테고리 직접 생성 후 이관
-        </button>
-        <button class="btn-secondary" id="cat-del-cancel-btn" style="width: 100%; margin-top: 6px;">취소</button>
-      `;
-
-      document.getElementById('cat-reassign-existing-btn')?.addEventListener('click', () => renderReassignExistingView());
-      document.getElementById('cat-reassign-new-btn')?.addEventListener('click', () => renderReassignNewView());
-      document.getElementById('cat-del-cancel-btn')?.addEventListener('click', closeModal);
-    }
+    document.getElementById('cat-reassign-existing-btn')?.addEventListener('click', () => renderReassignExistingView());
+    document.getElementById('cat-reassign-new-btn')?.addEventListener('click', () => renderReassignNewView());
+    document.getElementById('cat-del-cancel-btn')?.addEventListener('click', closeModal);
   };
 
   // View 2B-1: Reassign to Existing Category
