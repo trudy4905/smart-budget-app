@@ -70,6 +70,8 @@ export function updateBankOrCardDropdownOptions(isCardType) {
   const bankSelect = document.getElementById('acc-bank');
   if (!bankSelect) return;
 
+  const prevValue = bankSelect.value;
+
   bankSelect.innerHTML = '';
   const list = isCardType ? CARDS_LIST : BANKS_LIST;
 
@@ -79,6 +81,10 @@ export function updateBankOrCardDropdownOptions(isCardType) {
     opt.textContent = `${item.icon} ${item.name}`;
     bankSelect.appendChild(opt);
   });
+
+  if (prevValue && Array.from(bankSelect.options).some(o => o.value === prevValue)) {
+    bankSelect.value = prevValue;
+  }
 }
 
 export function renderAccountSelectOptions(txType = 'expense') {
@@ -541,7 +547,32 @@ export function openAccModal(targetType = 'bank', editAccountObj = null) {
     } else if (accBankRadio) {
       accBankRadio.checked = true;
     }
+  } else {
+    if (titleEl) titleEl.textContent = isCardMode ? '새 카드 등록' : '새 계좌 / 통장 등록';
+    if (saveBtn) saveBtn.innerHTML = '<i data-lucide="check"></i> 등록하기';
 
+    if (isCardMode && accCardRadio) {
+      accCardRadio.checked = true;
+    } else if (accBankRadio) {
+      accBankRadio.checked = true;
+    }
+  }
+
+  // Hide or show the Account Type section based on mode
+  if (isCardMode) {
+    if (accTypeGroup) accTypeGroup.style.display = 'block';
+    if (accTypeLabel) accTypeLabel.textContent = '카드 종류';
+    if (accTypeBankLabel) accTypeBankLabel.style.display = 'none';
+  } else {
+    if (accTypeGroup) accTypeGroup.style.display = 'none';
+  }
+
+  // First populate dropdown options based on radios
+  toggleAccTypeFields();
+  renderAccountSelectOptions();
+
+  // Then set form input values (after dropdowns are populated)
+  if (isEditing) {
     if (accNameInput) accNameInput.value = editAccountObj.name || '';
     if (accBankSelect) {
       accBankSelect.value = editAccountObj.bank || '';
@@ -564,33 +595,12 @@ export function openAccModal(targetType = 'bank', editAccountObj = null) {
     setSelectedColor(targetColor);
 
   } else {
-    if (titleEl) titleEl.textContent = isCardMode ? '새 카드 등록' : '새 계좌 / 통장 등록';
-    if (saveBtn) saveBtn.innerHTML = '<i data-lucide="check"></i> 등록하기';
-
     if (accNameInput) accNameInput.value = '';
     if (accNumberInput) accNumberInput.value = '';
     if (accBalanceInput) accBalanceInput.value = '0';
 
-    if (isCardMode && accCardRadio) {
-      accCardRadio.checked = true;
-    } else if (accBankRadio) {
-      accBankRadio.checked = true;
-    }
-
     setSelectedColor('#6366f1');
   }
-
-  // Hide or show the Account Type section based on mode
-  if (isCardMode) {
-    if (accTypeGroup) accTypeGroup.style.display = 'block';
-    if (accTypeLabel) accTypeLabel.textContent = '카드 종류';
-    if (accTypeBankLabel) accTypeBankLabel.style.display = 'none';
-  } else {
-    if (accTypeGroup) accTypeGroup.style.display = 'none';
-  }
-
-  toggleAccTypeFields();
-  renderAccountSelectOptions();
 
   if (window.lucide) lucide.createIcons();
   if (accModalOverlay) accModalOverlay.classList.add('active');
