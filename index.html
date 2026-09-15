@@ -216,7 +216,7 @@
       </div>
 
       <form id="tx-form">
-        <!-- Type Segment Selector (Expense, Income, Savings) -->
+        <!-- Type Segment Selector (Expense vs Income) -->
         <div class="type-segment">
           <input type="radio" name="tx-type" id="type-expense" value="expense" checked>
           <label for="type-expense" class="segment-label expense">
@@ -227,16 +227,11 @@
           <label for="type-income" class="segment-label income">
             <i data-lucide="plus-circle"></i> 수입
           </label>
-
-          <input type="radio" name="tx-type" id="type-savings" value="savings">
-          <label for="type-savings" class="segment-label savings">
-            <i data-lucide="piggy-bank"></i> 적금/저축
-          </label>
         </div>
 
         <!-- Account Target Field -->
         <div class="form-group">
-          <label for="tx-account-select">거래 계좌/통장</label>
+          <label for="tx-account-select">등록된 계좌/카드</label>
           <select id="tx-account-select" class="form-select" required>
             <!-- Injected by JS -->
           </select>

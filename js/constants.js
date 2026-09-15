@@ -36,12 +36,20 @@ export const CARDS_LIST = [
   { name: '토스카드', icon: '💙' }
 ];
 
-export const CATEGORIES = [
+export let EXPENSE_CATEGORIES = [
   { name: '식당', emoji: '🍽️', color: '#f43f5e', type: 'expense' },
   { name: '장보기', emoji: '🛒', color: '#fb923c', type: 'expense' },
-  { name: '적금/저축', emoji: '💰', color: '#3b82f6', type: 'savings' },
   { name: '카페/디저트', emoji: '☕', color: '#a855f7', type: 'expense' },
   { name: '교통/차량', emoji: '🚌', color: '#06b6d4', type: 'expense' },
   { name: '문화/쇼핑', emoji: '🎬', color: '#ec4899', type: 'expense' },
-  { name: '수입/월급', emoji: '💵', color: '#10b981', type: 'income' }
+  { name: '적금/저축', emoji: '💰', color: '#3b82f6', type: 'expense' }
 ];
+
+export let INCOME_CATEGORIES = [
+  { name: '수입/월급', emoji: '💵', color: '#10b981', type: 'income' },
+  { name: '용돈', emoji: '🎁', color: '#f59e0b', type: 'income' },
+  { name: '부수입', emoji: '📈', color: '#6366f1', type: 'income' },
+  { name: '상여금', emoji: '🏆', color: '#8b5cf6', type: 'income' }
+];
+
+export const CATEGORIES = EXPENSE_CATEGORIES;

@@ -3,7 +3,7 @@
    ========================================================================== */
 
 import { state, setEditingAccountId, setSelectedDateStr, setCurrentDate, saveActiveViewDate, saveAccounts, saveTransactions, saveRecurringRules, setSelectedAccountIds } from './state.js';
-import { BANKS_LIST, CARDS_LIST, CATEGORIES } from './constants.js';
+import { BANKS_LIST, CARDS_LIST, CATEGORIES, EXPENSE_CATEGORIES, INCOME_CATEGORIES } from './constants.js';
 import { parseLocalDateStr, showToast } from './helpers.js';
 
 export function formatFormattedNumberInput(value) {
@@ -81,13 +81,17 @@ export function updateBankOrCardDropdownOptions(isCardType) {
   });
 }
 
-export function renderAccountSelectOptions() {
+export function renderAccountSelectOptions(txType = 'expense') {
   const select = document.getElementById('tx-account-select');
   const linkedSelect = document.getElementById('acc-linked-bank');
 
   if (select) {
     select.innerHTML = '';
-    state.accounts.forEach(acc => {
+    const filteredAccounts = txType === 'income'
+      ? state.accounts.filter(a => a.type === 'bank' || !a.type)
+      : state.accounts;
+
+    filteredAccounts.forEach(acc => {
       const isCredit = acc.type === 'card' && acc.cardKind === 'credit';
       const isDebit = acc.type === 'card' && acc.cardKind === 'debit';
       const badge = isCredit ? '💳 [신용카드]' : (isDebit ? '💳 [체크카드]' : '🏦 [통장]');
@@ -113,15 +117,21 @@ export function renderAccountSelectOptions() {
   }
 }
 
-export function renderCategoryGrid() {
+export function renderCategoryGrid(txType = 'expense') {
   const grid = document.getElementById('category-grid');
   if (!grid) return;
   grid.innerHTML = '';
 
   const catInput = document.getElementById('tx-category');
-  const selectedCatName = catInput ? catInput.value : (CATEGORIES[0]?.name || '식당');
+  const targetList = txType === 'income' ? INCOME_CATEGORIES : EXPENSE_CATEGORIES;
+  
+  let selectedCatName = catInput ? catInput.value : (targetList[0]?.name || '');
+  if (!targetList.some(c => c.name === selectedCatName)) {
+    selectedCatName = targetList[0]?.name || '';
+    if (catInput) catInput.value = selectedCatName;
+  }
 
-  CATEGORIES.forEach((cat) => {
+  targetList.forEach((cat) => {
     const chip = document.createElement('div');
     const isSelected = cat.name === selectedCatName;
     chip.className = `category-chip ${isSelected ? 'selected' : ''}`;
@@ -152,14 +162,15 @@ export function renderCategoryGrid() {
   `;
 
   addChip.addEventListener('click', () => {
-    const newName = prompt('추가할 새 카테고리 명칭을 입력하세요 (예: 의료비, 경조사):');
+    const typeLabelText = txType === 'income' ? '수입' : '지출';
+    const newName = prompt(`추가할 새 ${typeLabelText} 카테고리 명칭을 입력하세요:`);
     if (newName && newName.trim()) {
       const cleanName = newName.trim();
-      if (!CATEGORIES.some(c => c.name === cleanName)) {
-        CATEGORIES.push({ name: cleanName, emoji: '📌', color: '#6366f1', type: 'expense' });
+      if (!targetList.some(c => c.name === cleanName)) {
+        targetList.push({ name: cleanName, emoji: '📌', color: '#6366f1', type: txType });
         if (catInput) catInput.value = cleanName;
-        renderCategoryGrid();
-        showToast(`'${cleanName}' 카테고리가 추가되었습니다!`);
+        renderCategoryGrid(txType);
+        showToast(`'${cleanName}' ${typeLabelText} 카테고리가 추가되었습니다!`);
       } else {
         alert('이미 존재하는 카테고리 명칭입니다.');
       }
@@ -278,12 +289,16 @@ export function openTxModal() {
   const txMemoInput = document.getElementById('tx-memo');
   const txRecurringInput = document.getElementById('tx-is-recurring');
 
+  const typeExpense = document.getElementById('type-expense');
+  if (typeExpense) typeExpense.checked = true;
+
   if (txDateInput) txDateInput.value = state.selectedDateStr;
   if (txAmountInput) txAmountInput.value = '';
   if (txMemoInput) txMemoInput.value = '';
   if (txRecurringInput) txRecurringInput.checked = false;
 
-  renderAccountSelectOptions();
+  renderAccountSelectOptions('expense');
+  renderCategoryGrid('expense');
   if (txModalOverlay) txModalOverlay.classList.add('active');
 }
 
@@ -293,6 +308,18 @@ export function closeTxModal() {
 }
 
 export function setupModalForms(onRenderApp) {
+  const typeExpenseRadio = document.getElementById('type-expense');
+  const typeIncomeRadio = document.getElementById('type-income');
+  [typeExpenseRadio, typeIncomeRadio].forEach(radio => {
+    if (radio) {
+      radio.addEventListener('change', () => {
+        const txType = document.querySelector('input[name="tx-type"]:checked')?.value || 'expense';
+        renderAccountSelectOptions(txType);
+        renderCategoryGrid(txType);
+      });
+    }
+  });
+
   const accBalanceInput = document.getElementById('acc-balance');
   if (accBalanceInput) {
     accBalanceInput.addEventListener('input', (e) => {
