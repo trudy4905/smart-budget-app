@@ -118,158 +118,287 @@ export function renderAccountSelectOptions(txType = 'expense') {
 }
 
 export function handleCategoryLongPress(cat, txType) {
+  openCategoryActionModal(cat, txType);
+}
+
+export function openCategoryActionModal(cat, txType) {
+  const overlay = document.getElementById('cat-action-modal-overlay');
+  const titleEl = document.getElementById('cat-action-modal-title');
+  const bodyEl = document.getElementById('cat-action-modal-body');
+  const closeBtn = document.getElementById('close-cat-action-modal-btn');
+
+  if (!overlay || !bodyEl) return;
+
   const targetList = txType === 'income' ? INCOME_CATEGORIES : EXPENSE_CATEGORIES;
 
-  const action = prompt(
-    `[${cat.name}] 카테고리 관리\n\n1. 수정\n2. 삭제\n\n원하는 작업의 번호(1 또는 2)를 입력하세요:`,
-    '1'
-  );
+  const closeModal = () => {
+    overlay.classList.remove('active');
+  };
 
-  if (!action) return;
+  if (closeBtn) closeBtn.onclick = closeModal;
 
-  const trimmedAction = action.trim();
+  // View 1: Main Choice (수정 / 삭제 / 취소 버튼)
+  const renderMainChoice = () => {
+    if (titleEl) titleEl.textContent = `${cat.emoji} [${cat.name}] 카테고리 관리`;
 
-  // === 1. 수정 (EDIT) ===
-  if (trimmedAction === '1' || trimmedAction.includes('수정')) {
-    const newName = prompt(`'${cat.name}' 카테고리의 새 이름을 입력하세요:`, cat.name);
-    if (newName && newName.trim() && newName.trim() !== cat.name) {
-      const cleanNewName = newName.trim();
-      const oldName = cat.name;
+    bodyEl.innerHTML = `
+      <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 14px;">원하시는 작업을 버튼으로 선택해 주세요.</p>
+      <button class="action-choice-btn" id="cat-btn-edit">
+        <i data-lucide="pencil"></i> ✏️ 카테고리 이름 수정
+      </button>
+      <button class="action-choice-btn danger" id="cat-btn-delete">
+        <i data-lucide="trash-2"></i> 🗑️ 카테고리 삭제
+      </button>
+      <button class="btn-secondary" id="cat-btn-cancel" style="width: 100%; margin-top: 6px;">
+        취소
+      </button>
+    `;
 
-      if (targetList.some(c => c.name === cleanNewName)) {
-        alert(`이미 존재하는 카테고리 이름입니다: '${cleanNewName}'`);
+    document.getElementById('cat-btn-edit')?.addEventListener('click', () => renderEditView());
+    document.getElementById('cat-btn-delete')?.addEventListener('click', () => renderDeleteView());
+    document.getElementById('cat-btn-cancel')?.addEventListener('click', closeModal);
+    if (window.lucide) lucide.createIcons();
+  };
+
+  // View 2A: Edit Category Name
+  const renderEditView = () => {
+    if (titleEl) titleEl.textContent = `✏️ '${cat.name}' 이름 수정`;
+
+    bodyEl.innerHTML = `
+      <div class="form-group">
+        <label for="cat-edit-input">새 카테고리 명칭</label>
+        <input type="text" id="cat-edit-input" class="form-input" value="${cat.name}" placeholder="새 이름 입력" autocomplete="off">
+        <p style="font-size: 0.78rem; color: var(--text-muted); margin-top: 8px;">
+          ※ 변경 시 기존에 이 카테고리로 등록된 모든 가계부 내역도 일괄 변경됩니다.
+        </p>
+      </div>
+      <div style="display: flex; gap: 8px; margin-top: 16px;">
+        <button class="submit-btn" id="cat-edit-save-btn">수정 완료</button>
+        <button class="btn-secondary" id="cat-edit-cancel-btn">취소</button>
+      </div>
+    `;
+
+    const editInput = document.getElementById('cat-edit-input');
+    if (editInput) {
+      editInput.focus();
+      editInput.select();
+    }
+
+    document.getElementById('cat-edit-save-btn')?.addEventListener('click', () => {
+      const newName = (document.getElementById('cat-edit-input')?.value || '').trim();
+      if (!newName) {
+        alert('카테고리 이름을 입력해주세요.');
+        return;
+      }
+      if (newName !== cat.name && targetList.some(c => c.name === newName)) {
+        alert(`이미 존재하는 카테고리 이름입니다: '${newName}'`);
         return;
       }
 
-      cat.name = cleanNewName;
+      if (newName !== cat.name) {
+        const oldName = cat.name;
+        cat.name = newName;
 
-      let txCount = 0;
-      state.transactions.forEach(t => {
-        if (t.category === oldName) {
-          t.category = cleanNewName;
-          txCount++;
+        let txCount = 0;
+        state.transactions.forEach(t => {
+          if (t.category === oldName) {
+            t.category = newName;
+            txCount++;
+          }
+        });
+        if (txCount > 0) saveTransactions();
+
+        let recCount = 0;
+        state.recurringRules.forEach(r => {
+          if (r.category === oldName) {
+            r.category = newName;
+            recCount++;
+          }
+        });
+        if (recCount > 0) saveRecurringRules();
+
+        const catInput = document.getElementById('tx-category');
+        if (catInput && catInput.value === oldName) {
+          catInput.value = newName;
         }
-      });
-      if (txCount > 0) saveTransactions();
 
-      let recCount = 0;
-      state.recurringRules.forEach(r => {
-        if (r.category === oldName) {
-          r.category = cleanNewName;
-          recCount++;
-        }
-      });
-      if (recCount > 0) saveRecurringRules();
-
-      const catInput = document.getElementById('tx-category');
-      if (catInput && catInput.value === oldName) {
-        catInput.value = cleanNewName;
+        renderCategoryGrid(txType);
+        showToast(`'${oldName}' ➔ '${newName}' (관련 내역 ${txCount}개 일괄 변경 완료)`);
       }
+      closeModal();
+    });
 
-      renderCategoryGrid(txType);
-      showToast(`'${oldName}' ➔ '${cleanNewName}' (관련 내역 ${txCount}개 일괄 변경 완료)`);
-    }
+    document.getElementById('cat-edit-cancel-btn')?.addEventListener('click', closeModal);
+  };
 
-  // === 2. 삭제 (DELETE) ===
-  } else if (trimmedAction === '2' || trimmedAction.includes('삭제')) {
+  // View 2B: Delete Category Selection
+  const renderDeleteView = () => {
     if (targetList.length <= 1) {
       alert('최소 1개 이상의 카테고리는 유지되어야 합니다.');
       return;
     }
 
     const affectedTxs = state.transactions.filter(t => t.category === cat.name);
-    let reassignCatName = null;
 
-    if (affectedTxs.length > 0) {
-      const remainingCats = targetList.filter(c => c.name !== cat.name);
-      const remainingNames = remainingCats.map(c => c.name).join(', ');
+    if (affectedTxs.length === 0) {
+      if (titleEl) titleEl.textContent = `🗑️ '${cat.name}' 삭제`;
 
-      const delMode = prompt(
-        `'${cat.name}' 카테고리를 사용 중인 내역이 ${affectedTxs.length}개 있습니다.\n\n이 내역들을 처리할 방식을 선택하세요:\n1. 기존 카테고리 목록에서 선택하여 변경\n2. 새 카테고리를 직접 입력하여 생성 후 변경\n\n번호(1 또는 2)를 입력하세요:`,
-        '1'
-      );
+      bodyEl.innerHTML = `
+        <p style="font-size: 0.9rem; margin-bottom: 16px;">'${cat.name}' 카테고리를 정말 삭제하시겠습니까?</p>
+        <div style="display: flex; gap: 8px;">
+          <button class="submit-btn" id="cat-del-confirm-btn" style="background: var(--expense-color);">삭제하기</button>
+          <button class="btn-secondary" id="cat-del-cancel-btn">취소</button>
+        </div>
+      `;
 
-      if (!delMode) {
-        showToast('카테고리 삭제가 취소되었습니다.');
-        return;
-      }
+      document.getElementById('cat-del-confirm-btn')?.addEventListener('click', () => {
+        const catIdx = targetList.findIndex(c => c.name === cat.name);
+        if (catIdx !== -1) targetList.splice(catIdx, 1);
 
-      const trimmedDelMode = delMode.trim();
-
-      if (trimmedDelMode === '1') {
-        // Option 1: Pick from existing list
-        const chosen = prompt(
-          `기존 내역을 이관할 카테고리 이름을 입력하세요:\n선택 가능한 카테고리: [ ${remainingNames} ]`,
-          remainingCats[0]?.name || ''
-        );
-
-        if (!chosen || !chosen.trim()) {
-          showToast('카테고리 삭제가 취소되었습니다.');
-          return;
+        const catInput = document.getElementById('tx-category');
+        if (catInput && catInput.value === cat.name) {
+          catInput.value = targetList[0]?.name || '';
         }
 
-        const cleanChosen = chosen.trim();
-        if (!remainingCats.some(c => c.name === cleanChosen)) {
-          alert(`'${cleanChosen}'은(는) 유효한 기존 카테고리가 아닙니다.`);
-          return;
-        }
-        reassignCatName = cleanChosen;
+        renderCategoryGrid(txType);
+        showToast(`'${cat.name}' 카테고리가 삭제되었습니다.`);
+        closeModal();
+      });
 
-      } else if (trimmedDelMode === '2') {
-        // Option 2: Create a new category & reassign
-        const newCreatedName = prompt(`새로 생성하여 기존 내역을 이관할 카테고리 이름을 입력하세요:`);
-        if (!newCreatedName || !newCreatedName.trim()) {
-          showToast('카테고리 삭제가 취소되었습니다.');
-          return;
-        }
+      document.getElementById('cat-del-cancel-btn')?.addEventListener('click', closeModal);
 
-        const cleanNewCreated = newCreatedName.trim();
-        if (targetList.some(c => c.name === cleanNewCreated)) {
-          alert(`이미 존재하는 카테고리 이름입니다: '${cleanNewCreated}'`);
-          return;
-        }
+    } else {
+      if (titleEl) titleEl.textContent = `🗑️ '${cat.name}' 삭제 & 내역 이관`;
 
-        // Add new category to targetList
-        targetList.push({ name: cleanNewCreated, emoji: '📌', color: '#6366f1', type: txType });
-        reassignCatName = cleanNewCreated;
+      bodyEl.innerHTML = `
+        <p style="font-size: 0.84rem; color: var(--text-muted); margin-bottom: 14px; line-height: 1.4;">
+          '${cat.name}' 카테고리를 사용 중인 내역이 <strong>${affectedTxs.length}개</strong> 있습니다.<br>기존 내역을 어떻게 이관하시겠습니까?
+        </p>
+        <button class="action-choice-btn" id="cat-reassign-existing-btn">
+          📋 기존 카테고리 목록에서 선택하여 이관
+        </button>
+        <button class="action-choice-btn" id="cat-reassign-new-btn">
+          ✨ 새 카테고리 직접 생성 후 이관
+        </button>
+        <button class="btn-secondary" id="cat-del-cancel-btn" style="width: 100%; margin-top: 6px;">취소</button>
+      `;
 
-      } else {
-        alert('올바른 번호를 입력하지 않아 삭제가 취소되었습니다.');
-        return;
-      }
+      document.getElementById('cat-reassign-existing-btn')?.addEventListener('click', () => renderReassignExistingView());
+      document.getElementById('cat-reassign-new-btn')?.addEventListener('click', () => renderReassignNewView());
+      document.getElementById('cat-del-cancel-btn')?.addEventListener('click', closeModal);
+    }
+  };
 
-      // Perform re-assignment of transactions
+  // View 2B-1: Reassign to Existing Category
+  const renderReassignExistingView = () => {
+    const remainingCats = targetList.filter(c => c.name !== cat.name);
+    if (titleEl) titleEl.textContent = `📋 기존 카테고리로 이관`;
+
+    bodyEl.innerHTML = `
+      <div class="form-group">
+        <label for="cat-reassign-select">이관받을 기존 카테고리 선택</label>
+        <select id="cat-reassign-select" class="form-select">
+          ${remainingCats.map(c => `<option value="${c.name}">${c.emoji} ${c.name}</option>`).join('')}
+        </select>
+      </div>
+      <div style="display: flex; gap: 8px; margin-top: 16px;">
+        <button class="submit-btn" id="cat-reassign-existing-confirm-btn">이관 및 삭제 완료</button>
+        <button class="btn-secondary" id="cat-reassign-cancel-btn">취소</button>
+      </div>
+    `;
+
+    document.getElementById('cat-reassign-existing-confirm-btn')?.addEventListener('click', () => {
+      const targetCatName = document.getElementById('cat-reassign-select')?.value;
+      if (!targetCatName) return;
+
       state.transactions.forEach(t => {
         if (t.category === cat.name) {
-          t.category = reassignCatName;
+          t.category = targetCatName;
         }
       });
       saveTransactions();
 
-    } else {
-      if (!confirm(`'${cat.name}' 카테고리를 정말 삭제하시겠습니까?`)) {
+      const catIdx = targetList.findIndex(c => c.name === cat.name);
+      if (catIdx !== -1) targetList.splice(catIdx, 1);
+
+      const catInput = document.getElementById('tx-category');
+      if (catInput && catInput.value === cat.name) {
+        catInput.value = targetCatName;
+      }
+
+      renderCategoryGrid(txType);
+      showToast(`'${cat.name}' 삭제 완료 (기존 내역 ➔ '${targetCatName}' 이관)`);
+      closeModal();
+    });
+
+    document.getElementById('cat-reassign-cancel-btn')?.addEventListener('click', closeModal);
+  };
+
+  // View 2B-2: Create New Category & Reassign
+  const renderReassignNewView = () => {
+    if (titleEl) titleEl.textContent = `✨ 새 카테고리 생성 후 이관`;
+
+    bodyEl.innerHTML = `
+      <div class="form-group">
+        <label for="cat-new-reassign-input">새로 생성할 카테고리 이름</label>
+        <input type="text" id="cat-new-reassign-input" class="form-input" placeholder="예: 외식비, 경조사 등" autocomplete="off">
+      </div>
+      <div style="display: flex; gap: 8px; margin-top: 16px;">
+        <button class="submit-btn" id="cat-reassign-new-confirm-btn">생성 및 이관 완료</button>
+        <button class="btn-secondary" id="cat-reassign-cancel-btn">취소</button>
+      </div>
+    `;
+
+    const newCreatedInput = document.getElementById('cat-new-reassign-input');
+    if (newCreatedInput) newCreatedInput.focus();
+
+    document.getElementById('cat-new-reassign-input')?.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        document.getElementById('cat-reassign-new-confirm-btn')?.click();
+      }
+    });
+
+    document.getElementById('cat-reassign-new-confirm-btn')?.addEventListener('click', () => {
+      const newCatName = (document.getElementById('cat-new-reassign-input')?.value || '').trim();
+      if (!newCatName) {
+        alert('새 카테고리 이름을 입력해주세요.');
         return;
       }
-    }
+      if (targetList.some(c => c.name === newCatName)) {
+        alert(`이미 존재하는 카테고리 이름입니다: '${newCatName}'`);
+        return;
+      }
 
-    // Remove old category from list
-    const catIdx = targetList.findIndex(c => c.name === cat.name);
-    if (catIdx !== -1) {
-      targetList.splice(catIdx, 1);
-    }
+      // 1. Add new category to targetList
+      targetList.push({ name: newCatName, emoji: '📌', color: '#6366f1', type: txType });
 
-    const catInput = document.getElementById('tx-category');
-    if (catInput && catInput.value === cat.name) {
-      catInput.value = reassignCatName || targetList[0]?.name || '';
-    }
+      // 2. Reassign transactions
+      state.transactions.forEach(t => {
+        if (t.category === cat.name) {
+          t.category = newCatName;
+        }
+      });
+      saveTransactions();
 
-    renderCategoryGrid(txType);
-    showToast(
-      reassignCatName
-        ? `'${cat.name}' 삭제 완료 (기존 내역 ➔ '${reassignCatName}' 변경)`
-        : `'${cat.name}' 카테고리가 삭제되었습니다.`
-    );
-  }
+      // 3. Remove old category
+      const catIdx = targetList.findIndex(c => c.name === cat.name);
+      if (catIdx !== -1) targetList.splice(catIdx, 1);
+
+      const catInput = document.getElementById('tx-category');
+      if (catInput && catInput.value === cat.name) {
+        catInput.value = newCatName;
+      }
+
+      renderCategoryGrid(txType);
+      showToast(`새 카테고리 '${newCatName}' 생성 및 내역 이관 완료!`);
+      closeModal();
+    });
+
+    document.getElementById('cat-reassign-cancel-btn')?.addEventListener('click', closeModal);
+  };
+
+  renderMainChoice();
+  overlay.classList.add('active');
 }
 
 export function renderCategoryGrid(txType = 'expense') {

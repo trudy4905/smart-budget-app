@@ -1137,6 +1137,40 @@ button {
   font-weight: 700;
 }
 
+/* ACTION CHOICE BUTTONS */
+.action-choice-btn {
+  width: 100%;
+  padding: 13px 16px;
+  margin-bottom: 10px;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  color: var(--text-main);
+  font-size: 0.92rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.action-choice-btn:hover {
+  border-color: var(--primary);
+  background: var(--primary-glow);
+  transform: translateY(-1px);
+}
+
+.action-choice-btn.danger {
+  color: var(--expense-color);
+}
+
+.action-choice-btn.danger:hover {
+  border-color: var(--expense-color);
+  background: rgba(244, 63, 94, 0.12);
+}
+
 /* PAYMENT METHOD PILLS */
 .payment-method-selector {
   display: flex;
