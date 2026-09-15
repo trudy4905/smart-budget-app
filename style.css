@@ -1690,3 +1690,72 @@ button {
   gap: 8px;
   margin-bottom: 12px;
 }
+
+/* Color Picker Grid & Chips */
+.color-picker-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  margin-top: 8px;
+  padding: 4px 0;
+}
+
+.color-chip {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease, border-color 0.2s ease;
+  padding: 0;
+  outline: none;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.15), 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.color-chip:hover {
+  transform: scale(1.12);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.15), 0 4px 10px rgba(0, 0, 0, 0.25);
+}
+
+.color-chip.active {
+  transform: scale(1.2);
+  border-color: #ffffff;
+  box-shadow: 0 0 0 3px var(--bg-card, #ffffff), 0 0 0 6px var(--primary, #6366f1), 0 4px 14px rgba(0, 0, 0, 0.35);
+  z-index: 2;
+}
+
+.custom-color-chip {
+  background: conic-gradient(from 180deg at 50% 50%, #FF0000 0deg, #FFFF00 60deg, #00FF00 120deg, #00FFFF 180deg, #0000FF 240deg, #FF00FF 300deg, #FF0000 360deg);
+  overflow: hidden;
+  position: relative;
+}
+
+.palette-icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.custom-color-chip input[type="color"] {
+  opacity: 0;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+  border: none;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  z-index: 10;
+}
+
+

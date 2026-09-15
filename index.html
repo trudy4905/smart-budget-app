@@ -376,12 +376,18 @@
         <div class="form-group">
           <label>테마 색상</label>
           <div class="color-picker-grid" id="acc-color-grid">
-            <button type="button" class="color-chip active" data-color="#6366f1" style="background: #6366f1;"></button>
-            <button type="button" class="color-chip" data-color="#3b82f6" style="background: #3b82f6;"></button>
-            <button type="button" class="color-chip" data-color="#10b981" style="background: #10b981;"></button>
-            <button type="button" class="color-chip" data-color="#f59e0b" style="background: #f59e0b;"></button>
-            <button type="button" class="color-chip" data-color="#ec4899" style="background: #ec4899;"></button>
-            <button type="button" class="color-chip" data-color="#8b5cf6" style="background: #8b5cf6;"></button>
+            <button type="button" class="color-chip active" data-color="#6366f1" style="background: #6366f1;" title="인디고"></button>
+            <button type="button" class="color-chip" data-color="#3b82f6" style="background: #3b82f6;" title="블루"></button>
+            <button type="button" class="color-chip" data-color="#10b981" style="background: #10b981;" title="에메랄드"></button>
+            <button type="button" class="color-chip" data-color="#f59e0b" style="background: #f59e0b;" title="앰버"></button>
+            <button type="button" class="color-chip" data-color="#ec4899" style="background: #ec4899;" title="핑크"></button>
+            <button type="button" class="color-chip" data-color="#8b5cf6" style="background: #8b5cf6;" title="퍼플"></button>
+            <button type="button" class="color-chip" data-color="#ef4444" style="background: #ef4444;" title="레드"></button>
+            <button type="button" class="color-chip" data-color="#06b6d4" style="background: #06b6d4;" title="시안"></button>
+            <label class="color-chip custom-color-chip" id="acc-custom-color-btn" title="사용자 정의 색상 선택">
+              <span id="acc-custom-color-icon" class="palette-icon-wrapper" style="display: flex; align-items: center; justify-content: center; pointer-events: none;">🎨</span>
+              <input type="color" id="acc-custom-color-input" value="#6366f1">
+            </label>
           </div>
           <input type="hidden" id="acc-color" value="#6366f1">
         </div>

@@ -467,6 +467,46 @@ export function renderCategoryGrid(txType = 'expense') {
   grid.appendChild(addChip);
 }
 
+export function setSelectedColor(targetColor = '#6366f1') {
+  const accColorInput = document.getElementById('acc-color');
+  if (accColorInput) accColorInput.value = targetColor;
+
+  const presetChips = document.querySelectorAll('#acc-color-grid .color-chip:not(.custom-color-chip)');
+  const customChip = document.getElementById('acc-custom-color-btn');
+  const customInput = document.getElementById('acc-custom-color-input');
+  const customIconEl = document.getElementById('acc-custom-color-icon');
+
+  const checkSvg = '<svg viewBox="0 0 24 24" width="20" height="20" stroke="#ffffff" stroke-width="3.5" fill="none" stroke-linecap="round" stroke-linejoin="round" style="filter: drop-shadow(0 1px 3px rgba(0,0,0,0.9)); pointer-events: none;"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+
+  let foundPreset = false;
+
+  presetChips.forEach(chip => {
+    const isMatch = (chip.dataset.color || '').toLowerCase() === (targetColor || '').toLowerCase();
+    chip.classList.toggle('active', isMatch);
+    if (isMatch) {
+      foundPreset = true;
+      chip.innerHTML = checkSvg;
+    } else {
+      chip.innerHTML = '';
+    }
+  });
+
+  if (customChip) {
+    if (!foundPreset) {
+      customChip.classList.add('active');
+      customChip.style.background = targetColor;
+      customChip.dataset.color = targetColor;
+      if (customInput) customInput.value = targetColor;
+      if (customIconEl) customIconEl.innerHTML = checkSvg;
+    } else {
+      customChip.classList.remove('active');
+      customChip.style.background = 'conic-gradient(from 180deg at 50% 50%, #FF0000 0deg, #FFFF00 60deg, #00FF00 120deg, #00FFFF 180deg, #0000FF 240deg, #FF00FF 300deg, #FF0000 360deg)';
+      delete customChip.dataset.color;
+      if (customIconEl) customIconEl.innerHTML = '<span style="font-size: 18px; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.7)); pointer-events: none;">🎨</span>';
+    }
+  }
+}
+
 export function openAccModal(targetType = 'bank', editAccountObj = null) {
   setEditingAccountId(editAccountObj ? editAccountObj.id : null);
 
@@ -521,10 +561,7 @@ export function openAccModal(targetType = 'bank', editAccountObj = null) {
     if (linkedSelect && editAccountObj.linkedBankAccountId) linkedSelect.value = editAccountObj.linkedBankAccountId;
 
     const targetColor = editAccountObj.color || '#6366f1';
-    if (accColorInput) accColorInput.value = targetColor;
-    document.querySelectorAll('#acc-color-grid .color-chip').forEach(c => {
-      c.classList.toggle('active', c.dataset.color === targetColor);
-    });
+    setSelectedColor(targetColor);
 
   } else {
     if (titleEl) titleEl.textContent = isCardMode ? '새 카드 등록' : '새 계좌 / 통장 등록';
@@ -540,11 +577,7 @@ export function openAccModal(targetType = 'bank', editAccountObj = null) {
       accBankRadio.checked = true;
     }
 
-    const defaultColor = '#6366f1';
-    if (accColorInput) accColorInput.value = defaultColor;
-    document.querySelectorAll('#acc-color-grid .color-chip').forEach(c => {
-      c.classList.toggle('active', c.dataset.color === defaultColor);
-    });
+    setSelectedColor('#6366f1');
   }
 
   // Hide or show the Account Type section based on mode
@@ -614,6 +647,32 @@ export function setupModalForms(onRenderApp) {
       e.target.value = formatted;
     });
   }
+
+  // Account Color Picker Handlers
+  const colorGrid = document.getElementById('acc-color-grid');
+  if (colorGrid) {
+    colorGrid.addEventListener('click', (e) => {
+      const chip = e.target.closest('.color-chip');
+      if (!chip || chip.classList.contains('custom-color-chip')) return;
+      const color = chip.dataset.color;
+      if (color) {
+        setSelectedColor(color);
+      }
+    });
+  }
+
+  const customColorInput = document.getElementById('acc-custom-color-input');
+  if (customColorInput) {
+    const handleCustomColor = (e) => {
+      const val = e.target.value;
+      if (val) setSelectedColor(val);
+    };
+    customColorInput.addEventListener('input', handleCustomColor);
+    customColorInput.addEventListener('change', handleCustomColor);
+  }
+
+  // Initial color state setup
+  setSelectedColor('#6366f1');
 
   const accForm = document.getElementById('acc-form');
   if (accForm) {
