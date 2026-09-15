@@ -1,0 +1,358 @@
+/* ==========================================================================
+   MODALS, DROPDOWNS & FORM CONTROLLERS
+   ========================================================================== */
+
+import { state, setEditingAccountId, setSelectedDateStr, setCurrentDate, saveActiveViewDate, saveAccounts, saveTransactions, saveRecurringRules, setSelectedAccountIds } from './state.js';
+import { BANKS_LIST, CARDS_LIST, CATEGORIES } from './constants.js';
+import { parseLocalDateStr, showToast } from './helpers.js';
+
+export function toggleAccTypeFields() {
+  const accTypeCard = document.getElementById('acc-type-card');
+  const accTypeDebit = document.getElementById('acc-type-debit');
+  const linkedGroup = document.getElementById('card-linked-bank-group');
+  const paymentDayGroup = document.getElementById('card-payment-day-group');
+  const balanceGroup = document.getElementById('acc-balance-group');
+
+  if (accTypeCard && accTypeCard.checked) {
+    if (linkedGroup) linkedGroup.style.display = 'block';
+    if (paymentDayGroup) paymentDayGroup.style.display = 'block';
+    if (balanceGroup) balanceGroup.style.display = 'none';
+    updateBankOrCardDropdownOptions(true);
+  } else if (accTypeDebit && accTypeDebit.checked) {
+    if (linkedGroup) linkedGroup.style.display = 'block';
+    if (paymentDayGroup) paymentDayGroup.style.display = 'none';
+    if (balanceGroup) balanceGroup.style.display = 'none';
+    updateBankOrCardDropdownOptions(true);
+  } else {
+    if (linkedGroup) linkedGroup.style.display = 'none';
+    if (paymentDayGroup) paymentDayGroup.style.display = 'none';
+    if (balanceGroup) balanceGroup.style.display = 'block';
+    updateBankOrCardDropdownOptions(false);
+  }
+}
+
+export function updateBankOrCardDropdownOptions(isCardType) {
+  const bankSelect = document.getElementById('acc-bank');
+  if (!bankSelect) return;
+
+  bankSelect.innerHTML = '';
+  const list = isCardType ? CARDS_LIST : BANKS_LIST;
+
+  list.forEach(item => {
+    const opt = document.createElement('option');
+    opt.value = item.name;
+    opt.textContent = `${item.icon} ${item.name}`;
+    bankSelect.appendChild(opt);
+  });
+}
+
+export function renderAccountSelectOptions() {
+  const select = document.getElementById('tx-account-select');
+  const linkedSelect = document.getElementById('acc-linked-bank');
+
+  if (select) {
+    select.innerHTML = '';
+    state.accounts.forEach(acc => {
+      const isCredit = acc.type === 'card' && acc.cardKind === 'credit';
+      const isDebit = acc.type === 'card' && acc.cardKind === 'debit';
+      const badge = isCredit ? '💳 [신용카드]' : (isDebit ? '💳 [체크카드]' : '🏦 [통장]');
+
+      const opt = document.createElement('option');
+      opt.value = acc.id;
+      opt.textContent = `${badge} ${acc.name} (${acc.bank})`;
+      if (state.selectedAccountIds.length === 1 && state.selectedAccountIds[0] === acc.id) {
+        opt.selected = true;
+      }
+      select.appendChild(opt);
+    });
+  }
+
+  if (linkedSelect) {
+    linkedSelect.innerHTML = '';
+    state.accounts.filter(a => a.type === 'bank' || !a.type).forEach(bank => {
+      const opt = document.createElement('option');
+      opt.value = bank.id;
+      opt.textContent = `🏦 ${bank.name} (${bank.bank})`;
+      linkedSelect.appendChild(opt);
+    });
+  }
+}
+
+export function renderCategoryGrid() {
+  const grid = document.getElementById('category-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+
+  CATEGORIES.forEach((cat, idx) => {
+    const chip = document.createElement('div');
+    chip.className = `category-chip ${idx === 0 ? 'selected' : ''}`;
+    chip.dataset.name = cat.name;
+
+    chip.innerHTML = `
+      <span class="cat-emoji">${cat.emoji}</span>
+      <span class="cat-label">${cat.name}</span>
+    `;
+
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('.category-chip').forEach(c => c.classList.remove('selected'));
+      chip.classList.add('selected');
+      const catInput = document.getElementById('tx-category');
+      if (catInput) catInput.value = cat.name;
+    });
+
+    grid.appendChild(chip);
+  });
+}
+
+export function openAccModal(targetType = 'bank', editAccountObj = null) {
+  setEditingAccountId(editAccountObj ? editAccountObj.id : null);
+
+  const accModalOverlay = document.getElementById('acc-modal-overlay');
+  const titleEl = document.getElementById('acc-modal-title');
+  const saveBtn = document.getElementById('save-acc-btn');
+
+  const accNameInput = document.getElementById('acc-name');
+  const accNumberInput = document.getElementById('acc-number');
+  const accBalanceInput = document.getElementById('acc-balance');
+  const accBankSelect = document.getElementById('acc-bank');
+  const accPaymentDayInput = document.getElementById('acc-payment-day');
+  const accColorInput = document.getElementById('acc-color');
+
+  const accCardRadio = document.getElementById('acc-type-card');
+  const accDebitRadio = document.getElementById('acc-type-debit');
+  const accBankRadio = document.getElementById('acc-type-bank');
+
+  if (editAccountObj) {
+    if (titleEl) titleEl.textContent = editAccountObj.type === 'card' ? '카드 정보 수정' : '통장 정보 수정';
+    if (saveBtn) saveBtn.innerHTML = '<i data-lucide="check"></i> 수정 완료';
+
+    if (editAccountObj.type === 'card') {
+      if (editAccountObj.cardKind === 'debit' && accDebitRadio) accDebitRadio.checked = true;
+      else if (accCardRadio) accCardRadio.checked = true;
+    } else if (accBankRadio) {
+      accBankRadio.checked = true;
+    }
+
+    toggleAccTypeFields();
+    renderAccountSelectOptions();
+
+    if (accNameInput) accNameInput.value = editAccountObj.name || '';
+    if (accBankSelect) {
+      accBankSelect.value = editAccountObj.bank || '';
+      if (!accBankSelect.value && editAccountObj.bank) {
+        const opt = document.createElement('option');
+        opt.value = editAccountObj.bank;
+        opt.textContent = editAccountObj.bank;
+        accBankSelect.appendChild(opt);
+        accBankSelect.value = editAccountObj.bank;
+      }
+    }
+    if (accNumberInput) accNumberInput.value = editAccountObj.accountNumber || '';
+    if (accBalanceInput) accBalanceInput.value = editAccountObj.initialBalance || 0;
+    if (accPaymentDayInput && editAccountObj.paymentDay) accPaymentDayInput.value = editAccountObj.paymentDay;
+
+    const linkedSelect = document.getElementById('acc-linked-bank');
+    if (linkedSelect && editAccountObj.linkedBankAccountId) linkedSelect.value = editAccountObj.linkedBankAccountId;
+
+    const targetColor = editAccountObj.color || '#6366f1';
+    if (accColorInput) accColorInput.value = targetColor;
+    document.querySelectorAll('#acc-color-grid .color-chip').forEach(c => {
+      c.classList.toggle('active', c.dataset.color === targetColor);
+    });
+
+  } else {
+    if (titleEl) titleEl.textContent = targetType === 'card' ? '새 카드 등록' : '새 계좌 / 통장 등록';
+    if (saveBtn) saveBtn.innerHTML = '<i data-lucide="check"></i> 등록하기';
+
+    if (accNameInput) accNameInput.value = '';
+    if (accNumberInput) accNumberInput.value = '';
+    if (accBalanceInput) accBalanceInput.value = '0';
+
+    if (targetType === 'card' && accCardRadio) {
+      accCardRadio.checked = true;
+    } else if (accBankRadio) {
+      accBankRadio.checked = true;
+    }
+
+    toggleAccTypeFields();
+    renderAccountSelectOptions();
+
+    const defaultColor = '#6366f1';
+    if (accColorInput) accColorInput.value = defaultColor;
+    document.querySelectorAll('#acc-color-grid .color-chip').forEach(c => {
+      c.classList.toggle('active', c.dataset.color === defaultColor);
+    });
+  }
+
+  if (window.lucide) lucide.createIcons();
+  if (accModalOverlay) accModalOverlay.classList.add('active');
+}
+
+export function closeAccModal() {
+  setEditingAccountId(null);
+  const accModalOverlay = document.getElementById('acc-modal-overlay');
+  if (accModalOverlay) accModalOverlay.classList.remove('active');
+}
+
+export function openTxModal() {
+  const txModalOverlay = document.getElementById('tx-modal-overlay');
+  const txDateInput = document.getElementById('tx-date');
+  const txAmountInput = document.getElementById('tx-amount');
+  const txMemoInput = document.getElementById('tx-memo');
+  const txRecurringInput = document.getElementById('tx-is-recurring');
+
+  if (txDateInput) txDateInput.value = state.selectedDateStr;
+  if (txAmountInput) txAmountInput.value = '';
+  if (txMemoInput) txMemoInput.value = '';
+  if (txRecurringInput) txRecurringInput.checked = false;
+
+  renderAccountSelectOptions();
+  if (txModalOverlay) txModalOverlay.classList.add('active');
+}
+
+export function closeTxModal() {
+  const txModalOverlay = document.getElementById('tx-modal-overlay');
+  if (txModalOverlay) txModalOverlay.classList.remove('active');
+}
+
+export function setupModalForms(onRenderApp) {
+  const accForm = document.getElementById('acc-form');
+  if (accForm) {
+    accForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const typeRadioEl = document.querySelector('input[name="acc-type"]:checked');
+      const typeRadio = typeRadioEl ? typeRadioEl.value : 'bank';
+      const name = (document.getElementById('acc-name')?.value || '').trim();
+      const bank = document.getElementById('acc-bank')?.value || '신한은행';
+      const accountNumber = (document.getElementById('acc-number')?.value || '').trim();
+      const initialBalance = Number(document.getElementById('acc-balance')?.value) || 0;
+      const linkedBankAccountId = document.getElementById('acc-linked-bank')?.value || null;
+      const paymentDay = Number(document.getElementById('acc-payment-day')?.value) || 25;
+      const color = document.getElementById('acc-color')?.value || '#6366f1';
+
+      if (!name) {
+        alert('명칭을 입력해주세요.');
+        return;
+      }
+
+      let type = 'bank';
+      let cardKind = null;
+
+      if (typeRadio === 'card') {
+        type = 'card';
+        cardKind = 'credit';
+      } else if (typeRadio === 'debit') {
+        type = 'card';
+        cardKind = 'debit';
+      }
+
+      if (state.editingAccountId) {
+        const idx = state.accounts.findIndex(a => a.id === state.editingAccountId);
+        if (idx !== -1) {
+          state.accounts[idx] = {
+            ...state.accounts[idx],
+            type,
+            cardKind,
+            name,
+            bank,
+            accountNumber,
+            initialBalance: type === 'bank' ? initialBalance : 0,
+            linkedBankAccountId: type === 'card' ? linkedBankAccountId : null,
+            paymentDay: cardKind === 'credit' ? paymentDay : null,
+            color
+          };
+          saveAccounts();
+          showToast(`'${name}' 정보가 수정되었습니다!`);
+        }
+      } else {
+        const newAcc = {
+          id: `acc_${Date.now()}`,
+          type,
+          cardKind,
+          name,
+          bank,
+          accountNumber,
+          initialBalance: type === 'bank' ? initialBalance : 0,
+          linkedBankAccountId: type === 'card' ? linkedBankAccountId : null,
+          paymentDay: cardKind === 'credit' ? paymentDay : null,
+          color
+        };
+
+        state.accounts.push(newAcc);
+        saveAccounts();
+        setSelectedAccountIds([newAcc.id]);
+        showToast(`새 ${type === 'card' ? '카드' : '통장'} '${name}'이(가) 등록되었습니다!`);
+      }
+
+      closeAccModal();
+      if (onRenderApp) onRenderApp();
+    });
+  }
+
+  const txForm = document.getElementById('tx-form');
+  if (txForm) {
+    txForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const typeRadioEl = document.querySelector('input[name="tx-type"]:checked');
+      const type = typeRadioEl ? typeRadioEl.value : 'expense';
+      const accountId = document.getElementById('tx-account-select')?.value;
+      const amount = Number(document.getElementById('tx-amount')?.value);
+      const date = document.getElementById('tx-date')?.value;
+      const isRecurring = document.getElementById('tx-is-recurring')?.checked || false;
+      const category = document.getElementById('tx-category')?.value || '식당';
+      const payment = document.getElementById('tx-payment')?.value || '신용카드';
+      const memo = (document.getElementById('tx-memo')?.value || '').trim();
+
+      if (!amount || amount <= 0) {
+        alert('올바른 금액을 입력하세요.');
+        return;
+      }
+
+      const [y, m, d] = date.split('-').map(Number);
+      let recurringId = null;
+
+      if (isRecurring) {
+        const newRule = {
+          id: `rec_${Date.now()}`,
+          accountId,
+          dayOfMonth: d,
+          type,
+          amount,
+          category,
+          payment,
+          memo: memo || `${category} (고정)`
+        };
+        state.recurringRules.push(newRule);
+        saveRecurringRules();
+        recurringId = newRule.id;
+      }
+
+      const newTx = {
+        id: `tx_${Date.now()}`,
+        date,
+        accountId,
+        type,
+        amount,
+        category,
+        payment,
+        memo,
+        isRecurring,
+        recurringId
+      };
+
+      state.transactions.unshift(newTx);
+      saveTransactions();
+
+      setSelectedDateStr(date);
+      const selectedObj = parseLocalDateStr(date);
+      setCurrentDate(new Date(selectedObj.getFullYear(), selectedObj.getMonth(), 1));
+      saveActiveViewDate();
+
+      closeTxModal();
+      if (onRenderApp) onRenderApp();
+      showToast(isRecurring ? '새 거래 내역과 고정 자동 등록 규칙이 추가되었습니다!' : '새로운 가계부 내역이 추가되었습니다!');
+    });
+  }
+}
