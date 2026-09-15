@@ -144,6 +144,14 @@ export function renderHeaderSummary() {
   if (thisBillEl) thisBillEl.textContent = `₩${formatNumber(creditCardExpense)}`;
   if (nextBillEl) nextBillEl.textContent = `₩${formatNumber(totalExpense)}`;
 
+  const creditCardAcc = state.accounts.find(a => a.type === 'card' && (a.cardKind === 'credit' || !a.cardKind) && a.paymentDay);
+  const pDay = creditCardAcc ? (creditCardAcc.paymentDay || 25) : 25;
+  const thisBillLabelEl = document.getElementById('this-month-bill-label');
+  if (thisBillLabelEl) {
+    thisBillLabelEl.innerHTML = `<i data-lucide="credit-card"></i> 이번 달 카드 지출 <span style="font-size: 0.65rem; opacity: 0.9; font-weight: 500;">(다음달 ${pDay}일 결제)</span>`;
+  }
+
   if (thisBillSubEl) thisBillSubEl.textContent = `${month + 1}월 신용카드 사용액`;
   if (nextBillSubEl) nextBillSubEl.textContent = `현금/체크 + 카드 합계`;
+  if (window.lucide) lucide.createIcons();
 }
