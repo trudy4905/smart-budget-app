@@ -1126,6 +1126,145 @@
 
   // --- EVENT LISTENERS & MODALS ---
   function setupEventListeners() {
+  // --- MODAL & FORM CONTROLLERS (GLOBAL TO APP MODULE) ---
+  function toggleAccTypeFields() {
+    const accTypeCard = document.getElementById('acc-type-card');
+    const accTypeDebit = document.getElementById('acc-type-debit');
+    const linkedGroup = document.getElementById('card-linked-bank-group');
+    const paymentDayGroup = document.getElementById('card-payment-day-group');
+    const balanceGroup = document.getElementById('acc-balance-group');
+
+    if (accTypeCard && accTypeCard.checked) {
+      if (linkedGroup) linkedGroup.style.display = 'block';
+      if (paymentDayGroup) paymentDayGroup.style.display = 'block';
+      if (balanceGroup) balanceGroup.style.display = 'none';
+      updateBankOrCardDropdownOptions(true);
+    } else if (accTypeDebit && accTypeDebit.checked) {
+      if (linkedGroup) linkedGroup.style.display = 'block';
+      if (paymentDayGroup) paymentDayGroup.style.display = 'none';
+      if (balanceGroup) balanceGroup.style.display = 'none';
+      updateBankOrCardDropdownOptions(true);
+    } else {
+      if (linkedGroup) linkedGroup.style.display = 'none';
+      if (paymentDayGroup) paymentDayGroup.style.display = 'none';
+      if (balanceGroup) balanceGroup.style.display = 'block';
+      updateBankOrCardDropdownOptions(false);
+    }
+  }
+
+  function openAccModal(targetType = 'bank', editAccountObj = null) {
+    editingAccountId = editAccountObj ? editAccountObj.id : null;
+
+    const accModalOverlay = document.getElementById('acc-modal-overlay');
+    const titleEl = document.getElementById('acc-modal-title');
+    const saveBtn = document.getElementById('save-acc-btn');
+
+    const accNameInput = document.getElementById('acc-name');
+    const accNumberInput = document.getElementById('acc-number');
+    const accBalanceInput = document.getElementById('acc-balance');
+    const accBankSelect = document.getElementById('acc-bank');
+    const accPaymentDayInput = document.getElementById('acc-payment-day');
+    const accColorInput = document.getElementById('acc-color');
+
+    const accCardRadio = document.getElementById('acc-type-card');
+    const accDebitRadio = document.getElementById('acc-type-debit');
+    const accBankRadio = document.getElementById('acc-type-bank');
+
+    if (editAccountObj) {
+      if (titleEl) titleEl.textContent = editAccountObj.type === 'card' ? '카드 정보 수정' : '통장 정보 수정';
+      if (saveBtn) saveBtn.innerHTML = '<i data-lucide="check"></i> 수정 완료';
+
+      if (editAccountObj.type === 'card') {
+        if (editAccountObj.cardKind === 'debit' && accDebitRadio) accDebitRadio.checked = true;
+        else if (accCardRadio) accCardRadio.checked = true;
+      } else if (accBankRadio) {
+        accBankRadio.checked = true;
+      }
+
+      toggleAccTypeFields();
+      renderAccountSelectOptions();
+
+      if (accNameInput) accNameInput.value = editAccountObj.name || '';
+      if (accBankSelect) {
+        accBankSelect.value = editAccountObj.bank || '';
+        if (!accBankSelect.value && editAccountObj.bank) {
+          const opt = document.createElement('option');
+          opt.value = editAccountObj.bank;
+          opt.textContent = editAccountObj.bank;
+          accBankSelect.appendChild(opt);
+          accBankSelect.value = editAccountObj.bank;
+        }
+      }
+      if (accNumberInput) accNumberInput.value = editAccountObj.accountNumber || '';
+      if (accBalanceInput) accBalanceInput.value = editAccountObj.initialBalance || 0;
+      if (accPaymentDayInput && editAccountObj.paymentDay) accPaymentDayInput.value = editAccountObj.paymentDay;
+
+      const linkedSelect = document.getElementById('acc-linked-bank');
+      if (linkedSelect && editAccountObj.linkedBankAccountId) linkedSelect.value = editAccountObj.linkedBankAccountId;
+
+      const targetColor = editAccountObj.color || '#6366f1';
+      if (accColorInput) accColorInput.value = targetColor;
+      document.querySelectorAll('#acc-color-grid .color-chip').forEach(c => {
+        c.classList.toggle('active', c.dataset.color === targetColor);
+      });
+
+    } else {
+      if (titleEl) titleEl.textContent = targetType === 'card' ? '새 카드 등록' : '새 계좌 / 통장 등록';
+      if (saveBtn) saveBtn.innerHTML = '<i data-lucide="check"></i> 등록하기';
+
+      if (accNameInput) accNameInput.value = '';
+      if (accNumberInput) accNumberInput.value = '';
+      if (accBalanceInput) accBalanceInput.value = '0';
+
+      if (targetType === 'card' && accCardRadio) {
+        accCardRadio.checked = true;
+      } else if (accBankRadio) {
+        accBankRadio.checked = true;
+      }
+
+      toggleAccTypeFields();
+      renderAccountSelectOptions();
+
+      const defaultColor = '#6366f1';
+      if (accColorInput) accColorInput.value = defaultColor;
+      document.querySelectorAll('#acc-color-grid .color-chip').forEach(c => {
+        c.classList.toggle('active', c.dataset.color === defaultColor);
+      });
+    }
+
+    if (window.lucide) lucide.createIcons();
+    if (accModalOverlay) accModalOverlay.classList.add('active');
+  }
+
+  function closeAccModal() {
+    editingAccountId = null;
+    const accModalOverlay = document.getElementById('acc-modal-overlay');
+    if (accModalOverlay) accModalOverlay.classList.remove('active');
+  }
+
+  function openTxModal() {
+    const txModalOverlay = document.getElementById('tx-modal-overlay');
+    const txDateInput = document.getElementById('tx-date');
+    const txAmountInput = document.getElementById('tx-amount');
+    const txMemoInput = document.getElementById('tx-memo');
+    const txRecurringInput = document.getElementById('tx-is-recurring');
+
+    if (txDateInput) txDateInput.value = selectedDateStr;
+    if (txAmountInput) txAmountInput.value = '';
+    if (txMemoInput) txMemoInput.value = '';
+    if (txRecurringInput) txRecurringInput.checked = false;
+
+    renderAccountSelectOptions();
+    if (txModalOverlay) txModalOverlay.classList.add('active');
+  }
+
+  function closeTxModal() {
+    const txModalOverlay = document.getElementById('tx-modal-overlay');
+    if (txModalOverlay) txModalOverlay.classList.remove('active');
+  }
+
+  // --- EVENT LISTENERS & MODALS ---
+  function setupEventListeners() {
     const safeAddListener = (id, event, handler) => {
       const el = document.getElementById(id);
       if (el) el.addEventListener(event, handler);
@@ -1134,28 +1273,6 @@
     const accTypeBank = document.getElementById('acc-type-bank');
     const accTypeCard = document.getElementById('acc-type-card');
     const accTypeDebit = document.getElementById('acc-type-debit');
-    const linkedGroup = document.getElementById('card-linked-bank-group');
-    const paymentDayGroup = document.getElementById('card-payment-day-group');
-    const balanceGroup = document.getElementById('acc-balance-group');
-
-    const toggleAccTypeFields = () => {
-      if (accTypeCard && accTypeCard.checked) {
-        if (linkedGroup) linkedGroup.style.display = 'block';
-        if (paymentDayGroup) paymentDayGroup.style.display = 'block';
-        if (balanceGroup) balanceGroup.style.display = 'none';
-        updateBankOrCardDropdownOptions(true);
-      } else if (accTypeDebit && accTypeDebit.checked) {
-        if (linkedGroup) linkedGroup.style.display = 'block';
-        if (paymentDayGroup) paymentDayGroup.style.display = 'none';
-        if (balanceGroup) balanceGroup.style.display = 'none';
-        updateBankOrCardDropdownOptions(true);
-      } else {
-        if (linkedGroup) linkedGroup.style.display = 'none';
-        if (paymentDayGroup) paymentDayGroup.style.display = 'none';
-        if (balanceGroup) balanceGroup.style.display = 'block';
-        updateBankOrCardDropdownOptions(false);
-      }
-    };
 
     [accTypeBank, accTypeCard, accTypeDebit].forEach(el => {
       if (el) el.addEventListener('change', toggleAccTypeFields);
@@ -1190,7 +1307,6 @@
     const tabsContainer = document.getElementById('account-tabs');
 
     if (tabsContainer) {
-      // 1. Mouse wheel vertical-to-horizontal conversion
       tabsContainer.addEventListener('wheel', (e) => {
         if (e.deltaY !== 0) {
           e.preventDefault();
@@ -1198,7 +1314,6 @@
         }
       }, { passive: false });
 
-      // 2. Mouse click & drag scrolling
       let isDown = false;
       let startX = 0;
       let scrollLeftPos = 0;
@@ -1266,25 +1381,6 @@
     const fabAddBtn = document.getElementById('fab-add-btn');
     const closeModalBtn = document.getElementById('close-modal-btn');
 
-    const openTxModal = () => {
-      const txDateInput = document.getElementById('tx-date');
-      const txAmountInput = document.getElementById('tx-amount');
-      const txMemoInput = document.getElementById('tx-memo');
-      const txRecurringInput = document.getElementById('tx-is-recurring');
-
-      if (txDateInput) txDateInput.value = selectedDateStr;
-      if (txAmountInput) txAmountInput.value = '';
-      if (txMemoInput) txMemoInput.value = '';
-      if (txRecurringInput) txRecurringInput.checked = false;
-
-      renderAccountSelectOptions();
-      if (txModalOverlay) txModalOverlay.classList.add('active');
-    };
-
-    const closeTxModal = () => {
-      if (txModalOverlay) txModalOverlay.classList.remove('active');
-    };
-
     if (openModalBtn) openModalBtn.addEventListener('click', openTxModal);
     if (fabAddBtn) fabAddBtn.addEventListener('click', openTxModal);
     if (closeModalBtn) closeModalBtn.addEventListener('click', closeTxModal);
@@ -1300,85 +1396,6 @@
     const settingsAddBankBtn = document.getElementById('settings-add-bank-btn');
     const settingsAddCardBtn = document.getElementById('settings-add-card-btn');
     const closeAccModalBtn = document.getElementById('close-acc-modal-btn');
-
-    const openAccModal = (targetType = 'bank', editAccountObj = null) => {
-      editingAccountId = editAccountObj ? editAccountObj.id : null;
-
-      const titleEl = document.getElementById('acc-modal-title');
-      const saveBtn = document.getElementById('save-acc-btn');
-
-      const accNameInput = document.getElementById('acc-name');
-      const accNumberInput = document.getElementById('acc-number');
-      const accBalanceInput = document.getElementById('acc-balance');
-      const accBankSelect = document.getElementById('acc-bank');
-      const accPaymentDayInput = document.getElementById('acc-payment-day');
-      const accColorInput = document.getElementById('acc-color');
-
-      const accCardRadio = document.getElementById('acc-type-card');
-      const accDebitRadio = document.getElementById('acc-type-debit');
-      const accBankRadio = document.getElementById('acc-type-bank');
-
-      if (editAccountObj) {
-        if (titleEl) titleEl.textContent = editAccountObj.type === 'card' ? '카드 정보 수정' : '통장 정보 수정';
-        if (saveBtn) saveBtn.innerHTML = '<i data-lucide="check"></i> 수정 완료';
-
-        if (editAccountObj.type === 'card') {
-          if (editAccountObj.cardKind === 'debit' && accDebitRadio) accDebitRadio.checked = true;
-          else if (accCardRadio) accCardRadio.checked = true;
-        } else if (accBankRadio) {
-          accBankRadio.checked = true;
-        }
-
-        toggleAccTypeFields();
-        renderAccountSelectOptions();
-
-        if (accNameInput) accNameInput.value = editAccountObj.name || '';
-        if (accBankSelect) accBankSelect.value = editAccountObj.bank || '';
-        if (accNumberInput) accNumberInput.value = editAccountObj.accountNumber || '';
-        if (accBalanceInput) accBalanceInput.value = editAccountObj.initialBalance || 0;
-        if (accPaymentDayInput && editAccountObj.paymentDay) accPaymentDayInput.value = editAccountObj.paymentDay;
-
-        const linkedSelect = document.getElementById('acc-linked-bank');
-        if (linkedSelect && editAccountObj.linkedBankAccountId) linkedSelect.value = editAccountObj.linkedBankAccountId;
-
-        const targetColor = editAccountObj.color || '#6366f1';
-        if (accColorInput) accColorInput.value = targetColor;
-        document.querySelectorAll('#acc-color-grid .color-chip').forEach(c => {
-          c.classList.toggle('active', c.dataset.color === targetColor);
-        });
-
-      } else {
-        if (titleEl) titleEl.textContent = targetType === 'card' ? '새 카드 등록' : '새 계좌 / 통장 등록';
-        if (saveBtn) saveBtn.innerHTML = '<i data-lucide="check"></i> 등록하기';
-
-        if (accNameInput) accNameInput.value = '';
-        if (accNumberInput) accNumberInput.value = '';
-        if (accBalanceInput) accBalanceInput.value = '0';
-
-        if (targetType === 'card' && accCardRadio) {
-          accCardRadio.checked = true;
-        } else if (accBankRadio) {
-          accBankRadio.checked = true;
-        }
-
-        toggleAccTypeFields();
-        renderAccountSelectOptions();
-
-        const defaultColor = '#6366f1';
-        if (accColorInput) accColorInput.value = defaultColor;
-        document.querySelectorAll('#acc-color-grid .color-chip').forEach(c => {
-          c.classList.toggle('active', c.dataset.color === defaultColor);
-        });
-      }
-
-      if (window.lucide) lucide.createIcons();
-      if (accModalOverlay) accModalOverlay.classList.add('active');
-    };
-
-    const closeAccModal = () => {
-      editingAccountId = null;
-      if (accModalOverlay) accModalOverlay.classList.remove('active');
-    };
 
     if (openAccModalBtn) openAccModalBtn.addEventListener('click', () => openAccModal('bank'));
     if (settingsAddBankBtn) settingsAddBankBtn.addEventListener('click', () => openAccModal('bank'));
