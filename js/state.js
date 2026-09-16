@@ -51,7 +51,9 @@ export function isTransactionMatchingSelection(t) {
   const isCardTx = txAcc && txAcc.type === 'card' && txAcc.cardKind === 'credit';
   const isCashTx = !txAcc || txAcc.type === 'bank' || !txAcc.type || txAcc.cardKind === 'debit';
 
-  if (state.drawerFilter === 'cash') {
+  if (state.drawerFilter === 'income') {
+    if (t.type !== 'income') return false;
+  } else if (state.drawerFilter === 'cash') {
     if (!isCashTx || t.type !== 'expense') return false;
   } else if (state.drawerFilter === 'card') {
     if (!isCardTx || t.type !== 'expense') return false;

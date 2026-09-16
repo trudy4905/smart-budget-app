@@ -3018,6 +3018,7 @@ body:not(.theme-light) .main-fab-plus-btn {
 }
 
 .drawer-menu-amount.amt-positive { color: var(--income-color); }
+.drawer-menu-amount.amt-income   { color: var(--income-color); }
 .drawer-menu-amount.amt-negative { color: var(--expense-color); }
 .drawer-menu-amount.amt-expense  { color: var(--expense-color); }
 .drawer-menu-amount.amt-card     { color: #a855f7; }

@@ -382,6 +382,7 @@ export function renderDrawerAmounts() {
   const mo = now.getMonth();
 
   let totalAssets = 0;
+  let totalIncome = 0;
   let cashExpense = 0;
   let cardExpense = 0;
 
@@ -397,17 +398,20 @@ export function renderDrawerAmounts() {
     }
   });
 
-  // Current month expenses
+  // Current month income & expenses
   state.transactions.forEach(t => {
     const d = new Date(t.date);
     if (d.getFullYear() !== yr || d.getMonth() !== mo) return;
-    if (t.type !== 'expense') return;
-    const acc = state.accounts.find(a => a.id === t.accountId);
-    const isCard = acc && acc.type === 'card' && acc.cardKind === 'credit';
-    if (isCard) {
-      cardExpense += Number(t.amount);
-    } else {
-      cashExpense += Number(t.amount);
+    if (t.type === 'income') {
+      totalIncome += Number(t.amount);
+    } else if (t.type === 'expense') {
+      const acc = state.accounts.find(a => a.id === t.accountId);
+      const isCard = acc && acc.type === 'card' && acc.cardKind === 'credit';
+      if (isCard) {
+        cardExpense += Number(t.amount);
+      } else {
+        cashExpense += Number(t.amount);
+      }
     }
   });
 
@@ -426,6 +430,7 @@ export function renderDrawerAmounts() {
   };
 
   el('drawer-amt-all', `₩${fmt(totalAssets)}`, totalAssets >= 0 ? 'amt-positive' : 'amt-negative');
+  el('drawer-amt-income', `+₩${fmt(totalIncome)}`, 'amt-income');
   el('drawer-amt-cash', `-₩${fmt(cashExpense)}`, 'amt-expense');
   el('drawer-amt-card', `-₩${fmt(cardExpense)}`, 'amt-card');
   el('drawer-amt-total', `-₩${fmt(totalExpense)}`, 'amt-expense');
