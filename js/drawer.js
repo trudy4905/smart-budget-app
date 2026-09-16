@@ -543,21 +543,24 @@ export function renderDrawerChecklist(onRenderApp) {
       amountLabel = `<span class="chk-acc-amount card-amt">-₩${formatNumber(monthBill)}</span>`;
     }
 
-    const accItem = document.createElement('label');
+    const accItem = document.createElement('div');
     accItem.className = 'drawer-checkbox-item';
+    accItem.style.cursor = 'pointer';
     accItem.innerHTML = `
-      <input type="checkbox" value="${acc.id}" ${isChecked ? 'checked' : ''}>
+      <input type="checkbox" value="${acc.id}" ${isChecked ? 'checked' : ''} style="pointer-events: none;">
       <span class="chk-box-custom ${isChecked ? 'checked' : ''}" style="--acc-color: ${acc.color || '#4f46e5'}">
         <i data-lucide="check"></i>
       </span>
       <span class="chk-label-text">${iconBadge} <span class="chk-type-tag">${typeTag}</span> ${acc.name}</span>
       ${amountLabel}
-      <button type="button" class="drawer-acc-edit-btn" title="계좌 관리" style="background: none; border: none; padding: 4px; color: var(--text-muted); cursor: pointer; opacity: 0.7; display: flex; align-items: center; justify-content: center; border-radius: 4px; margin-left: 4px; flex-shrink: 0;">
+      <button type="button" class="drawer-acc-edit-btn" title="계좌 관리" style="background: rgba(255,255,255,0.08); border: 1px solid var(--border-color); padding: 4px 6px; color: var(--text-main); cursor: pointer; display: flex; align-items: center; justify-content: center; border-radius: 6px; margin-left: 6px; flex-shrink: 0;">
         <i data-lucide="more-vertical" style="width: 14px; height: 14px; pointer-events: none;"></i>
       </button>
     `;
 
+    const input = accItem.querySelector('input');
     const moreBtn = accItem.querySelector('.drawer-acc-edit-btn');
+
     if (moreBtn) {
       moreBtn.addEventListener('click', (e) => {
         e.preventDefault();
@@ -570,11 +573,11 @@ export function renderDrawerChecklist(onRenderApp) {
       showAccountActionModal(acc, onRenderApp);
     });
 
-    accItem.querySelector('input').addEventListener('change', (e) => {
-      if (isLongPress()) {
-        e.preventDefault();
-        return;
-      }
+    accItem.addEventListener('click', (e) => {
+      if (isLongPress()) return;
+      if (e.target.closest('.drawer-acc-edit-btn')) return;
+
+      input.checked = !input.checked;
       const checkedInputs = container.querySelectorAll('input[type="checkbox"]:not(#chk-acc-all):checked');
       const selectedIds = Array.from(checkedInputs).map(inp => inp.value);
       setSelectedAccountIds(selectedIds.length === 0 || selectedIds.length === state.accounts.length ? ['all'] : selectedIds);
