@@ -50,50 +50,76 @@ export function showToast(message) {
 }
 
 export function bindLongPress(element, onLongPress) {
+  if (!element) return () => false;
+
+  element.style.webkitUserSelect = 'none';
+  element.style.userSelect = 'none';
+  element.style.webkitTouchCallout = 'none';
+
   let timer = null;
   let isLong = false;
   let startX = 0, startY = 0;
 
   const start = (e) => {
+    if (e.button !== undefined && e.button !== 0) return;
     isLong = false;
-    const t = e.touches ? e.touches[0] : e;
-    startX = t ? t.clientX : 0;
-    startY = t ? t.clientY : 0;
+    startX = e.clientX || (e.touches && e.touches[0] ? e.touches[0].clientX : 0);
+    startY = e.clientY || (e.touches && e.touches[0] ? e.touches[0].clientY : 0);
 
+    clearTimeout(timer);
     timer = setTimeout(() => {
       isLong = true;
       if (navigator.vibrate) {
         try { navigator.vibrate(40); } catch (err) {}
       }
       onLongPress(e);
-    }, 450);
+    }, 380);
   };
 
-  const cancel = (e) => {
-    if (e.touches && e.touches.length > 0) {
-      const t = e.touches[0];
-      if (Math.abs(t.clientX - startX) > 10 || Math.abs(t.clientY - startY) > 10) {
-        clearTimeout(timer);
-        return;
-      }
+  const move = (e) => {
+    if (!timer) return;
+    const curX = e.clientX || (e.touches && e.touches[0] ? e.touches[0].clientX : 0);
+    const curY = e.clientY || (e.touches && e.touches[0] ? e.touches[0].clientY : 0);
+    if (Math.abs(curX - startX) > 15 || Math.abs(curY - startY) > 15) {
+      clearTimeout(timer);
+      timer = null;
     }
-    clearTimeout(timer);
   };
 
-  element.addEventListener('touchstart', start, { passive: true });
-  element.addEventListener('touchmove', cancel, { passive: true });
-  element.addEventListener('touchend', cancel);
-  element.addEventListener('touchcancel', cancel);
+  const end = () => {
+    clearTimeout(timer);
+    timer = null;
+  };
 
-  element.addEventListener('mousedown', start);
-  element.addEventListener('mousemove', cancel);
-  element.addEventListener('mouseup', cancel);
-  element.addEventListener('mouseleave', cancel);
+  // Pointer events
+  element.addEventListener('pointerdown', start);
+  element.addEventListener('pointermove', move);
+  element.addEventListener('pointerup', end);
+  element.addEventListener('pointercancel', end);
+
+  // Fallback touch events for iOS older webkit
+  element.addEventListener('touchstart', start, { passive: true });
+  element.addEventListener('touchmove', move, { passive: true });
+  element.addEventListener('touchend', end);
+  element.addEventListener('touchcancel', end);
 
   element.addEventListener('contextmenu', (e) => {
     e.preventDefault();
+    clearTimeout(timer);
+    isLong = true;
     onLongPress(e);
   });
+
+  // Capture phase click handler to block default action if long pressed
+  element.addEventListener('click', (e) => {
+    if (isLong) {
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+      setTimeout(() => { isLong = false; }, 300);
+      return false;
+    }
+  }, true);
 
   return () => isLong;
 }

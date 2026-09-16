@@ -552,7 +552,19 @@ export function renderDrawerChecklist(onRenderApp) {
       </span>
       <span class="chk-label-text">${iconBadge} <span class="chk-type-tag">${typeTag}</span> ${acc.name}</span>
       ${amountLabel}
+      <button type="button" class="drawer-acc-edit-btn" title="계좌 관리" style="background: none; border: none; padding: 4px; color: var(--text-muted); cursor: pointer; opacity: 0.7; display: flex; align-items: center; justify-content: center; border-radius: 4px; margin-left: 4px; flex-shrink: 0;">
+        <i data-lucide="more-vertical" style="width: 14px; height: 14px; pointer-events: none;"></i>
+      </button>
     `;
+
+    const moreBtn = accItem.querySelector('.drawer-acc-edit-btn');
+    if (moreBtn) {
+      moreBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        showAccountActionModal(acc, onRenderApp);
+      });
+    }
 
     const isLongPress = bindLongPress(accItem, () => {
       showAccountActionModal(acc, onRenderApp);

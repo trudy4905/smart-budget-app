@@ -1065,7 +1065,9 @@ export function showAccountActionModal(acc, onRenderApp) {
 
   newClose.addEventListener('click', closeModal);
   newCancel.addEventListener('click', closeModal);
-  overlay.onclick = (e) => { if (e.target === overlay) closeModal(); };
+  setTimeout(() => {
+    overlay.onclick = (e) => { if (e.target === overlay) closeModal(); };
+  }, 150);
 
   newEdit.addEventListener('click', () => {
     closeModal();
