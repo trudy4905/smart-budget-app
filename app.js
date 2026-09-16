@@ -27,7 +27,7 @@ import {
   initMonthPickerBtn
 } from './js/header.js';
 
-import { initDrawer, renderDrawerChecklist } from './js/drawer.js';
+import { initDrawer, renderDrawerChecklist, renderDrawerAmounts } from './js/drawer.js';
 import { renderCalendar } from './js/calendar.js';
 import { renderDailyDetail } from './js/daily-detail.js';
 import { renderStatsView } from './js/stats.js';
@@ -51,6 +51,7 @@ export function renderApp() {
   updateHeaderVisibilityForView(activeViewId);
 
   try { renderDrawerChecklist(renderApp); } catch (e) { console.error('renderDrawerChecklist error:', e); }
+  try { renderDrawerAmounts(); } catch (e) { console.error('renderDrawerAmounts error:', e); }
   try { renderAccountTabs(renderApp); } catch (e) { console.error('renderAccountTabs error:', e); }
   try { renderAccountSelectOptions(); } catch (e) { console.error('renderAccountSelectOptions error:', e); }
   try { renderHeaderSummary(renderApp); } catch (e) { console.error('renderHeaderSummary error:', e); }

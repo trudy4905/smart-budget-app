@@ -12,7 +12,7 @@
   <script src="https://unpkg.com/lucide@latest"></script>
   <!-- Chart.js for analytics -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <link rel="stylesheet" href="style.css?v=6.3">
+  <link rel="stylesheet" href="style.css?v=6.4">
 </head>
 <body class="theme-light">
   <!-- LEFT SLIDEBAR DRAWER OVERLAY & SIDEBAR -->
@@ -20,63 +20,77 @@
   <aside class="sidebar-drawer" id="sidebar-drawer">
     <div class="drawer-header">
       <div class="drawer-brand">
-        <span class="logo-g-cal">
-          <span style="color:#4285F4">G</span><span style="color:#EA4335">o</span><span style="color:#FBBC05">o</span><span style="color:#4285F4">g</span><span style="color:#34A853">l</span><span style="color:#EA4335">e</span>
-        </span>
-        <span class="logo-text">Calendar</span>
+        <span class="logo-text" style="font-size:1.15rem; font-weight:800; color:var(--text-main);">설정</span>
       </div>
       <button class="icon-btn-ghost" id="close-drawer-btn">
         <i data-lucide="x"></i>
       </button>
     </div>
 
-    <!-- Top Menu Section (User requested views: 전체 자산, 현금지출, 카드지출, 전체 지출) -->
+    <!-- Top Menu Section: 전체 자산, 현금지출, 카드지출, 전체 지출 with amounts -->
     <div class="drawer-section drawer-views-menu">
       <button class="drawer-menu-item active" data-filter="all">
         <i data-lucide="layout-grid"></i>
-        <span>전체 자산</span>
+        <span class="drawer-menu-label">전체 자산</span>
+        <span class="drawer-menu-amount" id="drawer-amt-all"></span>
       </button>
       <button class="drawer-menu-item" data-filter="cash">
         <i data-lucide="wallet"></i>
-        <span>현금지출</span>
+        <span class="drawer-menu-label">현금지출</span>
+        <span class="drawer-menu-amount" id="drawer-amt-cash"></span>
       </button>
       <button class="drawer-menu-item" data-filter="card">
         <i data-lucide="credit-card"></i>
-        <span>카드지출</span>
+        <span class="drawer-menu-label">카드지출</span>
+        <span class="drawer-menu-amount" id="drawer-amt-card"></span>
       </button>
       <button class="drawer-menu-item" data-filter="total_expense">
         <i data-lucide="pie-chart"></i>
-        <span>전체 지출</span>
+        <span class="drawer-menu-label">전체 지출</span>
+        <span class="drawer-menu-amount" id="drawer-amt-total"></span>
       </button>
     </div>
 
     <div class="drawer-divider"></div>
 
-    <!-- User Profile Info -->
-    <div class="drawer-user-info">
-      <div class="user-avatar-circle">상혁</div>
-      <div class="user-meta-info">
-        <span class="user-name">상혁</span>
-        <span class="user-email">michinx2@gmail.com</span>
-      </div>
-    </div>
-
-    <!-- Accounts & Cards Checklist Section -->
+    <!-- Accounts & Cards Checklist Section (no + button) -->
     <div class="drawer-section">
       <div class="drawer-section-header">
-        <span class="section-title-text"><i data-lucide="check-square"></i> 내 계좌 및 카드 목록</span>
-        <button class="drawer-add-btn-sm" id="drawer-quick-add-acc-btn" title="계좌/카드 추가">
-          <i data-lucide="plus"></i>
-        </button>
+        <span class="section-title-text"><i data-lucide="credit-card"></i> 내 계좌 및 카드 목록</span>
       </div>
       <div class="drawer-checklist" id="drawer-account-checklist">
         <!-- Dynamically populated by JS -->
       </div>
     </div>
 
+    <!-- Footer: Account type selection menu -->
     <div class="drawer-footer-actions">
+      <div class="drawer-add-type-menu" id="drawer-add-type-menu" style="display:none;">
+        <button class="drawer-type-btn" id="drawer-add-bank-btn">
+          <i data-lucide="building-2"></i>
+          <div>
+            <div class="dtype-title">계좌 (통장)</div>
+            <div class="dtype-desc">은행 · 초기잔액 설정</div>
+          </div>
+        </button>
+        <button class="drawer-type-btn" id="drawer-add-credit-btn">
+          <i data-lucide="credit-card"></i>
+          <div>
+            <div class="dtype-title">신용카드</div>
+            <div class="dtype-desc">결제일 설정 가능</div>
+          </div>
+        </button>
+        <button class="drawer-type-btn" id="drawer-add-debit-btn">
+          <i data-lucide="badge-check"></i>
+          <div>
+            <div class="dtype-title">체크카드</div>
+            <div class="dtype-desc">연결 계좌 설정</div>
+          </div>
+        </button>
+      </div>
       <button class="drawer-add-acc-full-btn" id="drawer-add-account-btn">
-        <i data-lucide="plus"></i> 계좌/카드 추가
+        <i data-lucide="plus" id="drawer-add-icon"></i>
+        <span id="drawer-add-label">계좌/카드 추가</span>
       </button>
     </div>
   </aside>
@@ -98,9 +112,6 @@
             </div>
 
             <div class="header-right">
-              <button class="icon-btn-ghost" id="search-btn" title="검색">
-                <i data-lucide="search"></i>
-              </button>
               <button class="icon-btn-ghost date-badge-btn" id="today-btn" title="오늘 날짜로 이동">
                 <span class="today-date-box" id="today-date-num">16</span>
               </button>
@@ -463,6 +474,6 @@
     <span id="toast-message">성공적으로 저장되었습니다.</span>
   </div>
 
-  <script type="module" src="app.js?v=6.3"></script>
+  <script type="module" src="app.js?v=6.4"></script>
 </body>
 </html>

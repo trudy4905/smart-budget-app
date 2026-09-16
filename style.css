@@ -2994,6 +2994,311 @@ body:not(.theme-light) .main-fab-plus-btn {
   box-shadow: 0 2px 8px var(--primary-glow);
 }
 
+/* ==========================================================================
+   DRAWER MENU ITEM AMOUNT BADGES
+   ========================================================================== */
+
+.drawer-menu-item {
+  justify-content: flex-start;
+}
+
+.drawer-menu-label {
+  flex: 1;
+}
+
+.drawer-menu-amount {
+  margin-left: auto;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: var(--radius-full);
+  background: rgba(255,255,255,0.07);
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+.drawer-menu-amount.amt-positive { color: var(--income-color); }
+.drawer-menu-amount.amt-negative { color: var(--expense-color); }
+.drawer-menu-amount.amt-expense  { color: var(--expense-color); }
+.drawer-menu-amount.amt-card     { color: #a855f7; }
+
+/* Account list amount */
+.chk-acc-amount {
+  margin-left: auto;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--income-color);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.chk-acc-amount.neg { color: var(--expense-color); }
+.chk-acc-amount.card-amt { color: #a855f7; }
+
+.chk-type-tag {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+/* ==========================================================================
+   DRAWER TYPE SELECTION MENU
+   ========================================================================== */
+
+.drawer-add-type-menu {
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 10px;
+  padding: 12px;
+  background: var(--app-bg);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  animation: fadeIn 0.18s ease;
+}
+
+.drawer-type-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  background: var(--card-bg);
+  color: var(--text-main);
+  border: 1.5px solid var(--border-color);
+  text-align: left;
+  transition: all 0.18s;
+  width: 100%;
+}
+
+.drawer-type-btn:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  transform: translateX(2px);
+}
+
+.drawer-type-btn i {
+  width: 20px;
+  height: 20px;
+  color: var(--primary);
+  flex-shrink: 0;
+}
+
+.dtype-title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.dtype-desc {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* ==========================================================================
+   DRAWER INLINE ACCOUNT ADD FORM
+   ========================================================================== */
+
+.drawer-inline-form {
+  background: var(--app-bg);
+  border: 1px solid var(--primary);
+  border-radius: var(--radius-lg);
+  padding: 14px;
+  margin-bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  animation: fadeIn 0.2s ease;
+  max-height: 65vh;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.drawer-inline-form::-webkit-scrollbar { display: none; }
+
+.dif-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.dif-type-badge {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.dif-close-btn {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.08);
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  transition: all 0.15s;
+}
+.dif-close-btn:hover { background: var(--expense-color); color: #fff; }
+.dif-close-btn i { width: 14px; height: 14px; }
+
+.dif-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.dif-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.dif-input {
+  padding: 8px 10px;
+  border-radius: var(--radius-md);
+  border: 1.5px solid var(--border-color);
+  background: var(--card-bg);
+  color: var(--text-main);
+  font-size: 0.88rem;
+  font-family: inherit;
+  transition: border-color 0.15s;
+  width: 100%;
+}
+
+.dif-input:focus {
+  border-color: var(--primary);
+  outline: none;
+}
+
+.dif-select {
+  padding: 8px 10px;
+  border-radius: var(--radius-md);
+  border: 1.5px solid var(--border-color);
+  background: var(--card-bg);
+  color: var(--text-main);
+  font-size: 0.85rem;
+  font-family: inherit;
+  width: 100%;
+}
+
+/* Bank grid */
+.dif-bank-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 5px;
+}
+
+.dif-bank-btn {
+  padding: 6px 8px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border-color);
+  background: var(--card-bg);
+  color: var(--text-sub);
+  font-size: 0.76rem;
+  font-weight: 500;
+  text-align: left;
+  transition: all 0.15s;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dif-bank-btn:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.dif-bank-btn.active {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+  font-weight: 700;
+}
+
+/* Payment day grid */
+.dif-day-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.dif-day-btn {
+  padding: 5px 10px;
+  border-radius: var(--radius-full);
+  border: 1.5px solid var(--border-color);
+  background: var(--card-bg);
+  color: var(--text-sub);
+  font-size: 0.8rem;
+  font-weight: 500;
+  transition: all 0.15s;
+}
+
+.dif-day-btn:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.dif-day-btn.active {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+  font-weight: 700;
+}
+
+/* Color chips */
+.dif-color-row {
+  display: flex;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+
+.dif-color-chip {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2.5px solid transparent;
+  transition: transform 0.15s, border-color 0.15s;
+  flex-shrink: 0;
+}
+
+.dif-color-chip:hover {
+  transform: scale(1.15);
+}
+
+.dif-color-chip.active {
+  border-color: var(--text-main);
+  transform: scale(1.15);
+  box-shadow: 0 0 0 2px var(--app-bg);
+}
+
+/* Save button */
+.dif-save-btn {
+  padding: 10px;
+  background: var(--primary-gradient);
+  color: #fff;
+  border-radius: var(--radius-md);
+  font-size: 0.88rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: opacity 0.2s, transform 0.15s;
+  border: none;
+  width: 100%;
+}
+
+.dif-save-btn:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.dif-save-btn i { width: 16px; height: 16px; }
+
+
 
 
 
