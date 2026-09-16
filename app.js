@@ -256,6 +256,8 @@ function setupEventListeners() {
       const currentVal = Number(amountInput.value) || 0;
       amountInput.value = currentVal + addVal;
     });
+  });
+
   document.querySelectorAll('.pm-pill').forEach(pill => {
     pill.addEventListener('click', () => {
       document.querySelectorAll('.pm-pill').forEach(p => p.classList.remove('active'));

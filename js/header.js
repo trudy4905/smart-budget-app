@@ -50,6 +50,14 @@ export function renderMonthCarousel(onRenderApp) {
 
     container.appendChild(pill);
   }
+
+  // Scroll active pill into view
+  const activePill = container.querySelector('.month-pill.active');
+  if (activePill) {
+    setTimeout(() => {
+      activePill.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    }, 50);
+  }
 }
 
 export function renderAccountTabs(onRenderApp) {
