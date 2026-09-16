@@ -3004,6 +3004,22 @@ body:not(.theme-light) .main-fab-plus-btn {
 
 .drawer-menu-label {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1.2;
+}
+
+.drawer-menu-sublabel {
+  font-size: 0.7rem;
+  font-weight: 400;
+  color: var(--text-muted);
+  margin-top: 1px;
+}
+
+.drawer-menu-item.active .drawer-menu-sublabel {
+  color: inherit;
+  opacity: 0.8;
 }
 
 .drawer-menu-amount {

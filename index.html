@@ -12,7 +12,7 @@
   <script src="https://unpkg.com/lucide@latest"></script>
   <!-- Chart.js for analytics -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <link rel="stylesheet" href="style.css?v=6.6">
+  <link rel="stylesheet" href="style.css?v=6.7">
 </head>
 <body class="theme-light">
   <!-- LEFT SLIDEBAR DRAWER OVERLAY & SIDEBAR -->
@@ -41,12 +41,18 @@
       </button>
       <button class="drawer-menu-item" data-filter="cash">
         <i data-lucide="wallet"></i>
-        <span class="drawer-menu-label">현금지출</span>
+        <div class="drawer-menu-label">
+          <span>현금지출</span>
+          <span class="drawer-menu-sublabel">(현금/체크)</span>
+        </div>
         <span class="drawer-menu-amount" id="drawer-amt-cash"></span>
       </button>
       <button class="drawer-menu-item" data-filter="card">
         <i data-lucide="credit-card"></i>
-        <span class="drawer-menu-label">카드지출</span>
+        <div class="drawer-menu-label">
+          <span>카드지출</span>
+          <span class="drawer-menu-sublabel">(다음달 예정)</span>
+        </div>
         <span class="drawer-menu-amount" id="drawer-amt-card"></span>
       </button>
       <button class="drawer-menu-item" data-filter="total_expense">
@@ -479,6 +485,6 @@
     <span id="toast-message">성공적으로 저장되었습니다.</span>
   </div>
 
-  <script type="module" src="app.js?v=6.6"></script>
+  <script type="module" src="app.js?v=6.7"></script>
 </body>
 </html>
