@@ -23,7 +23,8 @@ import {
 import {
   renderAccountTabs,
   renderHeaderSummary,
-  updateHeaderVisibilityForView
+  updateHeaderVisibilityForView,
+  initMonthPickerBtn
 } from './js/header.js';
 
 import { initDrawer, renderDrawerChecklist } from './js/drawer.js';
@@ -89,6 +90,7 @@ function init() {
 
   try {
     initDrawer(renderApp);
+    initMonthPickerBtn(renderApp);
     setupEventListeners();
     setupModalForms(renderApp);
   } catch (e) {

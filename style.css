@@ -2868,6 +2868,133 @@ body:not(.theme-light) .main-fab-plus-btn {
   justify-content: center;
 }
 
+/* ==========================================================================
+   MONTH TITLE — year shown alongside month in header
+   ========================================================================== */
+
+.month-title-selector h2 {
+  font-size: 1.1rem;
+}
+
+/* ==========================================================================
+   YEAR / MONTH PICKER POPUP
+   ========================================================================== */
+
+.month-picker-popup {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 10px;
+  width: 280px;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 12px 36px rgba(0,0,0,0.22);
+  z-index: 500;
+  padding: 14px;
+  opacity: 0;
+  transform: translateY(-8px) scale(0.97);
+  transition: opacity 0.16s ease, transform 0.16s ease;
+  pointer-events: none;
+}
+
+.month-picker-popup.open {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: all;
+}
+
+.month-picker-popup.closing {
+  opacity: 0;
+  transform: translateY(-6px) scale(0.97);
+}
+
+/* Year navigation row */
+.mpp-year-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.mpp-yr-arrow {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(99, 102, 241, 0.1);
+  color: var(--primary);
+  font-size: 1.3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+  line-height: 1;
+  border: none;
+}
+
+.mpp-yr-arrow:hover {
+  background: var(--primary);
+  color: #fff;
+}
+
+.mpp-year-label {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-main);
+  min-width: 90px;
+  text-align: center;
+  cursor: text;
+  border-radius: 6px;
+  padding: 2px 6px;
+  outline: none;
+  transition: background 0.15s;
+}
+
+.mpp-year-label:focus {
+  background: rgba(99, 102, 241, 0.1);
+  outline: 2px solid var(--primary);
+}
+
+/* Month 4×3 grid */
+.mpp-month-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+
+.mpp-month-btn {
+  padding: 9px 4px;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--text-sub);
+  font-size: 0.85rem;
+  font-weight: 500;
+  border: 1.5px solid transparent;
+  text-align: center;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.mpp-month-btn:hover {
+  background: rgba(99, 102, 241, 0.12);
+  color: var(--primary);
+  border-color: rgba(99, 102, 241, 0.3);
+}
+
+.mpp-month-btn.today {
+  border-color: var(--primary);
+  color: var(--primary);
+  font-weight: 700;
+}
+
+.mpp-month-btn.active {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+  font-weight: 700;
+  box-shadow: 0 2px 8px var(--primary-glow);
+}
+
+
 
 
 
