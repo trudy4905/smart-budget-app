@@ -16,25 +16,28 @@ export function renderMonthCarousel(onRenderApp) {
   if (!container) return;
   container.innerHTML = '';
 
-  const currentYr = state.currentDate.getFullYear();
-  const currentMo = state.currentDate.getMonth();
+  const activeYr = state.currentDate.getFullYear();
+  const activeMo = state.currentDate.getMonth();
 
-  const monthsList = [];
-  for (let i = -3; i <= 9; i++) {
-    const d = new Date(currentYr, currentMo + i, 1);
-    monthsList.push(d);
-  }
+  let lastYr = null;
 
-  monthsList.forEach(d => {
+  for (let i = 0; i <= 11; i++) {
+    const d = new Date(activeYr, activeMo + i, 1);
     const yr = d.getFullYear();
     const mo = d.getMonth();
-    const isSelected = yr === currentYr && mo === currentMo;
 
+    if (lastYr !== null && yr !== lastYr) {
+      const yrBadge = document.createElement('span');
+      yrBadge.className = 'month-carousel-year-text';
+      yrBadge.textContent = yr;
+      container.appendChild(yrBadge);
+    }
+    lastYr = yr;
+
+    const isSelected = yr === activeYr && mo === activeMo;
     const pill = document.createElement('button');
     pill.className = `month-pill ${isSelected ? 'active' : ''}`;
-    
-    const label = (mo === 0) ? `${yr}년 ${mo + 1}월` : `${mo + 1}월`;
-    pill.textContent = label;
+    pill.textContent = `${mo + 1}월`;
 
     pill.addEventListener('click', () => {
       setCurrentDate(new Date(yr, mo, 1));
@@ -45,7 +48,7 @@ export function renderMonthCarousel(onRenderApp) {
     });
 
     container.appendChild(pill);
-  });
+  }
 }
 
 export function renderAccountTabs(onRenderApp) {

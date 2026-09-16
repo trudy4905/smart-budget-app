@@ -790,7 +790,7 @@ button {
 /* FAB BUTTON GROUP */
 .fab-group {
   position: fixed;
-  bottom: 74px;
+  bottom: 24px;
   right: calc(50% - 280px + 16px);
   display: flex;
   flex-direction: column;
@@ -801,6 +801,7 @@ button {
 @media (max-width: 600px) {
   .fab-group {
     right: 16px;
+    bottom: 24px;
   }
 }
 
@@ -2209,6 +2210,15 @@ body:not(.theme-light) .month-pill.active {
   background: #3b82f6;
   color: #ffffff;
   border-color: #3b82f6;
+}
+
+.month-carousel-year-text {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-main);
+  padding: 0 4px;
+  align-self: center;
+  flex-shrink: 0;
 }
 
 /* Calendar Grid Day Item Chips (Image 1 Style Stacked Chips) */
