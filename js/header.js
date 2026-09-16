@@ -1,9 +1,5 @@
-/* ==========================================================================
-   HEADER, SUMMARY CARDS & ACCOUNT TAB CHIPS
-   ========================================================================== */
-
-import { state, isTransactionMatchingSelection, getCardBillForMonth, setSelectedAccountIds } from './state.js';
-import { formatNumber, parseLocalDateStr } from './helpers.js';
+import { state, isTransactionMatchingSelection, getCardBillForMonth, setSelectedAccountIds, setCurrentDate, setSelectedDateStr, saveActiveViewDate, applyRecurringRules } from './state.js';
+import { formatNumber, parseLocalDateStr, formatDate } from './helpers.js';
 
 export function updateHeaderVisibilityForView(viewId) {
   const appHeader = document.querySelector('.app-header');
@@ -13,6 +9,43 @@ export function updateHeaderVisibilityForView(viewId) {
   } else {
     appHeader.style.display = 'block';
   }
+}
+
+export function renderMonthCarousel(onRenderApp) {
+  const container = document.getElementById('month-carousel');
+  if (!container) return;
+  container.innerHTML = '';
+
+  const currentYr = state.currentDate.getFullYear();
+  const currentMo = state.currentDate.getMonth();
+
+  const monthsList = [];
+  for (let i = -3; i <= 9; i++) {
+    const d = new Date(currentYr, currentMo + i, 1);
+    monthsList.push(d);
+  }
+
+  monthsList.forEach(d => {
+    const yr = d.getFullYear();
+    const mo = d.getMonth();
+    const isSelected = yr === currentYr && mo === currentMo;
+
+    const pill = document.createElement('button');
+    pill.className = `month-pill ${isSelected ? 'active' : ''}`;
+    
+    const label = (mo === 0) ? `${yr}년 ${mo + 1}월` : `${mo + 1}월`;
+    pill.textContent = label;
+
+    pill.addEventListener('click', () => {
+      setCurrentDate(new Date(yr, mo, 1));
+      setSelectedDateStr(formatDate(new Date(yr, mo, 1)));
+      saveActiveViewDate();
+      applyRecurringRules();
+      if (onRenderApp) onRenderApp();
+    });
+
+    container.appendChild(pill);
+  });
 }
 
 export function renderAccountTabs(onRenderApp) {
@@ -69,12 +102,17 @@ export function renderAccountTabs(onRenderApp) {
   });
 }
 
-export function renderHeaderSummary() {
+export function renderHeaderSummary(onRenderApp) {
   const year = state.currentDate.getFullYear();
   const month = state.currentDate.getMonth();
 
   const monthTextEl = document.getElementById('month-year-text');
-  if (monthTextEl) monthTextEl.textContent = `${year}년 ${month + 1}월`;
+  if (monthTextEl) monthTextEl.textContent = `${month + 1}월`;
+
+  const todayNumEl = document.getElementById('today-date-num');
+  if (todayNumEl) todayNumEl.textContent = new Date().getDate();
+
+  renderMonthCarousel(onRenderApp);
 
   // 1. ALWAYS UPDATE DASHBOARD NET ASSET BANNER
   let globalBankInitial = state.accounts.filter(a => a.type === 'bank' || !a.type).reduce((sum, a) => sum + Number(a.initialBalance || 0), 0);

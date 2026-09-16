@@ -17,17 +17,106 @@
 <body class="theme-light">
   <!-- App Main Content Container -->
   <div class="app-container">
+  <!-- LEFT SLIDEBAR DRAWER OVERLAY & SIDEBAR -->
+  <div class="drawer-overlay" id="drawer-overlay"></div>
+  <aside class="sidebar-drawer" id="sidebar-drawer">
+    <div class="drawer-header">
+      <div class="drawer-brand">
+        <span class="logo-g-cal">
+          <span style="color:#4285F4">G</span><span style="color:#EA4335">o</span><span style="color:#FBBC05">o</span><span style="color:#4285F4">g</span><span style="color:#34A853">l</span><span style="color:#EA4335">e</span>
+        </span>
+        <span class="logo-text">Calendar</span>
+      </div>
+      <button class="icon-btn-ghost" id="close-drawer-btn">
+        <i data-lucide="x"></i>
+      </button>
+    </div>
+
+    <!-- Top Menu Section (User requested views: 전체 자산, 현금지출, 카드지출, 전체 지출) -->
+    <div class="drawer-section drawer-views-menu">
+      <button class="drawer-menu-item active" data-filter="all">
+        <i data-lucide="layout-grid"></i>
+        <span>전체 자산</span>
+      </button>
+      <button class="drawer-menu-item" data-filter="cash">
+        <i data-lucide="wallet"></i>
+        <span>현금지출</span>
+      </button>
+      <button class="drawer-menu-item" data-filter="card">
+        <i data-lucide="credit-card"></i>
+        <span>카드지출</span>
+      </button>
+      <button class="drawer-menu-item" data-filter="total_expense">
+        <i data-lucide="pie-chart"></i>
+        <span>전체 지출</span>
+      </button>
+    </div>
+
+    <div class="drawer-divider"></div>
+
+    <!-- User Profile Info -->
+    <div class="drawer-user-info">
+      <div class="user-avatar-circle">상혁</div>
+      <div class="user-meta-info">
+        <span class="user-name">상혁</span>
+        <span class="user-email">michinx2@gmail.com</span>
+      </div>
+    </div>
+
+    <!-- Accounts & Cards Checklist Section -->
+    <div class="drawer-section">
+      <div class="drawer-section-header">
+        <span class="section-title-text"><i data-lucide="check-square"></i> 내 계좌 및 카드 목록</span>
+        <button class="drawer-add-btn-sm" id="drawer-quick-add-acc-btn" title="계좌/카드 추가">
+          <i data-lucide="plus"></i>
+        </button>
+      </div>
+      <div class="drawer-checklist" id="drawer-account-checklist">
+        <!-- Dynamically populated by JS -->
+      </div>
+    </div>
+
+    <div class="drawer-footer-actions">
+      <button class="drawer-add-acc-full-btn" id="drawer-add-account-btn">
+        <i data-lucide="plus"></i> 계좌/카드 추가
+      </button>
+    </div>
+  </aside>
+
+  <!-- App Main Content Container -->
+  <div class="app-container">
         
-        <!-- HEADER SECTION -->
+        <!-- HEADER SECTION (Matching Screenshot 1 & 2) -->
         <header class="app-header">
-          <div class="header-top">
-            <div class="user-greeting">
-              <span class="greeting-subtitle">마이 스마트 가계부</span>
-              <h1 class="greeting-title">내 자산 관리</h1>
+          <div class="header-main-bar">
+            <div class="header-left">
+              <button class="icon-btn-ghost" id="open-drawer-btn" title="메뉴">
+                <i data-lucide="menu"></i>
+              </button>
+              <div class="month-title-selector" id="month-picker-btn">
+                <h2 id="month-year-text">9월</h2>
+                <i data-lucide="chevron-down" class="month-arrow"></i>
+              </div>
             </div>
-            <button class="icon-btn-ghost" id="today-btn" title="오늘 날짜로 이동">
-              <i data-lucide="calendar-check"></i>
-            </button>
+
+            <div class="header-right">
+              <button class="icon-btn-ghost" id="search-btn" title="검색">
+                <i data-lucide="search"></i>
+              </button>
+              <button class="icon-btn-ghost date-badge-btn" id="today-btn" title="오늘 날짜로 이동">
+                <span class="today-date-box" id="today-date-num">16</span>
+              </button>
+              <div class="user-avatar-badge" id="user-profile-badge">상혁</div>
+            </div>
+          </div>
+
+          <!-- Month Pill Carousel (Horizontal Drag/Scroll Bar) -->
+          <div class="month-carousel-bar">
+            <button class="carousel-nav-btn" id="prev-month-btn" title="이전 달"><i data-lucide="chevron-left"></i></button>
+            <div class="month-carousel" id="month-carousel">
+              <!-- Dynamically populated by JS: 9월, 10월, 11월, 12월, 2027, 1월... -->
+            </div>
+            <button class="carousel-nav-btn" id="next-month-btn" title="다음 달"><i data-lucide="chevron-right"></i></button>
           </div>
 
           <!-- Total Net Assets Dashboard Banner -->
@@ -38,25 +127,8 @@
             </div>
           </div>
 
-          <!-- Month Selector -->
-          <div class="month-selector">
-            <button class="nav-arrow" id="prev-month-btn">
-              <i data-lucide="chevron-left"></i>
-            </button>
-            <div class="current-month-display">
-              <h2 id="month-year-text">2026년 9월</h2>
-            </div>
-            <button class="nav-arrow" id="next-month-btn">
-              <i data-lucide="chevron-right"></i>
-            </button>
-          </div>
-
-          <!-- Account / Bank Filter Selector Bar (Touch & Drag Slide Scroll) -->
-          <div class="account-selector-wrapper">
-            <div class="account-scroll-container" id="account-tabs">
-              <!-- Dynamically populated by JS -->
-            </div>
-          </div>
+          <!-- Hidden legacy container for compatibility -->
+          <div style="display: none;" id="account-tabs"></div>
 
           <!-- Monthly Summary Cards (2x2 Grid) -->
           <div class="summary-cards">
@@ -178,14 +250,19 @@
 
         </main>
 
-        <!-- Floating Quick Add Buttons (Visible in Calendar view) -->
+        <!-- Floating Quick Add Plus Button (Image 1 Style FAB) -->
         <div class="fab-group" id="fab-group">
-          <button class="fab-btn fab-income" id="fab-income-btn" title="수입 항목 추가">
-            <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2.8" fill="none" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          <button class="main-fab-plus-btn" id="fab-main-plus-btn" title="새 내역 추가">
+            <i data-lucide="plus"></i>
           </button>
-          <button class="fab-btn fab-expense" id="fab-expense-btn" title="지출 항목 추가">
-            <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2.8" fill="none" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-          </button>
+          <div class="fab-sub-buttons" id="fab-sub-buttons" style="display: none;">
+            <button class="fab-btn fab-income" id="fab-income-btn" title="수입 항목 추가">
+              <i data-lucide="plus"></i> 수입
+            </button>
+            <button class="fab-btn fab-expense" id="fab-expense-btn" title="지출 항목 추가">
+              <i data-lucide="minus"></i> 지출
+            </button>
+          </div>
         </div>
 
         <!-- BOTTOM TAB NAVIGATION -->

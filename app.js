@@ -26,6 +26,7 @@ import {
   updateHeaderVisibilityForView
 } from './js/header.js';
 
+import { initDrawer, renderDrawerChecklist } from './js/drawer.js';
 import { renderCalendar } from './js/calendar.js';
 import { renderDailyDetail } from './js/daily-detail.js';
 import { renderStatsView } from './js/stats.js';
@@ -48,9 +49,10 @@ export function renderApp() {
   const activeViewId = activeTab ? activeTab.dataset.view : 'calendar';
   updateHeaderVisibilityForView(activeViewId);
 
+  try { renderDrawerChecklist(renderApp); } catch (e) { console.error('renderDrawerChecklist error:', e); }
   try { renderAccountTabs(renderApp); } catch (e) { console.error('renderAccountTabs error:', e); }
   try { renderAccountSelectOptions(); } catch (e) { console.error('renderAccountSelectOptions error:', e); }
-  try { renderHeaderSummary(); } catch (e) { console.error('renderHeaderSummary error:', e); }
+  try { renderHeaderSummary(renderApp); } catch (e) { console.error('renderHeaderSummary error:', e); }
   try { renderCalendar(renderApp); } catch (e) { console.error('renderCalendar error:', e); }
   try { renderDailyDetail(renderApp); } catch (e) { console.error('renderDailyDetail error:', e); }
   try { renderStatsView(); } catch (e) { console.error('renderStatsView error:', e); }
@@ -86,6 +88,7 @@ function init() {
   renderApp();
 
   try {
+    initDrawer(renderApp);
     setupEventListeners();
     setupModalForms(renderApp);
   } catch (e) {
@@ -136,56 +139,10 @@ function setupEventListeners() {
     renderApp();
   });
 
-  // Account tabs horizontal touch/drag scrolling
-  const tabsContainer = document.getElementById('account-tabs');
-  if (tabsContainer) {
-    tabsContainer.addEventListener('wheel', (e) => {
-      if (e.deltaY !== 0) {
-        e.preventDefault();
-        tabsContainer.scrollLeft += e.deltaY;
-      }
-    }, { passive: false });
-
-    let isDown = false;
-    let startX = 0;
-    let scrollLeftPos = 0;
-    let hasDragged = false;
-
-    tabsContainer.addEventListener('mousedown', (e) => {
-      isDown = true;
-      hasDragged = false;
-      tabsContainer.classList.add('dragging');
-      startX = e.pageX - tabsContainer.offsetLeft;
-      scrollLeftPos = tabsContainer.scrollLeft;
-    });
-
-    tabsContainer.addEventListener('mouseleave', () => {
-      isDown = false;
-      tabsContainer.classList.remove('dragging');
-    });
-
-    tabsContainer.addEventListener('mouseup', () => {
-      isDown = false;
-      tabsContainer.classList.remove('dragging');
-    });
-
-    tabsContainer.addEventListener('mousemove', (e) => {
-      if (!isDown) return;
-      const x = e.pageX - tabsContainer.offsetLeft;
-      const walk = (x - startX) * 1.5;
-      if (Math.abs(walk) > 5) {
-        hasDragged = true;
-      }
-      tabsContainer.scrollLeft = scrollLeftPos - walk;
-    });
-
-    tabsContainer.addEventListener('click', (e) => {
-      if (hasDragged) {
-        e.stopPropagation();
-        e.preventDefault();
-        hasDragged = false;
-      }
-    }, true);
+  // FAB Button Actions
+  const fabMainPlusBtn = document.getElementById('fab-main-plus-btn');
+  if (fabMainPlusBtn) {
+    fabMainPlusBtn.addEventListener('click', () => openTxModal('expense'));
   }
 
   // Navigation tab clicks
@@ -266,6 +223,7 @@ function setupEventListeners() {
       amountInput.value = currentVal + addVal;
     });
   });
+}
 
   document.querySelectorAll('.pm-pill').forEach(pill => {
     pill.addEventListener('click', () => {

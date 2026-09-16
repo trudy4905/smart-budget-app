@@ -59,32 +59,77 @@ export function createCalendarCell(dayNum, dateStr, isOtherMonth, isToday = fals
   const dateTxs = state.transactions.filter(t => t.date === dateStr && isTransactionMatchingSelection(t));
 
   if (dateTxs.length > 0) {
-    const badgesContainer = document.createElement('div');
-    badgesContainer.className = 'cell-badges';
+    const itemsContainer = document.createElement('div');
+    itemsContainer.className = 'cell-item-chips-wrapper';
 
-    let dayExpense = 0;
-    let dayIncome = 0;
+    const maxVisible = 3;
+    const visibleTxs = dateTxs.slice(0, maxVisible);
+    const overflowCount = dateTxs.length - maxVisible;
 
-    dateTxs.forEach(t => {
-      if (t.type === 'expense') dayExpense += Number(t.amount);
-      if (t.type === 'income' || t.type === 'savings') dayIncome += Number(t.amount);
+    visibleTxs.forEach(t => {
+      const chip = document.createElement('div');
+      const txAcc = state.accounts.find(a => a.id === t.accountId);
+      const isCard = txAcc && txAcc.type === 'card' && txAcc.cardKind === 'credit';
+      const isExpense = t.type === 'expense';
+      const isIncome = t.type === 'income';
+
+      let chipClass = 'chip-schedule';
+      let iconStr = '📌';
+      let textStr = t.memo || t.category;
+
+      if (isExpense) {
+        if (isCard) {
+          chipClass = 'chip-card-expense';
+          iconStr = '💳';
+          textStr = t.memo ? `${t.memo}-` : `${t.category}-`;
+        } else {
+          chipClass = 'chip-cash-expense';
+          iconStr = '💰';
+          if (t.amount > 0) {
+            textStr = t.memo && !t.memo.includes('💰') ? `${t.memo}` : `-${formatCompactNumber(t.amount)}`;
+          } else {
+            textStr = t.memo || t.category;
+          }
+        }
+      } else if (isIncome) {
+        chipClass = 'chip-income';
+        iconStr = '💵';
+        textStr = `+${formatCompactNumber(t.amount)}`;
+      } else if (t.isRecurring) {
+        chipClass = 'chip-recurring';
+        iconStr = '☑️';
+      } else if (t.memo && (t.memo.includes('약속') || t.memo.includes('미팅') || t.memo.includes('연휴') || t.memo.includes('박람회'))) {
+        chipClass = 'chip-event';
+        iconStr = '🚩';
+      }
+
+      chip.className = `day-item-chip ${chipClass}`;
+      chip.title = `${t.memo || t.category} (${t.type === 'expense' ? '-' : '+'}${t.amount}원)`;
+      chip.innerHTML = `<span class="chip-icon">${iconStr}</span><span class="chip-text">${textStr}</span>`;
+
+      chip.addEventListener('click', (e) => {
+        e.stopPropagation();
+        setSelectedDateStr(dateStr);
+        const clickedDateObj = parseLocalDateStr(dateStr);
+        if (clickedDateObj.getMonth() !== state.currentDate.getMonth() || clickedDateObj.getFullYear() !== state.currentDate.getFullYear()) {
+          setCurrentDate(new Date(clickedDateObj.getFullYear(), clickedDateObj.getMonth(), 1));
+          applyRecurringRules();
+        }
+        saveActiveViewDate();
+        if (onRenderApp) onRenderApp();
+      });
+
+      itemsContainer.appendChild(chip);
     });
 
-    if (dayIncome > 0) {
-      const incBadge = document.createElement('span');
-      incBadge.className = 'badge-income';
-      incBadge.textContent = `+${formatCompactNumber(dayIncome)}`;
-      badgesContainer.appendChild(incBadge);
+    if (overflowCount > 0) {
+      const moreChip = document.createElement('div');
+      moreChip.className = 'day-item-chip chip-more';
+      moreChip.textContent = `+${overflowCount}개 더보기`;
+      itemsContainer.appendChild(moreChip);
     }
 
-    if (dayExpense > 0) {
-      const expBadge = document.createElement('span');
-      expBadge.className = 'badge-expense';
-      expBadge.textContent = `-${formatCompactNumber(dayExpense)}`;
-      badgesContainer.appendChild(expBadge);
-    }
-
-    cell.appendChild(badgesContainer);
+    cell.appendChild(itemsContainer);
   }
 
   cell.addEventListener('click', () => {
