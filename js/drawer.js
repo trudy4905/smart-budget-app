@@ -53,17 +53,25 @@ function closeAddTypeMenu() {
    INLINE ACCOUNT ADD MODAL (in-drawer bottom sheet style)
    ------------------------------------------------------------------ */
 const BANKS = [
-  '신한은행', '카카오뱅크', 'KB국민은행', '현대카드', '삼성카드',
-  '토스뱅크', '우리은행', '하나은행', 'NH농협', '현금/기타'
+  '신한은행', '카카오뱅크', 'KB국민은행', '토스뱅크',
+  '우리은행', '하나은행', 'NH농협'
+];
+
+const CARD_COMPANIES = [
+  '신한카드', '삼성카드', '현대카드', 'KB국민카드',
+  '롯데카드', '하나카드', '우리카드', 'NH농협카드'
 ];
 
 const BANK_EMOJI = {
-  '신한은행': '🏦', '카카오뱅크': '💛', 'KB국민은행': '💛',
-  '현대카드': '💳', '삼성카드': '💳', '토스뱅크': '💙',
-  '우리은행': '💙', '하나은행': '💚', 'NH농협': '💚', '현금/기타': '💵'
+  '신한은행': '🏦', '신한카드': '🟠',
+  '카카오뱅크': '💛', 'KB국민은행': '💛', 'KB국민카드': '💛',
+  '현대카드': '⬛', '삼성카드': '🔵', '토스뱅크': '💙',
+  '우리은행': '💙', '우리카드': '💙', '하나은행': '💚', '하나카드': '💚',
+  'NH농협': '💚', 'NH농협카드': '💚', '롯데카드': '🔴'
 };
 
-const ACC_COLORS = ['#6366f1','#3b82f6','#10b981','#f59e0b','#ec4899','#8b5cf6','#ef4444','#06b6d4'];
+// 5 default + user can add via color picker
+const ACC_COLORS_DEFAULT = ['#6366f1', '#3b82f6', '#10b981', '#ec4899', '#f59e0b'];
 
 function removeInlineForm() {
   const existing = document.getElementById('drawer-inline-form');
@@ -85,15 +93,21 @@ function openInlineForm(type) {
   const typeIcon = type === 'bank' ? '🏦' : '💳';
 
   // --- Build form fields ---
+  // Bank/card list differs by type
+  const bankList = type === 'credit' ? CARD_COMPANIES : BANKS;
+  const firstBank = bankList[0];
+
   let paymentDayField = '';
   if (type === 'credit') {
     paymentDayField = `
       <div class="dif-group">
-        <label class="dif-label">결제일</label>
-        <div class="dif-day-grid" id="dif-day-grid">
-          ${[5,10,14,15,20,25,27].map(d => `<button type="button" class="dif-day-btn ${d===25?'active':''}" data-day="${d}">${d}일</button>`).join('')}
+        <label class="dif-label">결제일 (매월 며칠)</label>
+        <div class="dif-day-input-row">
+          <input type="number" class="dif-input dif-day-input" id="dif-payment-day"
+            value="25" min="1" max="31" placeholder="25">
+          <span class="dif-day-unit">일</span>
         </div>
-        <input type="hidden" id="dif-payment-day" value="25">
+        <span class="dif-day-hint">1~31일 사이 숫자를 직접 입력하세요</span>
       </div>
     `;
   }
@@ -133,9 +147,9 @@ function openInlineForm(type) {
     <div class="dif-group">
       <label class="dif-label">${type === 'bank' ? '은행 선택' : '카드사 선택'}</label>
       <div class="dif-bank-grid" id="dif-bank-grid">
-        ${BANKS.map((b, i) => `<button type="button" class="dif-bank-btn ${i===0?'active':''}" data-bank="${b}">${BANK_EMOJI[b] || '🏦'} ${b}</button>`).join('')}
+        ${bankList.map((b, i) => `<button type="button" class="dif-bank-btn ${i===0?'active':''}" data-bank="${b}">${BANK_EMOJI[b] || '🏦'} ${b}</button>`).join('')}
       </div>
-      <input type="hidden" id="dif-bank" value="${BANKS[0]}">
+      <input type="hidden" id="dif-bank" value="${firstBank}">
     </div>
 
     <div class="dif-group">
@@ -150,9 +164,13 @@ function openInlineForm(type) {
     <div class="dif-group">
       <label class="dif-label">테마 색상</label>
       <div class="dif-color-row" id="dif-color-row">
-        ${ACC_COLORS.map((c, i) => `<button type="button" class="dif-color-chip ${i===0?'active':''}" data-color="${c}" style="background:${c};"></button>`).join('')}
+        ${ACC_COLORS_DEFAULT.map((c, i) => `<button type="button" class="dif-color-chip ${i===0?'active':''}" data-color="${c}" style="background:${c};"></button>`).join('')}
+        <label class="dif-color-chip dif-color-add-btn" title="직접 색상 선택" id="dif-custom-color-label">
+          <span class="dif-color-add-icon">+</span>
+          <input type="color" id="dif-custom-color-input" value="#6366f1" style="opacity:0;position:absolute;width:0;height:0;">
+        </label>
       </div>
-      <input type="hidden" id="dif-color" value="${ACC_COLORS[0]}">
+      <input type="hidden" id="dif-color" value="${ACC_COLORS_DEFAULT[0]}">
     </div>
 
     <button type="button" class="dif-save-btn" id="dif-save-btn">
@@ -174,27 +192,47 @@ function openInlineForm(type) {
     });
   });
 
-  // Payment day selection
+  // Payment day: direct input (credit only)
   if (type === 'credit') {
-    form.querySelectorAll('.dif-day-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        form.querySelectorAll('.dif-day-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        const dayInput = document.getElementById('dif-payment-day');
-        if (dayInput) dayInput.value = btn.dataset.day;
+    const dayInput = document.getElementById('dif-payment-day');
+    if (dayInput) {
+      dayInput.addEventListener('input', () => {
+        let v = parseInt(dayInput.value, 10);
+        if (isNaN(v)) v = 1;
+        if (v < 1) v = 1;
+        if (v > 31) v = 31;
+        dayInput.value = v;
       });
-    });
+    }
   }
 
-  // Color selection
+  // Default color chip selection
   form.querySelectorAll('.dif-color-chip').forEach(chip => {
     chip.addEventListener('click', () => {
       form.querySelectorAll('.dif-color-chip').forEach(c => c.classList.remove('active'));
       chip.classList.add('active');
       const colorInput = document.getElementById('dif-color');
-      if (colorInput) colorInput.value = chip.dataset.color;
+      if (colorInput && chip.dataset.color) colorInput.value = chip.dataset.color;
     });
   });
+
+  // Custom color picker
+  const customColorInput = document.getElementById('dif-custom-color-input');
+  const customColorLabel = document.getElementById('dif-custom-color-label');
+  if (customColorInput && customColorLabel) {
+    customColorInput.addEventListener('input', () => {
+      const picked = customColorInput.value;
+      // Update label background
+      const addIcon = customColorLabel.querySelector('.dif-color-add-icon');
+      customColorLabel.style.background = picked;
+      if (addIcon) addIcon.style.color = '#fff';
+      // Deselect other chips, mark custom as selected
+      form.querySelectorAll('.dif-color-chip').forEach(c => c.classList.remove('active'));
+      customColorLabel.classList.add('active');
+      const colorInput = document.getElementById('dif-color');
+      if (colorInput) colorInput.value = picked;
+    });
+  }
 
   // Close button
   document.getElementById('dif-close-btn').addEventListener('click', () => {
