@@ -3184,26 +3184,53 @@ body:not(.theme-light) .main-fab-plus-btn {
   width: 100%;
 }
 
-/* Bank grid */
+/* Bank grid — 3 columns, logo + name layout */
 .dif-bank-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 5px;
+  max-height: 240px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  padding-right: 2px;
 }
 
 .dif-bank-btn {
-  padding: 6px 8px;
+  padding: 7px 6px;
   border-radius: var(--radius-sm);
   border: 1.5px solid var(--border-color);
   background: var(--card-bg);
   color: var(--text-sub);
-  font-size: 0.76rem;
+  font-size: 0.72rem;
   font-weight: 500;
-  text-align: left;
+  text-align: center;
   transition: all 0.15s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  line-height: 1.2;
+}
+
+.dif-bank-logo {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  border-radius: 4px;
+  display: block;
+}
+
+.dif-bank-logo-fallback {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.dif-bank-btn span:last-child {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  max-width: 100%;
+  display: block;
 }
 
 .dif-bank-btn:hover {
@@ -3212,11 +3239,12 @@ body:not(.theme-light) .main-fab-plus-btn {
 }
 
 .dif-bank-btn.active {
-  background: var(--primary);
-  color: #fff;
+  background: rgba(99, 102, 241, 0.12);
+  color: var(--primary);
   border-color: var(--primary);
   font-weight: 700;
 }
+
 
 /* Payment day — text input style */
 .dif-day-input-row {

@@ -52,30 +52,116 @@ function closeAddTypeMenu() {
 /* ------------------------------------------------------------------
    INLINE ACCOUNT ADD MODAL (in-drawer bottom sheet style)
    ------------------------------------------------------------------ */
+
+// Favicon logo helper — uses Google S2 favicon service (works for img src)
+const FAVICON = (domain) => `https://www.google.com/s2/favicons?domain=${domain}&sz=32`;
+
 const BANKS = [
-  '신한은행', '카카오뱅크', 'KB국민은행', '토스뱅크',
-  '우리은행', '하나은행', 'NH농협'
+  { name: '신한은행',   domain: 'shinhan.com' },
+  { name: 'KB국민은행', domain: 'kbstar.com' },
+  { name: '우리은행',   domain: 'wooribank.com' },
+  { name: '하나은행',   domain: 'kebhana.com' },
+  { name: 'NH농협은행', domain: 'nonghyup.com' },
+  { name: '기업은행',   domain: 'ibk.co.kr' },
+  { name: '토스뱅크',   domain: 'tossbank.com' },
+  { name: '카카오뱅크', domain: 'kakaobank.com' },
+  { name: '케이뱅크',   domain: 'kbanknow.com' },
+  { name: 'SC제일은행', domain: 'standardchartered.co.kr' },
+  { name: '씨티은행',   domain: 'citibank.co.kr' },
+  { name: '수협은행',   domain: 'suhyup-bank.com' },
+  { name: '우체국',     domain: 'epost.go.kr' },
+  { name: '산업은행',   domain: 'kdb.co.kr' },
+  { name: '새마을금고', domain: 'kfcc.co.kr' },
+  { name: '신협',       domain: 'cu.co.kr' },
+  { name: '대구은행',   domain: 'dgb.co.kr' },
+  { name: '부산은행',   domain: 'busanbank.co.kr' },
+  { name: '광주은행',   domain: 'kjbank.com' },
+  { name: '전북은행',   domain: 'jbbank.co.kr' },
+  { name: '경남은행',   domain: 'knbank.co.kr' },
+  { name: '제주은행',   domain: 'jejubank.co.kr' },
+  { name: '현금/기타',  domain: '' },
 ];
 
 const CARD_COMPANIES = [
-  '신한카드', '삼성카드', '현대카드', 'KB국민카드',
-  '롯데카드', '하나카드', '우리카드', 'NH농협카드'
+  { name: '신한카드',     domain: 'shinhancard.com' },
+  { name: 'KB국민카드',   domain: 'kbcard.com' },
+  { name: '삼성카드',     domain: 'samsungcard.com' },
+  { name: '현대카드',     domain: 'hyundaicard.com' },
+  { name: '롯데카드',     domain: 'lottecard.co.kr' },
+  { name: '하나카드',     domain: 'hanacard.co.kr' },
+  { name: '우리카드',     domain: 'wooricard.com' },
+  { name: 'NH농협카드',   domain: 'nhcard.com' },
+  { name: 'BC카드',       domain: 'bccard.com' },
+  { name: '씨티카드',     domain: 'citicard.co.kr' },
+  { name: '카카오페이카드', domain: 'kakaopay.com' },
+  { name: '토스카드',     domain: 'toss.im' },
+  { name: 'IBK기업카드',  domain: 'ibk.co.kr' },
+  { name: '수협BC카드',   domain: 'suhyup-bank.com' },
+  { name: '우체국카드',   domain: 'epost.go.kr' },
 ];
 
-const BANK_EMOJI = {
-  '신한은행': '🏦', '신한카드': '🟠',
-  '카카오뱅크': '💛', 'KB국민은행': '💛', 'KB국민카드': '💛',
-  '현대카드': '⬛', '삼성카드': '🔵', '토스뱅크': '💙',
-  '우리은행': '💙', '우리카드': '💙', '하나은행': '💚', '하나카드': '💚',
-  'NH농협': '💚', 'NH농협카드': '💚', '롯데카드': '🔴'
-};
+// Build bank button HTML with favicon logo image
+function bankBtnHtml(item, isActive) {
+  const logoImg = item.domain
+    ? `<img src="${FAVICON(item.domain)}" alt="" class="dif-bank-logo" onerror="this.style.display='none'">`
+    : `<span class="dif-bank-logo-fallback">💵</span>`;
+  return `<button type="button" class="dif-bank-btn ${isActive ? 'active' : ''}" data-bank="${item.name}">
+    ${logoImg}<span>${item.name}</span>
+  </button>`;
+}
 
-// 5 default + user can add via color picker
+// 5 default colors
 const ACC_COLORS_DEFAULT = ['#6366f1', '#3b82f6', '#10b981', '#ec4899', '#f59e0b'];
 
 function removeInlineForm() {
   const existing = document.getElementById('drawer-inline-form');
   if (existing) existing.remove();
+}
+
+// Helper: attach click handler to a color chip
+function attachChipClick(chip, form) {
+  chip.addEventListener('click', () => {
+    form.querySelectorAll('.dif-color-chip').forEach(c => c.classList.remove('active'));
+    const addBtn = form.querySelector('.dif-color-add-btn');
+    if (addBtn) addBtn.classList.remove('active');
+    chip.classList.add('active');
+    const colorInput = document.getElementById('dif-color');
+    if (colorInput && chip.dataset.color) colorInput.value = chip.dataset.color;
+  });
+}
+
+// Helper: add a new custom color chip before the + button and keep + for more additions
+function addCustomColorChip(color, form, addBtnLabel) {
+  const colorRow = document.getElementById('dif-color-row');
+  const colorInput = document.getElementById('dif-color');
+  if (!colorRow || !colorInput) return;
+
+  // Create the permanent chip
+  const newChip = document.createElement('button');
+  newChip.type = 'button';
+  newChip.className = 'dif-color-chip';
+  newChip.dataset.color = color;
+  newChip.style.background = color;
+
+  // Deselect all others, select new chip
+  form.querySelectorAll('.dif-color-chip').forEach(c => c.classList.remove('active'));
+  addBtnLabel.classList.remove('active');
+  newChip.classList.add('active');
+
+  colorInput.value = color;
+  attachChipClick(newChip, form);
+
+  // Insert before the + label button
+  colorRow.insertBefore(newChip, addBtnLabel);
+
+  // Reset the hidden color input so user can pick same color again if wanted
+  const hiddenPicker = document.getElementById('dif-custom-color-input');
+  if (hiddenPicker) hiddenPicker.value = '#6366f1';
+
+  // Reset + button appearance (it stays as + for new picks)
+  addBtnLabel.style.background = '';
+  const icon = addBtnLabel.querySelector('.dif-color-add-icon');
+  if (icon) { icon.textContent = '+'; icon.style.color = ''; }
 }
 
 function openInlineForm(type) {
@@ -92,10 +178,8 @@ function openInlineForm(type) {
   const typeLabel = type === 'bank' ? '계좌 (통장)' : type === 'credit' ? '신용카드' : '체크카드';
   const typeIcon = type === 'bank' ? '🏦' : '💳';
 
-  // --- Build form fields ---
-  // Bank/card list differs by type
   const bankList = type === 'credit' ? CARD_COMPANIES : BANKS;
-  const firstBank = bankList[0];
+  const firstBank = bankList[0].name;
 
   let paymentDayField = '';
   if (type === 'credit') {
@@ -138,6 +222,14 @@ function openInlineForm(type) {
     `;
   }
 
+  // Build bank grid HTML using favicon imgs
+  const bankGridHtml = bankList.map((item, i) => bankBtnHtml(item, i === 0)).join('');
+
+  // Build default color chips
+  const colorChipsHtml = ACC_COLORS_DEFAULT.map((c, i) =>
+    `<button type="button" class="dif-color-chip ${i === 0 ? 'active' : ''}" data-color="${c}" style="background:${c};"></button>`
+  ).join('');
+
   form.innerHTML = `
     <div class="dif-header">
       <span class="dif-type-badge">${typeIcon} ${typeLabel} 추가</span>
@@ -147,14 +239,16 @@ function openInlineForm(type) {
     <div class="dif-group">
       <label class="dif-label">${type === 'bank' ? '은행 선택' : '카드사 선택'}</label>
       <div class="dif-bank-grid" id="dif-bank-grid">
-        ${bankList.map((b, i) => `<button type="button" class="dif-bank-btn ${i===0?'active':''}" data-bank="${b}">${BANK_EMOJI[b] || '🏦'} ${b}</button>`).join('')}
+        ${bankGridHtml}
       </div>
       <input type="hidden" id="dif-bank" value="${firstBank}">
     </div>
 
     <div class="dif-group">
       <label class="dif-label">별칭 (이름)</label>
-      <input type="text" class="dif-input" id="dif-name" placeholder="${type === 'bank' ? '예: 주거래 통장' : type === 'credit' ? '예: 신한 쏠 신용카드' : '예: KB 체크카드'}" maxlength="20">
+      <input type="text" class="dif-input" id="dif-name"
+        placeholder="${type === 'bank' ? '예: 주거래 통장' : type === 'credit' ? '예: 신한 쏠 신용카드' : '예: KB 체크카드'}"
+        maxlength="20">
     </div>
 
     ${initialBalanceField}
@@ -164,10 +258,11 @@ function openInlineForm(type) {
     <div class="dif-group">
       <label class="dif-label">테마 색상</label>
       <div class="dif-color-row" id="dif-color-row">
-        ${ACC_COLORS_DEFAULT.map((c, i) => `<button type="button" class="dif-color-chip ${i===0?'active':''}" data-color="${c}" style="background:${c};"></button>`).join('')}
-        <label class="dif-color-chip dif-color-add-btn" title="직접 색상 선택" id="dif-custom-color-label">
+        ${colorChipsHtml}
+        <label class="dif-color-chip dif-color-add-btn" title="색상 추가" id="dif-custom-color-label">
           <span class="dif-color-add-icon">+</span>
-          <input type="color" id="dif-custom-color-input" value="#6366f1" style="opacity:0;position:absolute;width:0;height:0;">
+          <input type="color" id="dif-custom-color-input" value="#6366f1"
+            style="opacity:0;position:absolute;width:0;height:0;">
         </label>
       </div>
       <input type="hidden" id="dif-color" value="${ACC_COLORS_DEFAULT[0]}">
@@ -178,7 +273,6 @@ function openInlineForm(type) {
     </button>
   `;
 
-  // Insert before footer button
   footer.insertBefore(form, footer.firstChild);
   if (window.lucide) lucide.createIcons();
 
@@ -192,47 +286,31 @@ function openInlineForm(type) {
     });
   });
 
-  // Payment day: direct input (credit only)
+  // Payment day input validation
   if (type === 'credit') {
     const dayInput = document.getElementById('dif-payment-day');
     if (dayInput) {
-      dayInput.addEventListener('input', () => {
+      dayInput.addEventListener('blur', () => {
         let v = parseInt(dayInput.value, 10);
-        if (isNaN(v)) v = 1;
-        if (v < 1) v = 1;
+        if (isNaN(v) || v < 1) v = 1;
         if (v > 31) v = 31;
         dayInput.value = v;
       });
     }
   }
 
-  // Default color chip selection
-  form.querySelectorAll('.dif-color-chip').forEach(chip => {
-    chip.addEventListener('click', () => {
-      form.querySelectorAll('.dif-color-chip').forEach(c => c.classList.remove('active'));
-      chip.classList.add('active');
-      const colorInput = document.getElementById('dif-color');
-      if (colorInput && chip.dataset.color) colorInput.value = chip.dataset.color;
-    });
-  });
+  // Default color chip click handlers
+  form.querySelectorAll('.dif-color-chip').forEach(chip => attachChipClick(chip, form));
 
-  // Custom color picker
+  // Custom color picker — adds a new chip each time
   const customColorInput = document.getElementById('dif-custom-color-input');
   const customColorLabel = document.getElementById('dif-custom-color-label');
   if (customColorInput && customColorLabel) {
-    customColorInput.addEventListener('input', () => {
-      const picked = customColorInput.value;
-      // Update label background
-      const addIcon = customColorLabel.querySelector('.dif-color-add-icon');
-      customColorLabel.style.background = picked;
-      if (addIcon) addIcon.style.color = '#fff';
-      // Deselect other chips, mark custom as selected
-      form.querySelectorAll('.dif-color-chip').forEach(c => c.classList.remove('active'));
-      customColorLabel.classList.add('active');
-      const colorInput = document.getElementById('dif-color');
-      if (colorInput) colorInput.value = picked;
+    customColorInput.addEventListener('change', () => {
+      addCustomColorChip(customColorInput.value, form, customColorLabel);
     });
   }
+
 
   // Close button
   document.getElementById('dif-close-btn').addEventListener('click', () => {
