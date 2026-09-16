@@ -1027,54 +1027,102 @@ export function closeSummaryDetailModal() {
   if (overlay) overlay.classList.remove('active');
 }
 
-export function showAccountActionModal(acc, onRenderApp) {
-  const overlay = document.getElementById('item-action-modal-overlay');
-  const titleEl = document.getElementById('item-action-modal-title');
-  const subEl = document.getElementById('item-action-modal-sub');
-  const editBtn = document.getElementById('item-action-edit-btn');
-  const deleteBtn = document.getElementById('item-action-delete-btn');
-  const closeBtn = document.getElementById('close-item-action-modal-btn');
-  const cancelBtn = document.getElementById('item-action-cancel-btn');
-
-  if (!overlay) return;
+export function showAccountActionModal(acc, onRenderApp, event) {
+  // Remove existing popover if any
+  let existing = document.getElementById('account-context-menu-overlay');
+  if (existing) existing.remove();
 
   const isCard = acc.type === 'card';
-  const iconBadge = isCard ? (acc.cardKind === 'debit' ? '💳' : '💳') : '🏦';
-  const typeText = isCard ? (acc.cardKind === 'debit' ? '체크카드' : '신용카드') : '입출금 통장';
 
-  if (titleEl) titleEl.innerHTML = `${iconBadge} ${acc.name}`;
-  if (subEl) subEl.textContent = `${acc.bank || ''} • ${typeText}`;
+  const overlay = document.createElement('div');
+  overlay.id = 'account-context-menu-overlay';
+  overlay.style.position = 'fixed';
+  overlay.style.top = '0';
+  overlay.style.left = '0';
+  overlay.style.right = '0';
+  overlay.style.bottom = '0';
+  overlay.style.zIndex = '4000';
+  
+  const menu = document.createElement('div');
+  menu.style.position = 'absolute';
+  menu.style.background = 'var(--surface)';
+  menu.style.border = '1px solid var(--border-color)';
+  menu.style.borderRadius = '12px';
+  menu.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+  menu.style.display = 'flex';
+  menu.style.flexDirection = 'column';
+  menu.style.padding = '4px';
+  menu.style.minWidth = '110px';
+  menu.style.animation = 'fadeIn 0.15s ease-out';
 
-  const closeModal = () => {
-    overlay.classList.remove('active');
+  // Position it based on event
+  let x = 0, y = 0;
+  if (event) {
+    if (event.touches && event.touches.length > 0) {
+      x = event.touches[0].clientX;
+      y = event.touches[0].clientY;
+    } else {
+      x = event.clientX;
+      y = event.clientY;
+    }
+  } else {
+    x = window.innerWidth / 2;
+    y = window.innerHeight / 2;
+  }
+  
+  menu.style.left = `${x}px`;
+  menu.style.top = `${y}px`;
+
+  // Create Edit Button
+  const editBtn = document.createElement('button');
+  editBtn.innerHTML = '<i data-lucide="pencil" style="width: 14px; height: 14px;"></i> 수정';
+  editBtn.style.cssText = 'background: none; border: none; padding: 10px 16px; text-align: left; font-size: 0.95rem; color: var(--text-main); border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 8px;';
+  
+  // Create Delete Button
+  const deleteBtn = document.createElement('button');
+  deleteBtn.innerHTML = '<i data-lucide="trash-2" style="width: 14px; height: 14px;"></i> 삭제';
+  deleteBtn.style.cssText = 'background: none; border: none; padding: 10px 16px; text-align: left; font-size: 0.95rem; color: #ef4444; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 8px;';
+
+  // Add hover effect
+  const addHover = (btn) => {
+    btn.onmouseover = () => btn.style.background = 'var(--bg-color)';
+    btn.onmouseout = () => btn.style.background = 'none';
   };
+  addHover(editBtn);
+  addHover(deleteBtn);
 
-  overlay.classList.add('active');
+  menu.appendChild(editBtn);
+  menu.appendChild(deleteBtn);
+  overlay.appendChild(menu);
+  document.body.appendChild(overlay);
+
   if (window.lucide) lucide.createIcons();
 
-  // Replace buttons to clear previous event listeners cleanly
-  const newEdit = editBtn.cloneNode(true);
-  const newDelete = deleteBtn.cloneNode(true);
-  const newClose = closeBtn.cloneNode(true);
-  const newCancel = cancelBtn.cloneNode(true);
+  // Adjust position to not go off-screen
+  requestAnimationFrame(() => {
+    const rect = menu.getBoundingClientRect();
+    if (rect.right > window.innerWidth) {
+      menu.style.left = `${window.innerWidth - rect.width - 10}px`;
+    }
+    if (rect.bottom > window.innerHeight) {
+      menu.style.top = `${window.innerHeight - rect.height - 10}px`;
+    }
+  });
 
-  editBtn.parentNode.replaceChild(newEdit, editBtn);
-  deleteBtn.parentNode.replaceChild(newDelete, deleteBtn);
-  closeBtn.parentNode.replaceChild(newClose, closeBtn);
-  cancelBtn.parentNode.replaceChild(newCancel, cancelBtn);
+  const closeModal = () => {
+    overlay.remove();
+  };
 
-  newClose.addEventListener('click', closeModal);
-  newCancel.addEventListener('click', closeModal);
-  setTimeout(() => {
-    overlay.onclick = (e) => { if (e.target === overlay) closeModal(); };
-  }, 150);
+  overlay.addEventListener('click', closeModal);
 
-  newEdit.addEventListener('click', () => {
+  editBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
     closeModal();
     openAccModal(isCard ? 'card' : 'bank', acc);
   });
 
-  newDelete.addEventListener('click', () => {
+  deleteBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
     closeModal();
     deleteAccount(acc.id, onRenderApp);
   });

@@ -27,27 +27,18 @@ export function closeDrawer() {
 let _typeMenuOpen = false;
 
 function openAddTypeMenu() {
-  const menu = document.getElementById('drawer-add-type-menu');
-  const label = document.getElementById('drawer-add-label');
-  const icon = document.getElementById('drawer-add-icon');
-  if (!menu) return;
-  _typeMenuOpen = true;
-  menu.style.display = 'flex';
-  if (label) label.textContent = '닫기';
-  if (icon) icon.setAttribute('data-lucide', 'x');
-  if (window.lucide) lucide.createIcons();
+  const overlay = document.getElementById('add-type-modal-overlay');
+  if (overlay) overlay.classList.add('active');
+  const closeBtn = document.getElementById('close-add-type-modal');
+  if (closeBtn) closeBtn.onclick = closeAddTypeMenu;
+  if (overlay) overlay.onclick = (e) => {
+    if (e.target === overlay) closeAddTypeMenu();
+  };
 }
 
 function closeAddTypeMenu() {
-  const menu = document.getElementById('drawer-add-type-menu');
-  const label = document.getElementById('drawer-add-label');
-  const icon = document.getElementById('drawer-add-icon');
-  if (!menu) return;
-  _typeMenuOpen = false;
-  menu.style.display = 'none';
-  if (label) label.textContent = '계좌/카드 추가';
-  if (icon) icon.setAttribute('data-lucide', 'plus');
-  if (window.lucide) lucide.createIcons();
+  const overlay = document.getElementById('add-type-modal-overlay');
+  if (overlay) overlay.classList.remove('active');
 }
 
 /* ------------------------------------------------------------------
@@ -115,8 +106,8 @@ function bankBtnHtml(item, isActive) {
 const ACC_COLORS_DEFAULT = ['#6366f1', '#3b82f6', '#10b981', '#ec4899', '#f59e0b'];
 
 function removeInlineForm() {
-  const existing = document.getElementById('drawer-inline-form');
-  if (existing) existing.remove();
+  const overlay = document.getElementById('inline-form-modal-overlay');
+  if (overlay) overlay.remove();
 }
 
 // Helper: attach click handler to a color chip
@@ -169,8 +160,22 @@ function openInlineForm(type) {
   removeInlineForm();
   closeAddTypeMenu();
 
-  const footer = document.querySelector('.drawer-footer-actions');
-  if (!footer) return;
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay active';
+  overlay.id = 'inline-form-modal-overlay';
+  overlay.style.zIndex = '3500';
+
+  const modalWrap = document.createElement('div');
+  modalWrap.className = 'modal-card';
+  modalWrap.style.padding = '20px';
+  modalWrap.style.width = 'calc(100vw - 32px)';
+  modalWrap.style.maxWidth = '450px';
+  modalWrap.style.height = 'calc(100vh - 48px)';
+  modalWrap.style.maxHeight = '800px';
+  modalWrap.style.overflowY = 'auto';
+  modalWrap.style.borderRadius = '20px';
+  modalWrap.style.display = 'flex';
+  modalWrap.style.flexDirection = 'column';
 
   const form = document.createElement('div');
   form.id = 'drawer-inline-form';
@@ -274,7 +279,13 @@ function openInlineForm(type) {
     </button>
   `;
 
-  footer.insertBefore(form, footer.firstChild);
+  modalWrap.appendChild(form);
+  overlay.appendChild(modalWrap);
+  document.body.appendChild(overlay);
+
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) removeInlineForm();
+  });
   if (window.lucide) lucide.createIcons();
 
   // Bank grid selection
@@ -457,12 +468,7 @@ export function initDrawer(onRenderApp) {
   // Toggle type menu
   if (addAccBtn) {
     addAccBtn.addEventListener('click', () => {
-      if (_typeMenuOpen) {
-        closeAddTypeMenu();
-        removeInlineForm();
-      } else {
-        openAddTypeMenu();
-      }
+      openAddTypeMenu();
     });
   }
 

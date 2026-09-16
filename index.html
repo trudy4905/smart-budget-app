@@ -71,35 +71,38 @@
 
     <!-- Footer: Account type selection menu -->
     <div class="drawer-footer-actions">
-      <div class="drawer-add-type-menu" id="drawer-add-type-menu" style="display:none;">
-        <button class="drawer-type-btn" id="drawer-add-bank-btn">
-          <i data-lucide="building-2"></i>
-          <div>
-            <div class="dtype-title">계좌 (통장)</div>
-            <div class="dtype-desc">은행 · 초기잔액 설정</div>
-          </div>
-        </button>
-        <button class="drawer-type-btn" id="drawer-add-credit-btn">
-          <i data-lucide="credit-card"></i>
-          <div>
-            <div class="dtype-title">신용카드</div>
-            <div class="dtype-desc">결제일 설정 가능</div>
-          </div>
-        </button>
-        <button class="drawer-type-btn" id="drawer-add-debit-btn">
-          <i data-lucide="badge-check"></i>
-          <div>
-            <div class="dtype-title">체크카드</div>
-            <div class="dtype-desc">연결 계좌 설정</div>
-          </div>
-        </button>
-      </div>
       <button class="drawer-add-acc-full-btn" id="drawer-add-account-btn">
         <i data-lucide="plus" id="drawer-add-icon"></i>
         <span id="drawer-add-label">계좌/카드 추가</span>
       </button>
     </div>
   </aside>
+
+  <!-- ADD TYPE SELECTION MODAL (Center) -->
+  <div class="modal-overlay" id="add-type-modal-overlay">
+    <div class="modal-card" style="padding: 24px; max-width: 320px; text-align: center; border-radius: 20px;">
+      <div class="modal-header" style="justify-content: center; position: relative; padding-bottom: 8px;">
+        <h3 style="font-size: 1.15rem; font-weight: 700; margin: 0;">추가할 항목 선택</h3>
+        <button class="icon-btn-ghost" id="close-add-type-modal" style="position: absolute; right: -8px; top: -8px;">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+      <div class="drawer-add-type-menu" id="drawer-add-type-menu" style="display:flex; flex-direction:column; gap:10px; margin-top:16px;">
+        <button class="drawer-type-btn" id="drawer-add-bank-btn" style="display: flex; align-items: center; justify-content: center; gap: 10px; padding: 16px; font-size: 1.05rem; font-weight: 600;">
+          <i data-lucide="building-2"></i>
+          <span>계좌 (통장)</span>
+        </button>
+        <button class="drawer-type-btn" id="drawer-add-credit-btn" style="display: flex; align-items: center; justify-content: center; gap: 10px; padding: 16px; font-size: 1.05rem; font-weight: 600;">
+          <i data-lucide="credit-card"></i>
+          <span>신용카드</span>
+        </button>
+        <button class="drawer-type-btn" id="drawer-add-debit-btn" style="display: flex; align-items: center; justify-content: center; gap: 10px; padding: 16px; font-size: 1.05rem; font-weight: 600;">
+          <i data-lucide="badge-check"></i>
+          <span>체크카드</span>
+        </button>
+      </div>
+    </div>
+  </div>
 
   <!-- App Main Content Container -->
   <div class="app-container">
@@ -472,30 +475,9 @@
         <!-- JS injects dynamic view buttons -->
       </div>
     </div>
-  <!-- ITEM LONG-PRESS ACTION MODAL (수정/삭제 팝업) -->
-  <div class="modal-overlay" id="item-action-modal-overlay">
-    <div class="modal-card" style="max-width: 340px; padding: 24px; border-radius: 20px; text-align: center;">
-      <div class="modal-header" style="justify-content: center; position: relative; padding-bottom: 4px;">
-        <h3 id="item-action-modal-title" style="font-size: 1.15rem; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 8px; margin: 0;">계좌 / 카드 관리</h3>
-        <button class="icon-btn-ghost" id="close-item-action-modal-btn" style="position: absolute; right: -8px; top: -8px;">
-          <i data-lucide="x"></i>
-        </button>
-      </div>
-      <p id="item-action-modal-sub" style="font-size: 0.82rem; color: var(--text-muted); margin-top: 4px; margin-bottom: 18px;"></p>
-
-      <div style="display: flex; flex-direction: column; gap: 10px;">
-        <button class="btn-primary" id="item-action-edit-btn" style="padding: 12px; font-size: 0.95rem; font-weight: 600; border-radius: 12px; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer;">
-          <i data-lucide="pencil" style="width: 16px; height: 16px;"></i> 수정
-        </button>
-        <button class="btn-secondary" id="item-action-delete-btn" style="padding: 12px; font-size: 0.95rem; font-weight: 600; border-radius: 12px; color: #ef4444; border-color: rgba(239, 68, 68, 0.3); background: rgba(239, 68, 68, 0.08); display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer;">
-          <i data-lucide="trash-2" style="width: 16px; height: 16px;"></i> 삭제
-        </button>
-        <button class="btn-ghost" id="item-action-cancel-btn" style="padding: 10px; font-size: 0.88rem; font-weight: 500; color: var(--text-muted); cursor: pointer; margin-top: 2px;">
-          취소
-        </button>
-      </div>
-    </div>
   </div>
+
+
 
   <!-- Toast Notification -->
   <div class="toast" id="toast">
