@@ -5,6 +5,7 @@
 import { state, setEditingAccountId, setSelectedDateStr, setCurrentDate, saveActiveViewDate, saveAccounts, saveTransactions, saveRecurringRules, setSelectedAccountIds, getCardBillForMonth } from './state.js';
 import { BANKS_LIST, CARDS_LIST, CATEGORIES, EXPENSE_CATEGORIES, INCOME_CATEGORIES } from './constants.js';
 import { parseLocalDateStr, showToast, formatNumber } from './helpers.js';
+import { deleteAccount } from './settings.js';
 
 export function formatFormattedNumberInput(value) {
   if (value === undefined || value === null) return '';
@@ -1024,4 +1025,55 @@ export function openSummaryDetailModal(type = 'credit-card') {
 export function closeSummaryDetailModal() {
   const overlay = document.getElementById('summary-detail-modal-overlay');
   if (overlay) overlay.classList.remove('active');
+}
+
+export function showAccountActionModal(acc, onRenderApp) {
+  const overlay = document.getElementById('item-action-modal-overlay');
+  const titleEl = document.getElementById('item-action-modal-title');
+  const subEl = document.getElementById('item-action-modal-sub');
+  const editBtn = document.getElementById('item-action-edit-btn');
+  const deleteBtn = document.getElementById('item-action-delete-btn');
+  const closeBtn = document.getElementById('close-item-action-modal-btn');
+  const cancelBtn = document.getElementById('item-action-cancel-btn');
+
+  if (!overlay) return;
+
+  const isCard = acc.type === 'card';
+  const iconBadge = isCard ? (acc.cardKind === 'debit' ? '💳' : '💳') : '🏦';
+  const typeText = isCard ? (acc.cardKind === 'debit' ? '체크카드' : '신용카드') : '입출금 통장';
+
+  if (titleEl) titleEl.innerHTML = `${iconBadge} ${acc.name}`;
+  if (subEl) subEl.textContent = `${acc.bank || ''} • ${typeText}`;
+
+  const closeModal = () => {
+    overlay.classList.remove('active');
+  };
+
+  overlay.classList.add('active');
+  if (window.lucide) lucide.createIcons();
+
+  // Replace buttons to clear previous event listeners cleanly
+  const newEdit = editBtn.cloneNode(true);
+  const newDelete = deleteBtn.cloneNode(true);
+  const newClose = closeBtn.cloneNode(true);
+  const newCancel = cancelBtn.cloneNode(true);
+
+  editBtn.parentNode.replaceChild(newEdit, editBtn);
+  deleteBtn.parentNode.replaceChild(newDelete, deleteBtn);
+  closeBtn.parentNode.replaceChild(newClose, closeBtn);
+  cancelBtn.parentNode.replaceChild(newCancel, cancelBtn);
+
+  newClose.addEventListener('click', closeModal);
+  newCancel.addEventListener('click', closeModal);
+  overlay.onclick = (e) => { if (e.target === overlay) closeModal(); };
+
+  newEdit.addEventListener('click', () => {
+    closeModal();
+    openAccModal(isCard ? 'card' : 'bank', acc);
+  });
+
+  newDelete.addEventListener('click', () => {
+    closeModal();
+    deleteAccount(acc.id, onRenderApp);
+  });
 }

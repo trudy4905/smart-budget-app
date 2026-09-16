@@ -3,8 +3,8 @@
    ========================================================================== */
 
 import { state, setSelectedAccountIds, getCardBillForMonth, saveAccounts, saveRecurringRules, saveTransactions } from './state.js';
-import { formatNumber, formatDate, showToast } from './helpers.js';
-import { openAccModal } from './modals.js';
+import { formatNumber, formatDate, showToast, bindLongPress } from './helpers.js';
+import { openAccModal, showAccountActionModal } from './modals.js';
 
 export function renderSettingsView(onRenderApp) {
   const bankListEl = document.getElementById('bank-account-manage-list');
@@ -47,8 +47,13 @@ export function renderSettingsView(onRenderApp) {
         </div>
       `;
 
+      const isLongPress = bindLongPress(item, () => {
+        showAccountActionModal(acc, onRenderApp);
+      });
+
       item.addEventListener('click', (e) => {
-        if (!e.target.closest('.delete-acc-btn')) {
+        if (isLongPress()) return;
+        if (!e.target.closest('.delete-acc-btn') && !e.target.closest('.edit-acc-btn')) {
           openAccModal('bank', acc);
         }
       });
@@ -109,8 +114,13 @@ export function renderSettingsView(onRenderApp) {
         </div>
       `;
 
+      const isLongPress = bindLongPress(item, () => {
+        showAccountActionModal(acc, onRenderApp);
+      });
+
       item.addEventListener('click', (e) => {
-        if (!e.target.closest('.delete-acc-btn') && !e.target.closest('.settle-card-btn')) {
+        if (isLongPress()) return;
+        if (!e.target.closest('.delete-acc-btn') && !e.target.closest('.edit-acc-btn') && !e.target.closest('.settle-card-btn')) {
           openAccModal('card', acc);
         }
       });

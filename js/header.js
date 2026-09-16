@@ -1,5 +1,6 @@
 import { state, isTransactionMatchingSelection, getCardBillForMonth, setSelectedAccountIds, setCurrentDate, setSelectedDateStr, saveActiveViewDate, applyRecurringRules } from './state.js';
-import { formatNumber, parseLocalDateStr, formatDate } from './helpers.js';
+import { formatNumber, parseLocalDateStr, formatDate, bindLongPress } from './helpers.js';
+import { showAccountActionModal } from './modals.js';
 
 export function updateHeaderVisibilityForView(viewId) {
   const appHeader = document.querySelector('.app-header');
@@ -265,7 +266,12 @@ export function renderAccountTabs(onRenderApp) {
       <span>${isSelected ? '✓ ' : ''}${iconBadge} ${acc.name}</span>
     `;
 
+    const isLongPress = bindLongPress(chip, () => {
+      showAccountActionModal(acc, onRenderApp);
+    });
+
     chip.addEventListener('click', () => {
+      if (isLongPress()) return;
       if (state.selectedAccountIds.includes('all')) {
         setSelectedAccountIds([acc.id]);
       } else {

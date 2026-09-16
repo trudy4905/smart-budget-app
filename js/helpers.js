@@ -48,3 +48,52 @@ export function showToast(message) {
     toast.classList.remove('show');
   }, 2800);
 }
+
+export function bindLongPress(element, onLongPress) {
+  let timer = null;
+  let isLong = false;
+  let startX = 0, startY = 0;
+
+  const start = (e) => {
+    isLong = false;
+    const t = e.touches ? e.touches[0] : e;
+    startX = t ? t.clientX : 0;
+    startY = t ? t.clientY : 0;
+
+    timer = setTimeout(() => {
+      isLong = true;
+      if (navigator.vibrate) {
+        try { navigator.vibrate(40); } catch (err) {}
+      }
+      onLongPress(e);
+    }, 450);
+  };
+
+  const cancel = (e) => {
+    if (e.touches && e.touches.length > 0) {
+      const t = e.touches[0];
+      if (Math.abs(t.clientX - startX) > 10 || Math.abs(t.clientY - startY) > 10) {
+        clearTimeout(timer);
+        return;
+      }
+    }
+    clearTimeout(timer);
+  };
+
+  element.addEventListener('touchstart', start, { passive: true });
+  element.addEventListener('touchmove', cancel, { passive: true });
+  element.addEventListener('touchend', cancel);
+  element.addEventListener('touchcancel', cancel);
+
+  element.addEventListener('mousedown', start);
+  element.addEventListener('mousemove', cancel);
+  element.addEventListener('mouseup', cancel);
+  element.addEventListener('mouseleave', cancel);
+
+  element.addEventListener('contextmenu', (e) => {
+    e.preventDefault();
+    onLongPress(e);
+  });
+
+  return () => isLong;
+}

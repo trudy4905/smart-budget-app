@@ -3,7 +3,8 @@
    ========================================================================== */
 
 import { state, setSelectedAccountIds, setDrawerFilter, saveAccounts } from './state.js';
-import { formatNumber, showToast } from './helpers.js';
+import { formatNumber, showToast, bindLongPress } from './helpers.js';
+import { showAccountActionModal } from './modals.js';
 
 export function openDrawer() {
   const overlay = document.getElementById('drawer-overlay');
@@ -553,7 +554,15 @@ export function renderDrawerChecklist(onRenderApp) {
       ${amountLabel}
     `;
 
-    accItem.querySelector('input').addEventListener('change', () => {
+    const isLongPress = bindLongPress(accItem, () => {
+      showAccountActionModal(acc, onRenderApp);
+    });
+
+    accItem.querySelector('input').addEventListener('change', (e) => {
+      if (isLongPress()) {
+        e.preventDefault();
+        return;
+      }
       const checkedInputs = container.querySelectorAll('input[type="checkbox"]:not(#chk-acc-all):checked');
       const selectedIds = Array.from(checkedInputs).map(inp => inp.value);
       setSelectedAccountIds(selectedIds.length === 0 || selectedIds.length === state.accounts.length ? ['all'] : selectedIds);
