@@ -2223,7 +2223,8 @@ body:not(.theme-light) .month-pill.active {
 
 /* Calendar Grid Day Item Chips (Image 1 Style Stacked Chips) */
 .calendar-grid {
-  grid-auto-rows: minmax(84px, auto);
+  grid-auto-rows: minmax(105px, 1fr);
+  gap: 2px;
 }
 
 .cell-item-chips-wrapper {
