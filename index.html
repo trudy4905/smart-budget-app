@@ -12,7 +12,7 @@
   <script src="https://unpkg.com/lucide@latest"></script>
   <!-- Chart.js for analytics -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <link rel="stylesheet" href="style.css?v=6.7">
+  <link rel="stylesheet" href="style.css?v=6.8">
 </head>
 <body class="theme-light">
   <!-- LEFT SLIDEBAR DRAWER OVERLAY & SIDEBAR -->
@@ -27,7 +27,7 @@
       </button>
     </div>
 
-    <!-- Top Menu Section: 전체 자산, 수입, 현금지출, 카드지출, 전체 지출 with amounts -->
+    <!-- Top Menu Section: 전체 자산, 수입, 현금지출, 카드지출 with amounts -->
     <div class="drawer-section drawer-views-menu">
       <button class="drawer-menu-item active" data-filter="all">
         <i data-lucide="layout-grid"></i>
@@ -54,11 +54,6 @@
           <span class="drawer-menu-sublabel">(다음달 예정)</span>
         </div>
         <span class="drawer-menu-amount" id="drawer-amt-card"></span>
-      </button>
-      <button class="drawer-menu-item" data-filter="total_expense">
-        <i data-lucide="pie-chart"></i>
-        <span class="drawer-menu-label">전체 지출</span>
-        <span class="drawer-menu-amount" id="drawer-amt-total"></span>
       </button>
     </div>
 
@@ -485,6 +480,6 @@
     <span id="toast-message">성공적으로 저장되었습니다.</span>
   </div>
 
-  <script type="module" src="app.js?v=6.7"></script>
+  <script type="module" src="app.js?v=6.8"></script>
 </body>
 </html>

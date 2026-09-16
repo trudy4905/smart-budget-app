@@ -415,8 +415,6 @@ export function renderDrawerAmounts() {
     }
   });
 
-  const totalExpense = cashExpense + cardExpense;
-
   const fmt = (n) => {
     if (Math.abs(n) >= 10000) return (n < 0 ? '-' : '') + Math.round(Math.abs(n) / 10000) + '만';
     return formatNumber(n);
@@ -433,7 +431,6 @@ export function renderDrawerAmounts() {
   el('drawer-amt-income', `+₩${fmt(totalIncome)}`, 'amt-income');
   el('drawer-amt-cash', `-₩${fmt(cashExpense)}`, 'amt-expense');
   el('drawer-amt-card', `-₩${fmt(cardExpense)}`, 'amt-card');
-  el('drawer-amt-total', `-₩${fmt(totalExpense)}`, 'amt-expense');
 }
 
 /* ------------------------------------------------------------------
