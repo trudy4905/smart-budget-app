@@ -19,10 +19,11 @@ export function renderMonthCarousel(onRenderApp) {
   const activeYr = state.currentDate.getFullYear();
   const activeMo = state.currentDate.getMonth();
 
+  const baseDate = new Date(2026, 8, 1); // 2026년 9월
   let lastYr = null;
 
-  for (let i = 0; i <= 11; i++) {
-    const d = new Date(activeYr, activeMo + i, 1);
+  for (let i = 0; i < 18; i++) {
+    const d = new Date(baseDate.getFullYear(), baseDate.getMonth() + i, 1);
     const yr = d.getFullYear();
     const mo = d.getMonth();
 

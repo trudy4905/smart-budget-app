@@ -139,6 +139,40 @@ function setupEventListeners() {
     renderApp();
   });
 
+  // Month Carousel Mouse Drag / Touch Swipe helper
+  const carouselContainer = document.getElementById('month-carousel');
+  if (carouselContainer) {
+    let isDown = false;
+    let startX = 0;
+    let scrollLeft = 0;
+    let hasMoved = false;
+
+    carouselContainer.addEventListener('mousedown', (e) => {
+      isDown = true;
+      hasMoved = false;
+      startX = e.pageX - carouselContainer.offsetLeft;
+      scrollLeft = carouselContainer.scrollLeft;
+    });
+
+    carouselContainer.addEventListener('mouseleave', () => { isDown = false; });
+    carouselContainer.addEventListener('mouseup', () => { isDown = false; });
+    carouselContainer.addEventListener('mousemove', (e) => {
+      if (!isDown) return;
+      const x = e.pageX - carouselContainer.offsetLeft;
+      const walk = (x - startX) * 1.5;
+      if (Math.abs(walk) > 5) hasMoved = true;
+      carouselContainer.scrollLeft = scrollLeft - walk;
+    });
+
+    carouselContainer.addEventListener('click', (e) => {
+      if (hasMoved) {
+        e.stopPropagation();
+        e.preventDefault();
+        hasMoved = false;
+      }
+    }, true);
+  }
+
   // FAB Button Actions
   const fabMainPlusBtn = document.getElementById('fab-main-plus-btn');
   if (fabMainPlusBtn) {

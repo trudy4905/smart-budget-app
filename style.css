@@ -2153,22 +2153,9 @@ body:not(.theme-light) .drawer-menu-item.active {
 .month-carousel-bar {
   display: flex;
   align-items: center;
-  gap: 6px;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
   padding: 4px 0;
-}
-
-.carousel-nav-btn {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: var(--card-bg);
-  border: 1px solid var(--border-color);
-  color: var(--text-muted);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
+  width: 100%;
 }
 
 .month-carousel {
@@ -2177,8 +2164,14 @@ body:not(.theme-light) .drawer-menu-item.active {
   gap: 8px;
   overflow-x: auto;
   scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
   padding: 2px 0;
-  flex: 1;
+  width: 100%;
+  cursor: grab;
+}
+
+.month-carousel:active {
+  cursor: grabbing;
 }
 
 .month-carousel::-webkit-scrollbar {
