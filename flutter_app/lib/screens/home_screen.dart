@@ -1243,7 +1243,7 @@ class _AddAccountSheetState extends State<AddAccountSheet> {
               const SizedBox(height: 6),
               TextField(
                 controller: _balanceCtrl,
-                keyboardType: const TextInputType.numberWithOptions(signed: true, decimal: false),
+                keyboardType: const TextInputType.numberWithOptions(signed: true, decimal: true),
                 style: GoogleFonts.notoSansKr(color: Color(0xFF0F172A)),
                 decoration: _inputDec('예: 1,500,000'),
                 onChanged: (value) {
