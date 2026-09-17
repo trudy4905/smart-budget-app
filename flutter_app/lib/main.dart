@@ -697,9 +697,10 @@ class AppDrawer extends StatelessWidget {
           width: MediaQuery.of(context).size.width * 0.82,
           backgroundColor: const Color(0xFFF1F5F9),
           child: SafeArea(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
                 // ---- Header ----
                 Container(
                   padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
@@ -756,7 +757,7 @@ class AppDrawer extends StatelessWidget {
                   padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                   child: Row(
                     children: [
-                      Text('목록 선택', style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF94A3B8), fontWeight: FontWeight.w600)),
+                      Text('등록 계좌/카드', style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF94A3B8), fontWeight: FontWeight.w600)),
                       const Spacer(),
                       GestureDetector(
                         onTap: () {
@@ -783,51 +784,38 @@ class AppDrawer extends StatelessWidget {
                     ],
                   ),
                 ),
-                // All accounts checkbox
-                _accountCheckItem(
-                  context, state,
-                  id: 'all',
-                  icon: '🌐',
-                  label: '전체 (모든 계좌)',
-                  subLabel: '${state.accounts.length}개 계좌',
-                  color: const Color(0xFF4F46E5),
-                  amount: null,
-                  isAll: true,
-                ),
-                Expanded(
-                  child: ListView(
-                    padding: EdgeInsets.zero,
-                    children: [
-                      ...state.accounts.map((acc) {
-                        int? amount;
-                        if (acc.isBank) {
-                          int bal = acc.initialBalance;
-                          for (final t in state.transactions) {
-                            if (t.accountId != acc.id) continue;
-                            if (t.type == 'income') bal += t.amount;
-                            if (t.type == 'expense') bal -= t.amount;
-                          }
-                          amount = bal;
-                        } else if (acc.isCredit) {
-                          amount = -state.getCardBillForMonth(acc.id, state.currentDate.year, state.currentDate.month);
+                Column(
+                  children: [
+                    ...state.accounts.map((acc) {
+                      int? amount;
+                      if (acc.isBank) {
+                        int bal = acc.initialBalance;
+                        for (final t in state.transactions) {
+                          if (t.accountId != acc.id) continue;
+                          if (t.type == 'income') bal += t.amount;
+                          if (t.type == 'expense') bal -= t.amount;
                         }
-                        return _accountCheckItem(
-                          context, state,
-                          id: acc.id,
-                          icon: acc.isCredit ? '💳' : acc.isDebit ? '💳' : '🏦',
-                          label: acc.name,
-                          subLabel: acc.isCredit ? '[신용]' : acc.isDebit ? '[체크]' : '[통장] ${acc.bank}',
-                          color: hexToColor(acc.color),
-                          amount: amount,
-                          isAll: false,
-                          onLongPress: () => _showAccountActions(context, state, acc),
-                        );
-                      }),
-                    ],
-                  ),
+                        amount = bal;
+                      } else if (acc.isCredit) {
+                        amount = -state.getCardBillForMonth(acc.id, state.currentDate.year, state.currentDate.month);
+                      }
+                      return _accountCheckItem(
+                        context, state,
+                        id: acc.id,
+                        icon: acc.isCredit ? '💳' : acc.isDebit ? '💳' : '🏦',
+                        label: acc.name,
+                        subLabel: acc.isCredit ? '[신용]' : acc.isDebit ? '[체크]' : '[통장] ${acc.bank}',
+                        color: hexToColor(acc.color),
+                        amount: amount,
+                        isAll: false,
+                        onLongPress: () => _showAccountActions(context, state, acc),
+                      );
+                    }),
+                  ],
                 ),
               ],
             ),
+          ),
           ),
         );
       },
