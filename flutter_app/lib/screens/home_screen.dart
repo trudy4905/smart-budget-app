@@ -1423,7 +1423,6 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   String? _accountId;
   final _amountCtrl = TextEditingController();
   final _memoCtrl = TextEditingController();
-  String _payment = '계좌이체';
   late String _dateStr;
 
   @override
@@ -1478,12 +1477,35 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
             _label('금액'),
             TextField(
               controller: _amountCtrl,
-              keyboardType: TextInputType.number,
+              keyboardType: const TextInputType.numberWithOptions(signed: true, decimal: false),
               style: GoogleFonts.notoSansKr(color: Color(0xFF0F172A), fontSize: 20, fontWeight: FontWeight.w700),
               decoration: _inputDecoration('0').copyWith(
                 prefixText: '₩ ',
-                prefixStyle: const TextStyle(color: Color(0xFF4F46E5), fontSize: 20, fontWeight: FontWeight.w700),
+                prefixStyle: const TextStyle(color: Color(0xFF475569), fontSize: 20, fontWeight: FontWeight.w700),
               ),
+              onChanged: (value) {
+                String text = value.replaceAll(',', '');
+                if (text.isEmpty || text == '-') return;
+                final number = int.tryParse(text);
+                if (number != null) {
+                  final formatted = formatNumber(number);
+                  _amountCtrl.value = TextEditingValue(
+                    text: formatted,
+                    selection: TextSelection.collapsed(offset: formatted.length),
+                  );
+                }
+              },
+            ),
+            const SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _amountBtn('+1천', 1000),
+                _amountBtn('+1만', 10000),
+                _amountBtn('+5만', 50000),
+                _amountBtn('+10만', 100000),
+                _amountBtn('C', 0),
+              ],
             ),
             const SizedBox(height: 16),
             _label('날짜'),
@@ -1540,23 +1562,11 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
               dropdownColor: const Color(0xFFFFFFFF),
               style: GoogleFonts.notoSansKr(color: Color(0xFF0F172A)),
               decoration: _inputDecoration('계좌 선택'),
-              items: state.accounts.map((a) {
+              items: state.accounts.where((a) => _type == 'income' ? a.isBank : true).map((a) {
                 final icon = a.isCredit ? '💳[신용]' : a.isDebit ? '💳[체크]' : '🏦';
                 return DropdownMenuItem(value: a.id, child: Text('$icon ${a.name}'));
               }).toList(),
               onChanged: (v) => setState(() => _accountId = v),
-            ),
-            const SizedBox(height: 16),
-            _label('결제수단'),
-            DropdownButtonFormField<String>(
-              value: _payment,
-              dropdownColor: const Color(0xFFFFFFFF),
-              style: GoogleFonts.notoSansKr(color: Color(0xFF0F172A)),
-              decoration: _inputDecoration('결제수단'),
-              items: ['계좌이체', '신용카드', '현금', '기타']
-                  .map((p) => DropdownMenuItem(value: p, child: Text(p)))
-                  .toList(),
-              onChanged: (v) => setState(() => _payment = v ?? _payment),
             ),
             const SizedBox(height: 16),
             _label('메모'),
@@ -1576,22 +1586,57 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
     final isActive = _type == type;
     return Expanded(
       child: GestureDetector(
-        onTap: () => setState(() => _type = type),
+        onTap: () => setState(() {
+          _type = type;
+          final s = context.read<AppState>();
+          if (type == 'income' && _accountId != null) {
+            final acc = s.accounts.firstWhereOrNull((a) => a.id == _accountId);
+            if (acc != null && !acc.isBank) {
+              _accountId = s.accounts.firstWhereOrNull((a) => a.isBank)?.id;
+            }
+          }
+        }),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           padding: const EdgeInsets.symmetric(vertical: 12),
           decoration: BoxDecoration(
-            color: isActive ? const Color(0xFF4F46E5) : Colors.transparent,
+            color: isActive ? const Color(0xFF475569) : Colors.transparent,
             borderRadius: BorderRadius.circular(12),
           ),
           child: Center(
             child: Text(label,
                 style: GoogleFonts.notoSansKr(
-                  color: isActive ? Color(0xFF0F172A) : const Color(0xFF94A3B8),
+                  color: isActive ? const Color(0xFFFFFFFF) : const Color(0xFF94A3B8),
                   fontWeight: isActive ? FontWeight.w700 : FontWeight.w400,
                 )),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _amountBtn(String label, int addVal) {
+    return GestureDetector(
+      onTap: () {
+        if (addVal == 0) {
+          _amountCtrl.clear();
+        } else {
+          int current = int.tryParse(_amountCtrl.text.replaceAll(',', '')) ?? 0;
+          current += addVal;
+          final formatted = formatNumber(current);
+          _amountCtrl.value = TextEditingValue(
+            text: formatted,
+            selection: TextSelection.collapsed(offset: formatted.length),
+          );
+        }
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF1F5F9),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Text(label, style: GoogleFonts.notoSansKr(fontSize: 12, color: const Color(0xFF475569), fontWeight: FontWeight.w600)),
       ),
     );
   }
@@ -1641,7 +1686,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
     context.read<AppState>().addTransaction(Transaction(
       id: 'tx_${DateTime.now().millisecondsSinceEpoch}',
       date: _dateStr, accountId: _accountId!, type: _type,
-      amount: amount, category: _category, memo: _memoCtrl.text, payment: _payment,
+      amount: amount, category: _category, memo: _memoCtrl.text, payment: '자동',
     ));
     Navigator.pop(context);
   }
