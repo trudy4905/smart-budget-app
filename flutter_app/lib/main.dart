@@ -72,34 +72,29 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
-      backgroundColor: const Color(0xFFF1F5F9),
+      backgroundColor: const Color(0xFFFFFFFF),
       drawer: const AppDrawer(),
       body: Consumer<AppState>(
         builder: (context, state, _) {
           if (!state.loaded) {
             return const Center(child: CircularProgressIndicator(color: Color(0xFF4F46E5)));
           }
-          return Stack(
-            children: [
-              Positioned(top: -80, left: -80, child: _glowBlob(const Color(0xFF4F46E5), 250)),
-              Positioned(bottom: 200, right: -80, child: _glowBlob(const Color(0xFF2563EB), 200)),
-              SafeArea(
-                child: Column(
-                  children: [
-                    _buildHeader(state),
-                    _buildMonthCarousel(state),
-                    Expanded(child: _buildCalendarAndDetail(state)),
-                  ],
-                ),
-              ),
-            ],
+          return SafeArea(
+            child: Column(
+              children: [
+                _buildHeader(state),
+                _buildMonthCarousel(state),
+                Expanded(child: _buildCalendarAndDetail(state)),
+              ],
+            ),
           );
         },
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showAddTransactionModal(context),
-        backgroundColor: const Color(0xFF4F46E5),
-        child: const Icon(Icons.add, color: Color(0xFF0F172A), size: 28),
+        backgroundColor: const Color(0xFFC2E7FF),
+        elevation: 2,
+        child: const Icon(Icons.add, color: Color(0xFF001D35), size: 28),
       ),
     );
   }
@@ -268,9 +263,9 @@ class _HomeScreenState extends State<HomeScreen> {
         margin: const EdgeInsets.symmetric(horizontal: 3, vertical: 4),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
         decoration: BoxDecoration(
-          color: isActive ? const Color(0xFF4F46E5) : const Color(0xFFFFFFFF),
+          color: isActive ? const Color(0xFFD3E3FD) : const Color(0xFFFFFFFF),
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: isActive ? const Color(0xFF4F46E5) : const Color(0xFFE2E8F0)),
+          border: Border.all(color: isActive ? Colors.transparent : const Color(0xFFE0E0E0)),
         ),
         child: Center(
           child: Text('${m.month}월',
@@ -309,7 +304,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final dayHeaders = ['일', '월', '화', '수', '목', '금', '토'];
 
     return Container(
-      color: const Color(0xFFF1F5F9),
+      color: const Color(0xFFFFFFFF),
       child: Column(
         children: [
           Padding(
@@ -320,7 +315,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Text(dayHeaders[i],
                       style: GoogleFonts.notoSansKr(
                         fontSize: 11,
-                        color: i == 0 ? const Color(0xFFDC2626) : i == 6 ? const Color(0xFF2563EB) : const Color(0xFF94A3B8),
+                        color: i == 0 ? const Color(0xFFD93025) : i == 6 ? const Color(0xFF1A73E8) : const Color(0xFF70757A),
                         fontWeight: FontWeight.w500,
                       )),
                 ),
@@ -394,13 +389,9 @@ class _HomeScreenState extends State<HomeScreen> {
       onTap: onTap,
       child: Container(
         height: 64,
-        margin: const EdgeInsets.all(1),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF4F46E5).withOpacity(0.25)
-              : isToday ? const Color(0xFFFFFFFF) : Colors.transparent,
-          borderRadius: BorderRadius.circular(8),
-          border: isSelected ? Border.all(color: const Color(0xFF4F46E5), width: 1.5)
-              : isToday ? Border.all(color: const Color(0xFF4F46E5).withOpacity(0.4)) : null,
+          color: isSelected ? const Color(0xFFD3E3FD).withOpacity(0.5) : Colors.transparent,
+          border: Border.all(color: const Color(0xFFE0E0E0), width: 0.5),
         ),
         child: Column(
           children: [
@@ -408,15 +399,15 @@ class _HomeScreenState extends State<HomeScreen> {
             Container(
               width: 22, height: 22,
               decoration: BoxDecoration(
-                color: isToday && !isSelected ? const Color(0xFF4F46E5) : Colors.transparent,
+                color: isToday ? const Color(0xFF1A73E8) : Colors.transparent,
                 shape: BoxShape.circle,
               ),
               child: Center(
                 child: Text('$dayNum',
                     style: GoogleFonts.notoSansKr(
                       fontSize: 11,
-                      fontWeight: isToday || isSelected ? FontWeight.w700 : FontWeight.w400,
-                      color: isOtherMonth ? const Color(0xFFE2E8F0) : Color(0xFF0F172A),
+                      fontWeight: isToday || isSelected ? FontWeight.w700 : FontWeight.w500,
+                      color: isToday ? const Color(0xFFFFFFFF) : (isOtherMonth ? const Color(0xFFD4D4D4) : const Color(0xFF3C4043)),
                     )),
               ),
             ),
@@ -1365,7 +1356,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
     if (!cats.any((c) => c.name == _category)) _category = cats.first.name;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF1F5F9),
+      backgroundColor: const Color(0xFFFFFFFF),
       appBar: AppBar(
         backgroundColor: const Color(0xFFFFFFFF),
         title: Text('항목 추가', style: GoogleFonts.notoSansKr(fontWeight: FontWeight.w700, color: Color(0xFF0F172A))),
