@@ -1497,8 +1497,9 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
               },
             ),
             const SizedBox(height: 8),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
               children: [
                 _amountBtn('+1천', 1000),
                 _amountBtn('+1만', 10000),
@@ -1556,7 +1557,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
               }).toList(),
             ),
             const SizedBox(height: 16),
-            _label('계좌'),
+            _label(_type == 'expense' ? '계좌/카드' : '계좌'),
             DropdownButtonFormField<String>(
               value: _accountId,
               dropdownColor: const Color(0xFFFFFFFF),
