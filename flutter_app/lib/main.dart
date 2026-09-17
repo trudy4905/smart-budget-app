@@ -59,6 +59,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final ScrollController _monthScrollCtrl = ScrollController();
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  final GlobalKey _activeMonthKey = GlobalKey();
 
   @override
   void dispose() {
@@ -132,16 +133,26 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
           const SizedBox(width: 12),
-          // Month + year
+          // Month + year picker trigger
           GestureDetector(
+            behavior: HitTestBehavior.opaque,
             onTap: () => _showMonthPickerDialog(context, state),
-            child: Row(
-              children: [
-                Text(state.currentMonthStr,
-                    style: GoogleFonts.notoSansKr(fontSize: 20, fontWeight: FontWeight.w700, color: Colors.white)),
-                const SizedBox(width: 4),
-                const Icon(Icons.keyboard_arrow_down_rounded, color: Color(0xFF6366F1), size: 22),
-              ],
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
+                color: const Color(0xFF1E293B),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: const Color(0xFF334155)),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(state.currentMonthStr,
+                      style: GoogleFonts.notoSansKr(fontSize: 18, fontWeight: FontWeight.w700, color: Colors.white)),
+                  const SizedBox(width: 4),
+                  const Icon(Icons.keyboard_arrow_down_rounded, color: Color(0xFF6366F1), size: 22),
+                ],
+              ),
             ),
           ),
           const Spacer(),
@@ -167,12 +178,12 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // ---- Month Carousel (starts at current month) ----
+  // ---- Month Carousel (active month aligned to left, past months available by sliding left) ----
   Widget _buildMonthCarousel(AppState state) {
     final now = DateTime.now();
-    // Show current month first, then up to 18 months in the future
-    final start = DateTime(state.currentDate.year, state.currentDate.month, 1);
-    final end = DateTime(now.year, now.month + 18, 1);
+    // Allow past months (3 years back) and future months (2 years forward)
+    final start = DateTime(now.year - 3, 1, 1);
+    final end = DateTime(now.year + 2, 12, 1);
 
     final months = <DateTime>[];
     var cur = DateTime(start.year, start.month, 1);
@@ -181,10 +192,15 @@ class _HomeScreenState extends State<HomeScreen> {
       cur = DateTime(cur.year, cur.month + 1, 1);
     }
 
-    // Scroll to start (left edge) whenever currentDate changes
+    // Scroll active month to far left edge after frame layout
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (_monthScrollCtrl.hasClients) {
-        _monthScrollCtrl.jumpTo(0);
+      if (_monthScrollCtrl.hasClients && _activeMonthKey.currentContext != null) {
+        Scrollable.ensureVisible(
+          _activeMonthKey.currentContext!,
+          alignment: 0.0,
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeOut,
+        );
       }
     });
 
@@ -193,13 +209,14 @@ class _HomeScreenState extends State<HomeScreen> {
     for (final m in months) {
       if (lastYear != null && m.year != lastYear) {
         items.add(Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 6),
-          child: Text('${m.year}', style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF64748B))),
+          padding: const EdgeInsets.only(left: 8, right: 4, top: 8),
+          child: Text('${m.year}년',
+              style: GoogleFonts.notoSansKr(fontSize: 11, fontWeight: FontWeight.bold, color: const Color(0xFF64748B))),
         ));
       }
       lastYear = m.year;
       final isActive = m.year == state.currentDate.year && m.month == state.currentDate.month;
-      items.add(_monthPill(m, isActive, state));
+      items.add(_monthPill(m, isActive, state, key: isActive ? _activeMonthKey : null));
     }
 
     return SizedBox(
@@ -213,8 +230,9 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _monthPill(DateTime m, bool isActive, AppState state) {
+  Widget _monthPill(DateTime m, bool isActive, AppState state, {Key? key}) {
     return GestureDetector(
+      key: key,
       onTap: () {
         state.setCurrentDate(m);
         state.setSelectedDate('${m.year}-${m.month.toString().padLeft(2, '0')}-01');
@@ -228,55 +246,19 @@ class _HomeScreenState extends State<HomeScreen> {
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: isActive ? const Color(0xFF6366F1) : const Color(0xFF334155)),
         ),
-        child: Text('${m.month}월',
-            style: GoogleFonts.notoSansKr(
-              fontSize: 12,
-              fontWeight: isActive ? FontWeight.w700 : FontWeight.w400,
-              color: isActive ? Colors.white : const Color(0xFF94A3B8),
-            )),
-      ),
-    );
-  }
-
-  // ---- Summary Cards ----
-  Widget _buildSummaryCards(AppState state) {
-    final summary = state.getMonthlySummary(state.currentDate.year, state.currentDate.month);
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      child: Row(
-        children: [
-          _summaryCard('수입', summary['income']!, const Color(0xFF10B981), '💵'),
-          const SizedBox(width: 8),
-          _summaryCard('현금지출', summary['cash']!, const Color(0xFFF43F5E), '💰'),
-          const SizedBox(width: 8),
-          _summaryCard('카드', summary['card']!, const Color(0xFFA855F7), '💳'),
-        ],
-      ),
-    );
-  }
-
-  Widget _summaryCard(String label, int amount, Color color, String emoji) {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-        decoration: BoxDecoration(
-          color: const Color(0xFF1E293B),
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: const Color(0xFF334155)),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('$emoji $label', style: GoogleFonts.notoSansKr(fontSize: 10, color: const Color(0xFF94A3B8))),
-            const SizedBox(height: 4),
-            Text('₩${formatNumber(amount)}',
-                style: GoogleFonts.notoSansKr(fontSize: 13, fontWeight: FontWeight.w700, color: color),
-                overflow: TextOverflow.ellipsis),
-          ],
+        child: Center(
+          child: Text('${m.month}월',
+              style: GoogleFonts.notoSansKr(
+                fontSize: 12,
+                fontWeight: isActive ? FontWeight.w700 : FontWeight.w400,
+                color: isActive ? Colors.white : const Color(0xFF94A3B8),
+              )),
         ),
       ),
     );
   }
+
+
 
   // ---- Calendar + Daily Detail ----
   Widget _buildCalendarAndDetail(AppState state) {
@@ -617,37 +599,45 @@ class _HomeScreenState extends State<HomeScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               IconButton(icon: const Icon(Icons.chevron_left, color: Colors.white), onPressed: () => setDialogState(() => displayYear--)),
-              Text('$displayYear년', style: GoogleFonts.notoSansKr(color: Colors.white, fontWeight: FontWeight.w700)),
+              Text('$displayYear년', style: GoogleFonts.notoSansKr(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 18)),
               IconButton(icon: const Icon(Icons.chevron_right, color: Colors.white), onPressed: () => setDialogState(() => displayYear++)),
             ],
           ),
-          content: GridView.count(
-            crossAxisCount: 4, shrinkWrap: true, mainAxisSpacing: 8, crossAxisSpacing: 8,
-            children: List.generate(12, (i) {
-              final isActive = displayYear == state.currentDate.year && i + 1 == state.currentDate.month;
-              return GestureDetector(
-                onTap: () {
-                  state.setCurrentDate(DateTime(displayYear, i + 1, 1));
-                  state.setSelectedDate('$displayYear-${(i + 1).toString().padLeft(2, '0')}-01');
-                  Navigator.pop(ctx);
-                },
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 150),
-                  decoration: BoxDecoration(
-                    color: isActive ? const Color(0xFF6366F1) : const Color(0xFF0F172A),
-                    borderRadius: BorderRadius.circular(10),
+          content: SizedBox(
+            width: 300,
+            child: GridView.count(
+              crossAxisCount: 4,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              mainAxisSpacing: 8,
+              crossAxisSpacing: 8,
+              children: List.generate(12, (i) {
+                final isActive = displayYear == state.currentDate.year && i + 1 == state.currentDate.month;
+                return GestureDetector(
+                  onTap: () {
+                    state.setCurrentDate(DateTime(displayYear, i + 1, 1));
+                    state.setSelectedDate('$displayYear-${(i + 1).toString().padLeft(2, '0')}-01');
+                    Navigator.pop(ctx);
+                  },
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 150),
+                    decoration: BoxDecoration(
+                      color: isActive ? const Color(0xFF6366F1) : const Color(0xFF0F172A),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: isActive ? const Color(0xFF6366F1) : const Color(0xFF334155)),
+                    ),
+                    child: Center(
+                      child: Text('${i + 1}월',
+                          style: GoogleFonts.notoSansKr(
+                            color: isActive ? Colors.white : const Color(0xFF94A3B8),
+                            fontWeight: isActive ? FontWeight.w700 : FontWeight.w400,
+                            fontSize: 13,
+                          )),
+                    ),
                   ),
-                  child: Center(
-                    child: Text('${i + 1}월',
-                        style: GoogleFonts.notoSansKr(
-                          color: isActive ? Colors.white : const Color(0xFF94A3B8),
-                          fontWeight: isActive ? FontWeight.w700 : FontWeight.w400,
-                          fontSize: 13,
-                        )),
-                  ),
-                ),
-              );
-            }),
+                );
+              }),
+            ),
           ),
         ),
       ),
