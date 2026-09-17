@@ -31,15 +31,15 @@ class SmartBudgetApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         brightness: Brightness.dark,
-        scaffoldBackgroundColor: const Color(0xFF0F172A),
-        primaryColor: const Color(0xFF6366F1),
+        scaffoldBackgroundColor: const Color(0xFFF1F5F9),
+        primaryColor: const Color(0xFF4F46E5),
         colorScheme: const ColorScheme.dark(
-          primary: Color(0xFF6366F1),
-          secondary: Color(0xFF3B82F6),
-          surface: Color(0xFF1E293B),
+          primary: Color(0xFF4F46E5),
+          secondary: Color(0xFF2563EB),
+          surface: Color(0xFFFFFFFF),
         ),
         textTheme: GoogleFonts.notoSansKrTextTheme(ThemeData.dark().textTheme),
-        drawerTheme: const DrawerThemeData(backgroundColor: Color(0xFF0F172A)),
+        drawerTheme: const DrawerThemeData(backgroundColor: Color(0xFFF1F5F9)),
       ),
       home: const HomeScreen(),
     );
@@ -72,17 +72,17 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
-      backgroundColor: const Color(0xFF0F172A),
+      backgroundColor: const Color(0xFFF1F5F9),
       drawer: const AppDrawer(),
       body: Consumer<AppState>(
         builder: (context, state, _) {
           if (!state.loaded) {
-            return const Center(child: CircularProgressIndicator(color: Color(0xFF6366F1)));
+            return const Center(child: CircularProgressIndicator(color: Color(0xFF4F46E5)));
           }
           return Stack(
             children: [
-              Positioned(top: -80, left: -80, child: _glowBlob(const Color(0xFF6366F1), 250)),
-              Positioned(bottom: 200, right: -80, child: _glowBlob(const Color(0xFF3B82F6), 200)),
+              Positioned(top: -80, left: -80, child: _glowBlob(const Color(0xFF4F46E5), 250)),
+              Positioned(bottom: 200, right: -80, child: _glowBlob(const Color(0xFF2563EB), 200)),
               SafeArea(
                 child: Column(
                   children: [
@@ -98,8 +98,8 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showAddTransactionModal(context),
-        backgroundColor: const Color(0xFF6366F1),
-        child: const Icon(Icons.add, color: Colors.white, size: 28),
+        backgroundColor: const Color(0xFF4F46E5),
+        child: const Icon(Icons.add, color: Color(0xFF0F172A), size: 28),
       ),
     );
   }
@@ -127,11 +127,11 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: const Color(0xFF1E293B),
+                color: const Color(0xFFFFFFFF),
                 borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: const Color(0xFF334155)),
+                border: Border.all(color: const Color(0xFFE2E8F0)),
               ),
-              child: const Icon(Icons.menu_rounded, color: Colors.white, size: 20),
+              child: const Icon(Icons.menu_rounded, color: Color(0xFF0F172A), size: 20),
             ),
           ),
           const SizedBox(width: 12),
@@ -142,17 +142,17 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               decoration: BoxDecoration(
-                color: const Color(0xFF1E293B),
+                color: const Color(0xFFFFFFFF),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFF334155)),
+                border: Border.all(color: const Color(0xFFE2E8F0)),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(state.currentMonthStr,
-                      style: GoogleFonts.notoSansKr(fontSize: 18, fontWeight: FontWeight.w700, color: Colors.white)),
+                      style: GoogleFonts.notoSansKr(fontSize: 18, fontWeight: FontWeight.w700, color: Color(0xFF0F172A))),
                   const SizedBox(width: 4),
-                  const Icon(Icons.keyboard_arrow_down_rounded, color: Color(0xFF6366F1), size: 22),
+                  const Icon(Icons.keyboard_arrow_down_rounded, color: Color(0xFF4F46E5), size: 22),
                 ],
               ),
             ),
@@ -169,16 +169,16 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
-                color: const Color(0xFF1E293B),
+                color: const Color(0xFFFFFFFF),
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: const Color(0xFF6366F1).withOpacity(0.6)),
+                border: Border.all(color: const Color(0xFF4F46E5).withOpacity(0.6)),
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.today_rounded, size: 16, color: Color(0xFF6366F1)),
+                  const Icon(Icons.today_rounded, size: 16, color: Color(0xFF4F46E5)),
                   const SizedBox(width: 6),
                   Text('${now.day}일',
-                      style: GoogleFonts.notoSansKr(fontSize: 13, fontWeight: FontWeight.w700, color: Colors.white)),
+                      style: GoogleFonts.notoSansKr(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF0F172A))),
                 ],
               ),
             ),
@@ -212,7 +212,7 @@ class _HomeScreenState extends State<HomeScreen> {
         items.add(Padding(
           padding: const EdgeInsets.only(left: 8, right: 4, top: 8),
           child: Text('${m.year}년',
-              style: GoogleFonts.notoSansKr(fontSize: 11, fontWeight: FontWeight.bold, color: const Color(0xFF64748B))),
+              style: GoogleFonts.notoSansKr(fontSize: 11, fontWeight: FontWeight.bold, color: const Color(0xFF94A3B8))),
         ));
         currentAccumulatedWidth += 46.0;
       }
@@ -268,16 +268,16 @@ class _HomeScreenState extends State<HomeScreen> {
         margin: const EdgeInsets.symmetric(horizontal: 3, vertical: 4),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
         decoration: BoxDecoration(
-          color: isActive ? const Color(0xFF6366F1) : const Color(0xFF1E293B),
+          color: isActive ? const Color(0xFF4F46E5) : const Color(0xFFFFFFFF),
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: isActive ? const Color(0xFF6366F1) : const Color(0xFF334155)),
+          border: Border.all(color: isActive ? const Color(0xFF4F46E5) : const Color(0xFFE2E8F0)),
         ),
         child: Center(
           child: Text('${m.month}월',
               style: GoogleFonts.notoSansKr(
                 fontSize: 12,
                 fontWeight: isActive ? FontWeight.w700 : FontWeight.w400,
-                color: isActive ? Colors.white : const Color(0xFF94A3B8),
+                color: isActive ? Color(0xFF0F172A) : const Color(0xFF64748B),
               )),
         ),
       ),
@@ -291,7 +291,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Column(
       children: [
         _buildCalendarGrid(state),
-        const Divider(color: Color(0xFF1E293B), height: 1),
+        const Divider(color: Color(0xFFFFFFFF), height: 1),
         Expanded(child: _buildDailyDetail(state)),
       ],
     );
@@ -309,7 +309,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final dayHeaders = ['일', '월', '화', '수', '목', '금', '토'];
 
     return Container(
-      color: const Color(0xFF0F172A),
+      color: const Color(0xFFF1F5F9),
       child: Column(
         children: [
           Padding(
@@ -320,7 +320,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Text(dayHeaders[i],
                       style: GoogleFonts.notoSansKr(
                         fontSize: 11,
-                        color: i == 0 ? const Color(0xFFEF4444) : i == 6 ? const Color(0xFF3B82F6) : const Color(0xFF64748B),
+                        color: i == 0 ? const Color(0xFFDC2626) : i == 6 ? const Color(0xFF2563EB) : const Color(0xFF94A3B8),
                         fontWeight: FontWeight.w500,
                       )),
                 ),
@@ -396,11 +396,11 @@ class _HomeScreenState extends State<HomeScreen> {
         height: 64,
         margin: const EdgeInsets.all(1),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF6366F1).withOpacity(0.25)
-              : isToday ? const Color(0xFF1E293B) : Colors.transparent,
+          color: isSelected ? const Color(0xFF4F46E5).withOpacity(0.25)
+              : isToday ? const Color(0xFFFFFFFF) : Colors.transparent,
           borderRadius: BorderRadius.circular(8),
-          border: isSelected ? Border.all(color: const Color(0xFF6366F1), width: 1.5)
-              : isToday ? Border.all(color: const Color(0xFF6366F1).withOpacity(0.4)) : null,
+          border: isSelected ? Border.all(color: const Color(0xFF4F46E5), width: 1.5)
+              : isToday ? Border.all(color: const Color(0xFF4F46E5).withOpacity(0.4)) : null,
         ),
         child: Column(
           children: [
@@ -408,7 +408,7 @@ class _HomeScreenState extends State<HomeScreen> {
             Container(
               width: 22, height: 22,
               decoration: BoxDecoration(
-                color: isToday && !isSelected ? const Color(0xFF6366F1) : Colors.transparent,
+                color: isToday && !isSelected ? const Color(0xFF4F46E5) : Colors.transparent,
                 shape: BoxShape.circle,
               ),
               child: Center(
@@ -416,7 +416,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     style: GoogleFonts.notoSansKr(
                       fontSize: 11,
                       fontWeight: isToday || isSelected ? FontWeight.w700 : FontWeight.w400,
-                      color: isOtherMonth ? const Color(0xFF334155) : Colors.white,
+                      color: isOtherMonth ? const Color(0xFFE2E8F0) : Color(0xFF0F172A),
                     )),
               ),
             ),
@@ -444,8 +444,8 @@ class _HomeScreenState extends State<HomeScreen> {
           Container(
             margin: const EdgeInsets.only(top: 1),
             padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 1),
-            decoration: BoxDecoration(color: const Color(0xFF334155), borderRadius: BorderRadius.circular(3)),
-            child: Text('+$overflow', style: GoogleFonts.notoSansKr(fontSize: 8, color: const Color(0xFF94A3B8))),
+            decoration: BoxDecoration(color: const Color(0xFFE2E8F0), borderRadius: BorderRadius.circular(3)),
+            child: Text('+$overflow', style: GoogleFonts.notoSansKr(fontSize: 8, color: const Color(0xFF64748B))),
           ),
       ],
     );
@@ -459,13 +459,13 @@ class _HomeScreenState extends State<HomeScreen> {
     Color chipColor;
     String icon, text;
     if (isIncome) {
-      chipColor = const Color(0xFF10B981); icon = '💵';
+      chipColor = const Color(0xFF059669); icon = '💵';
       text = '+${formatCompactNumber(t.amount)}';
     } else if (isCard) {
-      chipColor = const Color(0xFFA855F7); icon = '💳';
+      chipColor = const Color(0xFF9333EA); icon = '💳';
       text = t.memo.isNotEmpty ? t.memo.split(' ').first : t.category;
     } else {
-      chipColor = const Color(0xFFF43F5E); icon = '💰';
+      chipColor = const Color(0xFFE11D48); icon = '💰';
       text = t.amount > 0 ? '-${formatCompactNumber(t.amount)}' : (t.memo.isNotEmpty ? t.memo : t.category);
     }
 
@@ -506,9 +506,9 @@ class _HomeScreenState extends State<HomeScreen> {
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
           child: Row(
             children: [
-              Text(titleText, style: GoogleFonts.notoSansKr(fontSize: 15, fontWeight: FontWeight.w700, color: Colors.white)),
+              Text(titleText, style: GoogleFonts.notoSansKr(fontSize: 15, fontWeight: FontWeight.w700, color: Color(0xFF0F172A))),
               const Spacer(),
-              Text('지출 ₩${formatNumber(dailyExpense)}', style: GoogleFonts.notoSansKr(fontSize: 12, color: const Color(0xFFF43F5E))),
+              Text('지출 ₩${formatNumber(dailyExpense)}', style: GoogleFonts.notoSansKr(fontSize: 12, color: const Color(0xFFE11D48))),
             ],
           ),
         ),
@@ -518,11 +518,11 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(Icons.receipt_long_outlined, color: Color(0xFF334155), size: 40),
+                      const Icon(Icons.receipt_long_outlined, color: Color(0xFFE2E8F0), size: 40),
                       const SizedBox(height: 8),
-                      Text('등록된 내역이 없습니다', style: GoogleFonts.notoSansKr(color: const Color(0xFF64748B), fontSize: 13)),
+                      Text('등록된 내역이 없습니다', style: GoogleFonts.notoSansKr(color: const Color(0xFF94A3B8), fontSize: 13)),
                       const SizedBox(height: 4),
-                      Text('+ 항목 추가를 눌러 기록해보세요', style: GoogleFonts.notoSansKr(color: const Color(0xFF475569), fontSize: 11)),
+                      Text('+ 항목 추가를 눌러 기록해보세요', style: GoogleFonts.notoSansKr(color: const Color(0xFFF8FAFC), fontSize: 11)),
                     ],
                   ),
                 )
@@ -540,7 +540,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final acc = state.accounts.firstWhereOrNull((a) => a.id == tx.accountId);
     final catInfo = getCategoryInfo(tx.category);
     final isExpense = tx.type == 'expense';
-    final amountColor = isExpense ? const Color(0xFFF43F5E) : const Color(0xFF10B981);
+    final amountColor = isExpense ? const Color(0xFFE11D48) : const Color(0xFF059669);
     final accLabel = acc != null
         ? (acc.isCredit ? '💳[신용] ${acc.name}' : acc.isDebit ? '💳[체크] ${acc.name}' : '🏦 ${acc.name}')
         : '미지정 계좌';
@@ -549,9 +549,9 @@ class _HomeScreenState extends State<HomeScreen> {
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
-        color: const Color(0xFF1E293B),
+        color: const Color(0xFFFFFFFF),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xFF334155)),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
       ),
       child: Row(
         children: [
@@ -566,11 +566,11 @@ class _HomeScreenState extends State<HomeScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(tx.memo.isNotEmpty ? tx.memo : tx.category,
-                    style: GoogleFonts.notoSansKr(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.white),
+                    style: GoogleFonts.notoSansKr(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF0F172A)),
                     overflow: TextOverflow.ellipsis),
                 const SizedBox(height: 3),
                 Text('$accLabel • ${tx.category} • ${tx.payment.isNotEmpty ? tx.payment : '미지정'}',
-                    style: GoogleFonts.notoSansKr(fontSize: 10, color: const Color(0xFF64748B)),
+                    style: GoogleFonts.notoSansKr(fontSize: 10, color: const Color(0xFF94A3B8)),
                     overflow: TextOverflow.ellipsis),
               ],
             ),
@@ -585,7 +585,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 onTap: () => _confirmDelete(tx.id, state),
                 child: const Padding(
                   padding: EdgeInsets.only(top: 4),
-                  child: Icon(Icons.delete_outline, size: 16, color: Color(0xFF64748B)),
+                  child: Icon(Icons.delete_outline, size: 16, color: Color(0xFF94A3B8)),
                 ),
               ),
             ],
@@ -599,14 +599,14 @@ class _HomeScreenState extends State<HomeScreen> {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        backgroundColor: const Color(0xFF1E293B),
-        title: Text('삭제', style: GoogleFonts.notoSansKr(color: Colors.white)),
-        content: Text('해당 내역을 삭제하시겠습니까?', style: GoogleFonts.notoSansKr(color: const Color(0xFF94A3B8))),
+        backgroundColor: const Color(0xFFFFFFFF),
+        title: Text('삭제', style: GoogleFonts.notoSansKr(color: Color(0xFF0F172A))),
+        content: Text('해당 내역을 삭제하시겠습니까?', style: GoogleFonts.notoSansKr(color: const Color(0xFF64748B))),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: Text('취소', style: GoogleFonts.notoSansKr(color: const Color(0xFF64748B)))),
+          TextButton(onPressed: () => Navigator.pop(context), child: Text('취소', style: GoogleFonts.notoSansKr(color: const Color(0xFF94A3B8)))),
           TextButton(
             onPressed: () { state.deleteTransaction(id); Navigator.pop(context); },
-            child: Text('삭제', style: GoogleFonts.notoSansKr(color: const Color(0xFFF43F5E))),
+            child: Text('삭제', style: GoogleFonts.notoSansKr(color: const Color(0xFFE11D48))),
           ),
         ],
       ),
@@ -619,14 +619,14 @@ class _HomeScreenState extends State<HomeScreen> {
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setDialogState) => AlertDialog(
-          backgroundColor: const Color(0xFF1E293B),
+          backgroundColor: const Color(0xFFFFFFFF),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           title: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              IconButton(icon: const Icon(Icons.chevron_left, color: Colors.white), onPressed: () => setDialogState(() => displayYear--)),
-              Text('$displayYear년', style: GoogleFonts.notoSansKr(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 18)),
-              IconButton(icon: const Icon(Icons.chevron_right, color: Colors.white), onPressed: () => setDialogState(() => displayYear++)),
+              IconButton(icon: const Icon(Icons.chevron_left, color: Color(0xFF0F172A)), onPressed: () => setDialogState(() => displayYear--)),
+              Text('$displayYear년', style: GoogleFonts.notoSansKr(color: Color(0xFF0F172A), fontWeight: FontWeight.w700, fontSize: 18)),
+              IconButton(icon: const Icon(Icons.chevron_right, color: Color(0xFF0F172A)), onPressed: () => setDialogState(() => displayYear++)),
             ],
           ),
           content: SizedBox(
@@ -649,14 +649,14 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 150),
                     decoration: BoxDecoration(
-                      color: isActive ? const Color(0xFF6366F1) : const Color(0xFF0F172A),
+                      color: isActive ? const Color(0xFF4F46E5) : const Color(0xFFF1F5F9),
                       borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: isActive ? const Color(0xFF6366F1) : const Color(0xFF334155)),
+                      border: Border.all(color: isActive ? const Color(0xFF4F46E5) : const Color(0xFFE2E8F0)),
                     ),
                     child: Center(
                       child: Text('${i + 1}월',
                           style: GoogleFonts.notoSansKr(
-                            color: isActive ? Colors.white : const Color(0xFF94A3B8),
+                            color: isActive ? Color(0xFF0F172A) : const Color(0xFF64748B),
                             fontWeight: isActive ? FontWeight.w700 : FontWeight.w400,
                             fontSize: 13,
                           )),
@@ -704,7 +704,7 @@ class AppDrawer extends StatelessWidget {
 
         return Drawer(
           width: MediaQuery.of(context).size.width * 0.82,
-          backgroundColor: const Color(0xFF0F172A),
+          backgroundColor: const Color(0xFFF1F5F9),
           child: SafeArea(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -713,7 +713,7 @@ class AppDrawer extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
                   decoration: const BoxDecoration(
-                    border: Border(bottom: BorderSide(color: Color(0xFF1E293B))),
+                    border: Border(bottom: BorderSide(color: Color(0xFFFFFFFF))),
                   ),
                   child: Row(
                     children: [
@@ -721,27 +721,27 @@ class AppDrawer extends StatelessWidget {
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
                           gradient: const LinearGradient(
-                            colors: [Color(0xFF6366F1), Color(0xFF8B5CF6)],
+                            colors: [Color(0xFF4F46E5), Color(0xFF7C3AED)],
                             begin: Alignment.topLeft, end: Alignment.bottomRight,
                           ),
                           borderRadius: BorderRadius.circular(14),
                         ),
-                        child: const Icon(Icons.account_balance_wallet, color: Colors.white, size: 20),
+                        child: const Icon(Icons.account_balance_wallet, color: Color(0xFF0F172A), size: 20),
                       ),
                       const SizedBox(width: 12),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text('Smart Budget',
-                              style: GoogleFonts.notoSansKr(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
+                              style: GoogleFonts.notoSansKr(fontSize: 16, fontWeight: FontWeight.w700, color: Color(0xFF0F172A))),
                           Text(state.currentMonthStr,
-                              style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF64748B))),
+                              style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF94A3B8))),
                         ],
                       ),
                       const Spacer(),
                       GestureDetector(
                         onTap: () => Navigator.pop(context),
-                        child: const Icon(Icons.close, color: Color(0xFF64748B), size: 20),
+                        child: const Icon(Icons.close, color: Color(0xFF94A3B8), size: 20),
                       ),
                     ],
                   ),
@@ -750,7 +750,7 @@ class AppDrawer extends StatelessWidget {
                 // ---- 요약 (Filter Menu) ----
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                  child: Text('요약', style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF64748B), fontWeight: FontWeight.w600)),
+                  child: Text('요약', style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF94A3B8), fontWeight: FontWeight.w600)),
                 ),
                 _drawerFilterItem(context, state, 'all', '🌐 전체', null, summary['income']! - summary['total']!),
                 _drawerFilterItem(context, state, 'income', '💵 수입', null, summary['income']!),
@@ -758,14 +758,14 @@ class AppDrawer extends StatelessWidget {
                 _drawerFilterItem(context, state, 'card', '💳 카드 지출', '(다음달 예정)', summary['card']!),
                 _drawerFilterItem(context, state, 'total_expense', '📊 전체 지출', null, summary['total']!),
 
-                const Divider(color: Color(0xFF1E293B), height: 24),
+                const Divider(color: Color(0xFFFFFFFF), height: 24),
 
                 // ---- 목록 선택 ----
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                   child: Row(
                     children: [
-                      Text('목록 선택', style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF64748B), fontWeight: FontWeight.w600)),
+                      Text('목록 선택', style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF94A3B8), fontWeight: FontWeight.w600)),
                       const Spacer(),
                       GestureDetector(
                         onTap: () {
@@ -775,16 +775,16 @@ class AppDrawer extends StatelessWidget {
                         child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF6366F1).withOpacity(0.15),
+                            color: const Color(0xFF4F46E5).withOpacity(0.15),
                             borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: const Color(0xFF6366F1).withOpacity(0.3)),
+                            border: Border.all(color: const Color(0xFF4F46E5).withOpacity(0.3)),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Icon(Icons.add, size: 12, color: Color(0xFF6366F1)),
+                              const Icon(Icons.add, size: 12, color: Color(0xFF4F46E5)),
                               const SizedBox(width: 4),
-                              Text('계좌/카드 추가', style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF6366F1))),
+                              Text('계좌/카드 추가', style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF4F46E5))),
                             ],
                           ),
                         ),
@@ -799,7 +799,7 @@ class AppDrawer extends StatelessWidget {
                   icon: '🌐',
                   label: '전체 (모든 계좌)',
                   subLabel: '${state.accounts.length}개 계좌',
-                  color: const Color(0xFF6366F1),
+                  color: const Color(0xFF4F46E5),
                   amount: null,
                   isAll: true,
                 ),
@@ -870,10 +870,10 @@ class AppDrawer extends StatelessWidget {
     final isActive = state.drawerFilter == filter;
     final isPositive = amount >= 0;
     final amountColor = filter == 'income'
-        ? const Color(0xFF10B981)
+        ? const Color(0xFF059669)
         : filter == 'all'
-            ? (isPositive ? const Color(0xFF10B981) : const Color(0xFFF43F5E))
-            : const Color(0xFFF43F5E);
+            ? (isPositive ? const Color(0xFF059669) : const Color(0xFFE11D48))
+            : const Color(0xFFE11D48);
     final amountStr = filter == 'income' || filter == 'all'
         ? (isPositive ? '+₩${formatCompactNumber(amount)}' : '-₩${formatCompactNumber(amount.abs())}')
         : '-₩${formatCompactNumber(amount)}';
@@ -888,9 +888,9 @@ class AppDrawer extends StatelessWidget {
         margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         decoration: BoxDecoration(
-          color: isActive ? const Color(0xFF6366F1).withOpacity(0.15) : Colors.transparent,
+          color: isActive ? const Color(0xFF4F46E5).withOpacity(0.15) : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
-          border: isActive ? Border.all(color: const Color(0xFF6366F1).withOpacity(0.4)) : null,
+          border: isActive ? Border.all(color: const Color(0xFF4F46E5).withOpacity(0.4)) : null,
         ),
         child: Row(
           children: [
@@ -901,10 +901,10 @@ class AppDrawer extends StatelessWidget {
                   Text(label,
                       style: GoogleFonts.notoSansKr(
                         fontSize: 13, fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
-                        color: isActive ? const Color(0xFF6366F1) : Colors.white,
+                        color: isActive ? const Color(0xFF4F46E5) : Color(0xFF0F172A),
                       )),
                   if (sub != null)
-                    Text(sub, style: GoogleFonts.notoSansKr(fontSize: 10, color: const Color(0xFF64748B))),
+                    Text(sub, style: GoogleFonts.notoSansKr(fontSize: 10, color: const Color(0xFF94A3B8))),
                 ],
               ),
             ),
@@ -912,7 +912,7 @@ class AppDrawer extends StatelessWidget {
                 style: GoogleFonts.notoSansKr(fontSize: 12, fontWeight: FontWeight.w700, color: amountColor)),
             if (isActive) ...[
               const SizedBox(width: 6),
-              const Icon(Icons.check_rounded, size: 14, color: Color(0xFF6366F1)),
+              const Icon(Icons.check_rounded, size: 14, color: Color(0xFF4F46E5)),
             ],
           ],
         ),
@@ -975,9 +975,9 @@ class AppDrawer extends StatelessWidget {
               decoration: BoxDecoration(
                 color: isChecked ? color : Colors.transparent,
                 borderRadius: BorderRadius.circular(6),
-                border: Border.all(color: isChecked ? color : const Color(0xFF334155), width: 2),
+                border: Border.all(color: isChecked ? color : const Color(0xFFE2E8F0), width: 2),
               ),
-              child: isChecked ? const Icon(Icons.check, size: 12, color: Colors.white) : null,
+              child: isChecked ? const Icon(Icons.check, size: 12, color: Color(0xFF0F172A)) : null,
             ),
             const SizedBox(width: 12),
             Text('$icon ', style: const TextStyle(fontSize: 14)),
@@ -988,10 +988,10 @@ class AppDrawer extends StatelessWidget {
                   Text(label,
                       style: GoogleFonts.notoSansKr(
                         fontSize: 13,
-                        color: isChecked ? Colors.white : const Color(0xFF94A3B8),
+                        color: isChecked ? Color(0xFF0F172A) : const Color(0xFF64748B),
                         fontWeight: isChecked ? FontWeight.w600 : FontWeight.w400,
                       )),
-                  Text(subLabel, style: GoogleFonts.notoSansKr(fontSize: 10, color: const Color(0xFF64748B))),
+                  Text(subLabel, style: GoogleFonts.notoSansKr(fontSize: 10, color: const Color(0xFF94A3B8))),
                 ],
               ),
             ),
@@ -1000,7 +1000,7 @@ class AppDrawer extends StatelessWidget {
                 amount >= 0 ? '₩${formatNumber(amount)}' : '-₩${formatNumber(amount.abs())}',
                 style: GoogleFonts.notoSansKr(
                   fontSize: 11, fontWeight: FontWeight.w600,
-                  color: amount >= 0 ? const Color(0xFF10B981) : const Color(0xFFF43F5E),
+                  color: amount >= 0 ? const Color(0xFF059669) : const Color(0xFFE11D48),
                 ),
               ),
             if (onLongPress != null)
@@ -1008,7 +1008,7 @@ class AppDrawer extends StatelessWidget {
                 onTap: onLongPress,
                 child: const Padding(
                   padding: EdgeInsets.only(left: 8),
-                  child: Icon(Icons.more_vert, size: 16, color: Color(0xFF64748B)),
+                  child: Icon(Icons.more_vert, size: 16, color: Color(0xFF94A3B8)),
                 ),
               ),
           ],
@@ -1020,7 +1020,7 @@ class AppDrawer extends StatelessWidget {
   void _showAccountActions(BuildContext context, AppState state, Account acc) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: const Color(0xFF1E293B),
+      backgroundColor: const Color(0xFFFFFFFF),
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (_) => Padding(
         padding: const EdgeInsets.all(20),
@@ -1028,26 +1028,26 @@ class AppDrawer extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(acc.name, style: GoogleFonts.notoSansKr(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
+            Text(acc.name, style: GoogleFonts.notoSansKr(fontSize: 16, fontWeight: FontWeight.w700, color: Color(0xFF0F172A))),
             const SizedBox(height: 4),
-            Text(acc.bank, style: GoogleFonts.notoSansKr(fontSize: 12, color: const Color(0xFF64748B))),
+            Text(acc.bank, style: GoogleFonts.notoSansKr(fontSize: 12, color: const Color(0xFF94A3B8))),
             const SizedBox(height: 16),
             ListTile(
-              leading: const Icon(Icons.delete_outline, color: Color(0xFFF43F5E)),
-              title: Text('계좌 삭제', style: GoogleFonts.notoSansKr(color: const Color(0xFFF43F5E))),
+              leading: const Icon(Icons.delete_outline, color: Color(0xFFE11D48)),
+              title: Text('계좌 삭제', style: GoogleFonts.notoSansKr(color: const Color(0xFFE11D48))),
               onTap: () {
                 Navigator.pop(context);
                 showDialog(
                   context: context,
                   builder: (_) => AlertDialog(
-                    backgroundColor: const Color(0xFF1E293B),
-                    title: Text('계좌 삭제', style: GoogleFonts.notoSansKr(color: Colors.white)),
-                    content: Text('${acc.name}을(를) 삭제하시겠습니까?', style: GoogleFonts.notoSansKr(color: const Color(0xFF94A3B8))),
+                    backgroundColor: const Color(0xFFFFFFFF),
+                    title: Text('계좌 삭제', style: GoogleFonts.notoSansKr(color: Color(0xFF0F172A))),
+                    content: Text('${acc.name}을(를) 삭제하시겠습니까?', style: GoogleFonts.notoSansKr(color: const Color(0xFF64748B))),
                     actions: [
-                      TextButton(onPressed: () => Navigator.pop(context), child: Text('취소', style: GoogleFonts.notoSansKr(color: const Color(0xFF64748B)))),
+                      TextButton(onPressed: () => Navigator.pop(context), child: Text('취소', style: GoogleFonts.notoSansKr(color: const Color(0xFF94A3B8)))),
                       TextButton(
                         onPressed: () { state.deleteAccount(acc.id); Navigator.pop(context); },
-                        child: Text('삭제', style: GoogleFonts.notoSansKr(color: const Color(0xFFF43F5E))),
+                        child: Text('삭제', style: GoogleFonts.notoSansKr(color: const Color(0xFFE11D48))),
                       ),
                     ],
                   ),
@@ -1063,7 +1063,7 @@ class AppDrawer extends StatelessWidget {
   void _showAddAccountDialog(BuildContext context, AppState state) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: const Color(0xFF1E293B),
+      backgroundColor: const Color(0xFFFFFFFF),
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (_) => ChangeNotifierProvider.value(
@@ -1120,15 +1120,15 @@ class _AddAccountSheetState extends State<AddAccountSheet> {
           children: [
             Row(
               children: [
-                Text('계좌 추가', style: GoogleFonts.notoSansKr(fontSize: 18, fontWeight: FontWeight.w700, color: Colors.white)),
+                Text('계좌 추가', style: GoogleFonts.notoSansKr(fontSize: 18, fontWeight: FontWeight.w700, color: Color(0xFF0F172A))),
                 const Spacer(),
-                GestureDetector(onTap: () => Navigator.pop(context), child: const Icon(Icons.close, color: Color(0xFF64748B))),
+                GestureDetector(onTap: () => Navigator.pop(context), child: const Icon(Icons.close, color: Color(0xFF94A3B8))),
               ],
             ),
             const SizedBox(height: 16),
             // Type toggle
             Container(
-              decoration: BoxDecoration(color: const Color(0xFF0F172A), borderRadius: BorderRadius.circular(10)),
+              decoration: BoxDecoration(color: const Color(0xFFF1F5F9), borderRadius: BorderRadius.circular(10)),
               child: Row(
                 children: [
                   _typeTab('bank', '🏦 통장'),
@@ -1139,7 +1139,7 @@ class _AddAccountSheetState extends State<AddAccountSheet> {
             ),
             const SizedBox(height: 14),
             // Bank/card selection
-            Text(_type == 'credit' ? '카드사' : '은행', style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF94A3B8))),
+            Text(_type == 'credit' ? '카드사' : '은행', style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF64748B))),
             const SizedBox(height: 6),
             SizedBox(
               height: 36,
@@ -1154,11 +1154,11 @@ class _AddAccountSheetState extends State<AddAccountSheet> {
                       margin: const EdgeInsets.only(right: 6),
                       padding: const EdgeInsets.symmetric(horizontal: 12),
                       decoration: BoxDecoration(
-                        color: isActive ? const Color(0xFF6366F1) : const Color(0xFF0F172A),
+                        color: isActive ? const Color(0xFF4F46E5) : const Color(0xFFF1F5F9),
                         borderRadius: BorderRadius.circular(18),
-                        border: Border.all(color: isActive ? const Color(0xFF6366F1) : const Color(0xFF334155)),
+                        border: Border.all(color: isActive ? const Color(0xFF4F46E5) : const Color(0xFFE2E8F0)),
                       ),
-                      child: Center(child: Text(b, style: GoogleFonts.notoSansKr(fontSize: 11, color: isActive ? Colors.white : const Color(0xFF94A3B8)))),
+                      child: Center(child: Text(b, style: GoogleFonts.notoSansKr(fontSize: 11, color: isActive ? Color(0xFF0F172A) : const Color(0xFF64748B)))),
                     ),
                   );
                 }).toList(),
@@ -1166,27 +1166,27 @@ class _AddAccountSheetState extends State<AddAccountSheet> {
             ),
             const SizedBox(height: 14),
             // Name
-            Text('별칭', style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF94A3B8))),
+            Text('별칭', style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF64748B))),
             const SizedBox(height: 6),
             TextField(
               controller: _nameCtrl,
-              style: GoogleFonts.notoSansKr(color: Colors.white),
+              style: GoogleFonts.notoSansKr(color: Color(0xFF0F172A)),
               decoration: _inputDec(_type == 'bank' ? '예: 주거래 통장' : '예: 신한 쏠 신용카드'),
             ),
             if (_type == 'bank') ...[
               const SizedBox(height: 14),
-              Text('초기 잔액', style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF94A3B8))),
+              Text('초기 잔액', style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF64748B))),
               const SizedBox(height: 6),
               TextField(
                 controller: _balanceCtrl,
                 keyboardType: TextInputType.number,
-                style: GoogleFonts.notoSansKr(color: Colors.white),
+                style: GoogleFonts.notoSansKr(color: Color(0xFF0F172A)),
                 decoration: _inputDec('예: 1500000'),
               ),
             ],
             if (_type == 'credit') ...[
               const SizedBox(height: 14),
-              Text('결제일', style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF94A3B8))),
+              Text('결제일', style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF64748B))),
               const SizedBox(height: 6),
               Row(
                 children: [
@@ -1194,24 +1194,24 @@ class _AddAccountSheetState extends State<AddAccountSheet> {
                     width: 80,
                     child: TextField(
                       keyboardType: TextInputType.number,
-                      style: GoogleFonts.notoSansKr(color: Colors.white),
+                      style: GoogleFonts.notoSansKr(color: Color(0xFF0F172A)),
                       decoration: _inputDec('25'),
                       onChanged: (v) => _paymentDay = int.tryParse(v) ?? 25,
                     ),
                   ),
                   const SizedBox(width: 8),
-                  Text('일', style: GoogleFonts.notoSansKr(color: Colors.white)),
+                  Text('일', style: GoogleFonts.notoSansKr(color: Color(0xFF0F172A))),
                 ],
               ),
             ],
             if ((_type == 'credit' || _type == 'debit') && bankAccounts.isNotEmpty) ...[
               const SizedBox(height: 14),
-              Text(_type == 'debit' ? '연결 통장' : '결제 출금 통장', style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF94A3B8))),
+              Text(_type == 'debit' ? '연결 통장' : '결제 출금 통장', style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF64748B))),
               const SizedBox(height: 6),
               DropdownButtonFormField<String>(
                 value: _linkedBankId,
-                dropdownColor: const Color(0xFF1E293B),
-                style: GoogleFonts.notoSansKr(color: Colors.white),
+                dropdownColor: const Color(0xFFFFFFFF),
+                style: GoogleFonts.notoSansKr(color: Color(0xFF0F172A)),
                 decoration: _inputDec('선택 안 함'),
                 items: [
                   const DropdownMenuItem(value: null, child: Text('선택 안 함')),
@@ -1221,7 +1221,7 @@ class _AddAccountSheetState extends State<AddAccountSheet> {
               ),
             ],
             const SizedBox(height: 14),
-            Text('테마 색상', style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF94A3B8))),
+            Text('테마 색상', style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF64748B))),
             const SizedBox(height: 8),
             Row(
               children: _colors.map((c) {
@@ -1235,9 +1235,9 @@ class _AddAccountSheetState extends State<AddAccountSheet> {
                     decoration: BoxDecoration(
                       color: hexToColor(c),
                       shape: BoxShape.circle,
-                      border: isActive ? Border.all(color: Colors.white, width: 2.5) : null,
+                      border: isActive ? Border.all(color: Color(0xFF0F172A), width: 2.5) : null,
                     ),
-                    child: isActive ? const Icon(Icons.check, size: 14, color: Colors.white) : null,
+                    child: isActive ? const Icon(Icons.check, size: 14, color: Color(0xFF0F172A)) : null,
                   ),
                 );
               }).toList(),
@@ -1248,11 +1248,11 @@ class _AddAccountSheetState extends State<AddAccountSheet> {
               child: ElevatedButton(
                 onPressed: _save,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF6366F1),
+                  backgroundColor: const Color(0xFF4F46E5),
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                 ),
-                child: Text('저장하기', style: GoogleFonts.notoSansKr(fontWeight: FontWeight.w700, color: Colors.white, fontSize: 15)),
+                child: Text('저장하기', style: GoogleFonts.notoSansKr(fontWeight: FontWeight.w700, color: Color(0xFF0F172A), fontSize: 15)),
               ),
             ),
           ],
@@ -1270,13 +1270,13 @@ class _AddAccountSheetState extends State<AddAccountSheet> {
           duration: const Duration(milliseconds: 150),
           padding: const EdgeInsets.symmetric(vertical: 10),
           decoration: BoxDecoration(
-            color: isActive ? const Color(0xFF6366F1) : Colors.transparent,
+            color: isActive ? const Color(0xFF4F46E5) : Colors.transparent,
             borderRadius: BorderRadius.circular(10),
           ),
           child: Center(
             child: Text(label,
                 style: GoogleFonts.notoSansKr(
-                  fontSize: 11, color: isActive ? Colors.white : const Color(0xFF64748B),
+                  fontSize: 11, color: isActive ? Color(0xFF0F172A) : const Color(0xFF94A3B8),
                   fontWeight: isActive ? FontWeight.w700 : FontWeight.w400,
                 )),
           ),
@@ -1287,12 +1287,12 @@ class _AddAccountSheetState extends State<AddAccountSheet> {
 
   InputDecoration _inputDec(String hint) => InputDecoration(
         hintText: hint,
-        hintStyle: GoogleFonts.notoSansKr(color: const Color(0xFF475569)),
+        hintStyle: GoogleFonts.notoSansKr(color: const Color(0xFFF8FAFC)),
         filled: true,
-        fillColor: const Color(0xFF0F172A),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFF334155))),
-        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFF334155))),
-        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFF6366F1))),
+        fillColor: const Color(0xFFF1F5F9),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFF4F46E5))),
         contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       );
 
@@ -1318,7 +1318,7 @@ class _AddAccountSheetState extends State<AddAccountSheet> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('$name이(가) 추가되었습니다', style: GoogleFonts.notoSansKr()),
-        backgroundColor: const Color(0xFF10B981),
+        backgroundColor: const Color(0xFF059669),
       ),
     );
   }
@@ -1365,15 +1365,15 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
     if (!cats.any((c) => c.name == _category)) _category = cats.first.name;
 
     return Scaffold(
-      backgroundColor: const Color(0xFF0F172A),
+      backgroundColor: const Color(0xFFF1F5F9),
       appBar: AppBar(
-        backgroundColor: const Color(0xFF1E293B),
-        title: Text('항목 추가', style: GoogleFonts.notoSansKr(fontWeight: FontWeight.w700, color: Colors.white)),
-        leading: IconButton(icon: const Icon(Icons.close, color: Colors.white), onPressed: () => Navigator.pop(context)),
+        backgroundColor: const Color(0xFFFFFFFF),
+        title: Text('항목 추가', style: GoogleFonts.notoSansKr(fontWeight: FontWeight.w700, color: Color(0xFF0F172A))),
+        leading: IconButton(icon: const Icon(Icons.close, color: Color(0xFF0F172A)), onPressed: () => Navigator.pop(context)),
         actions: [
           TextButton(
             onPressed: _save,
-            child: Text('저장', style: GoogleFonts.notoSansKr(color: const Color(0xFF6366F1), fontWeight: FontWeight.w700, fontSize: 16)),
+            child: Text('저장', style: GoogleFonts.notoSansKr(color: const Color(0xFF4F46E5), fontWeight: FontWeight.w700, fontSize: 16)),
           ),
         ],
       ),
@@ -1383,7 +1383,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              decoration: BoxDecoration(color: const Color(0xFF1E293B), borderRadius: BorderRadius.circular(12)),
+              decoration: BoxDecoration(color: const Color(0xFFFFFFFF), borderRadius: BorderRadius.circular(12)),
               child: Row(children: [_typeTab('expense', '지출'), _typeTab('income', '수입')]),
             ),
             const SizedBox(height: 16),
@@ -1391,10 +1391,10 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
             TextField(
               controller: _amountCtrl,
               keyboardType: TextInputType.number,
-              style: GoogleFonts.notoSansKr(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w700),
+              style: GoogleFonts.notoSansKr(color: Color(0xFF0F172A), fontSize: 20, fontWeight: FontWeight.w700),
               decoration: _inputDecoration('0').copyWith(
                 prefixText: '₩ ',
-                prefixStyle: const TextStyle(color: Color(0xFF6366F1), fontSize: 20, fontWeight: FontWeight.w700),
+                prefixStyle: const TextStyle(color: Color(0xFF4F46E5), fontSize: 20, fontWeight: FontWeight.w700),
               ),
             ),
             const SizedBox(height: 16),
@@ -1404,15 +1404,15 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF1E293B),
+                  color: const Color(0xFFFFFFFF),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: const Color(0xFF334155)),
+                  border: Border.all(color: const Color(0xFFE2E8F0)),
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.calendar_today_rounded, size: 16, color: Color(0xFF6366F1)),
+                    const Icon(Icons.calendar_today_rounded, size: 16, color: Color(0xFF4F46E5)),
                     const SizedBox(width: 8),
-                    Text(_dateStr, style: GoogleFonts.notoSansKr(color: Colors.white)),
+                    Text(_dateStr, style: GoogleFonts.notoSansKr(color: Color(0xFF0F172A))),
                   ],
                 ),
               ),
@@ -1429,16 +1429,16 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                     duration: const Duration(milliseconds: 150),
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     decoration: BoxDecoration(
-                      color: isSelected ? c.color.withOpacity(0.2) : const Color(0xFF1E293B),
+                      color: isSelected ? c.color.withOpacity(0.2) : const Color(0xFFFFFFFF),
                       borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: isSelected ? c.color : const Color(0xFF334155)),
+                      border: Border.all(color: isSelected ? c.color : const Color(0xFFE2E8F0)),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(c.emoji),
                         const SizedBox(width: 6),
-                        Text(c.name, style: GoogleFonts.notoSansKr(color: isSelected ? c.color : const Color(0xFF94A3B8), fontSize: 12)),
+                        Text(c.name, style: GoogleFonts.notoSansKr(color: isSelected ? c.color : const Color(0xFF64748B), fontSize: 12)),
                       ],
                     ),
                   ),
@@ -1449,8 +1449,8 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
             _label('계좌'),
             DropdownButtonFormField<String>(
               value: _accountId,
-              dropdownColor: const Color(0xFF1E293B),
-              style: GoogleFonts.notoSansKr(color: Colors.white),
+              dropdownColor: const Color(0xFFFFFFFF),
+              style: GoogleFonts.notoSansKr(color: Color(0xFF0F172A)),
               decoration: _inputDecoration('계좌 선택'),
               items: state.accounts.map((a) {
                 final icon = a.isCredit ? '💳[신용]' : a.isDebit ? '💳[체크]' : '🏦';
@@ -1462,8 +1462,8 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
             _label('결제수단'),
             DropdownButtonFormField<String>(
               value: _payment,
-              dropdownColor: const Color(0xFF1E293B),
-              style: GoogleFonts.notoSansKr(color: Colors.white),
+              dropdownColor: const Color(0xFFFFFFFF),
+              style: GoogleFonts.notoSansKr(color: Color(0xFF0F172A)),
               decoration: _inputDecoration('결제수단'),
               items: ['계좌이체', '신용카드', '현금', '기타']
                   .map((p) => DropdownMenuItem(value: p, child: Text(p)))
@@ -1474,7 +1474,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
             _label('메모'),
             TextField(
               controller: _memoCtrl,
-              style: GoogleFonts.notoSansKr(color: Colors.white),
+              style: GoogleFonts.notoSansKr(color: Color(0xFF0F172A)),
               decoration: _inputDecoration('메모를 입력하세요...'),
             ),
             const SizedBox(height: 80),
@@ -1493,13 +1493,13 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
           duration: const Duration(milliseconds: 200),
           padding: const EdgeInsets.symmetric(vertical: 12),
           decoration: BoxDecoration(
-            color: isActive ? const Color(0xFF6366F1) : Colors.transparent,
+            color: isActive ? const Color(0xFF4F46E5) : Colors.transparent,
             borderRadius: BorderRadius.circular(12),
           ),
           child: Center(
             child: Text(label,
                 style: GoogleFonts.notoSansKr(
-                  color: isActive ? Colors.white : const Color(0xFF64748B),
+                  color: isActive ? Color(0xFF0F172A) : const Color(0xFF94A3B8),
                   fontWeight: isActive ? FontWeight.w700 : FontWeight.w400,
                 )),
           ),
@@ -1511,17 +1511,17 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   Widget _label(String text) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
-      child: Text(text, style: GoogleFonts.notoSansKr(fontSize: 12, color: const Color(0xFF94A3B8))),
+      child: Text(text, style: GoogleFonts.notoSansKr(fontSize: 12, color: const Color(0xFF64748B))),
     );
   }
 
   InputDecoration _inputDecoration(String hint) => InputDecoration(
         hintText: hint,
-        hintStyle: GoogleFonts.notoSansKr(color: const Color(0xFF475569)),
-        filled: true, fillColor: const Color(0xFF1E293B),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFF334155))),
-        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFF334155))),
-        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFF6366F1))),
+        hintStyle: GoogleFonts.notoSansKr(color: const Color(0xFFF8FAFC)),
+        filled: true, fillColor: const Color(0xFFFFFFFF),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFF4F46E5))),
       );
 
   Future<void> _pickDate() async {
@@ -1533,7 +1533,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
       context: context,
       initialDate: init, firstDate: DateTime(2020), lastDate: DateTime(2030),
       builder: (ctx, child) => Theme(
-        data: ThemeData.dark().copyWith(colorScheme: const ColorScheme.dark(primary: Color(0xFF6366F1), surface: Color(0xFF1E293B))),
+        data: ThemeData.dark().copyWith(colorScheme: const ColorScheme.dark(primary: Color(0xFF4F46E5), surface: Color(0xFFFFFFFF))),
         child: child!,
       ),
     );
