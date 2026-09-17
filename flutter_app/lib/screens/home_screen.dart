@@ -3,6 +3,7 @@ import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter/services.dart';
 import '../providers/app_state.dart';
 import '../models/transaction.dart';
 import '../models/account.dart';
@@ -1241,59 +1242,24 @@ class _AddAccountSheetState extends State<AddAccountSheet> {
               const SizedBox(height: 14),
               Text('초기 잔액', style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF64748B))),
               const SizedBox(height: 6),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _balanceCtrl,
-                      keyboardType: const TextInputType.numberWithOptions(signed: true, decimal: true),
-                      style: GoogleFonts.notoSansKr(color: Color(0xFF0F172A)),
-                      decoration: _inputDec('예: 1,500,000'),
-                      onChanged: (value) {
-                        String text = value.replaceAll(',', '');
-                        if (text.isEmpty || text == '-') return;
-                        final number = int.tryParse(text);
-                        if (number != null) {
-                          final formatted = formatNumber(number);
-                          _balanceCtrl.value = TextEditingValue(
-                            text: formatted,
-                            selection: TextSelection.collapsed(offset: formatted.length),
-                          );
-                        }
-                      },
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  GestureDetector(
-                    onTap: () {
-                      String current = _balanceCtrl.text.replaceAll(',', '');
-                      if (current.isEmpty) {
-                        _balanceCtrl.text = '-';
-                        return;
-                      }
-                      if (current == '-') {
-                        _balanceCtrl.clear();
-                        return;
-                      }
-                      int val = int.tryParse(current) ?? 0;
-                      val = -val;
-                      final formatted = formatNumber(val);
-                      _balanceCtrl.value = TextEditingValue(
-                        text: formatted,
-                        selection: TextSelection.collapsed(offset: formatted.length),
-                      );
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF1F5F9),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: const Color(0xFFE2E8F0)),
-                      ),
-                      child: Text('+ / -', style: GoogleFonts.notoSansKr(fontSize: 16, fontWeight: FontWeight.w700, color: const Color(0xFF475569))),
-                    ),
-                  ),
-                ],
+              TextField(
+                controller: _balanceCtrl,
+                keyboardType: TextInputType.text,
+                inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9\-]'))],
+                style: GoogleFonts.notoSansKr(color: Color(0xFF0F172A)),
+                decoration: _inputDec('예: 1,500,000'),
+                onChanged: (value) {
+                  String text = value.replaceAll(',', '');
+                  if (text.isEmpty || text == '-') return;
+                  final number = int.tryParse(text);
+                  if (number != null) {
+                    final formatted = formatNumber(number);
+                    _balanceCtrl.value = TextEditingValue(
+                      text: formatted,
+                      selection: TextSelection.collapsed(offset: formatted.length),
+                    );
+                  }
+                },
               ),
             ],
             if (_type == 'credit') ...[
@@ -1513,7 +1479,8 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
             _label('금액'),
             TextField(
               controller: _amountCtrl,
-              keyboardType: const TextInputType.numberWithOptions(signed: true, decimal: false),
+              keyboardType: TextInputType.text,
+              inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9\-]'))],
               style: GoogleFonts.notoSansKr(color: Color(0xFF0F172A), fontSize: 20, fontWeight: FontWeight.w700),
               decoration: _inputDecoration('0').copyWith(
                 prefixText: '₩ ',
