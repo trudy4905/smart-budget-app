@@ -80143,7 +80143,7 @@ s=this.r
 s.E$=r
 s.C$=0
 this.am()},
-H(a){var s,r,q,p,o,n,m,l=this,k=null,j=4279179050,i=A.m2(a,!0,t.Tz),h=l.d==="credit"?l.Q:l.z,g=i.a,f=A.Z(g).h("ao<1>"),e=A.a2(new A.ao(g,new A.acN(),f),!0,f.h("w.E"))
+H(a){var s,r,q,p,o,n,m,l=this,k=null,j=4279179050,i=A.m2(a,!0,t.Tz),h=l.d==="bank"?l.z:l.Q,g=i.a,f=A.Z(g).h("ao<1>"),e=A.a2(new A.ao(g,new A.acN(),f),!0,f.h("w.E"))
 f=t.w
 g=A.bo(a,k,f).w
 f=A.bo(a,k,f).w
@@ -80151,7 +80151,7 @@ s=t.p
 r=A.c8(A.b([A.al("\uacc4\uc88c/\uce74\ub4dc \ucd94\uac00",k,k,k,A.aG().$3$color$fontSize$fontWeight(new A.j(j),18,B.a1),k,k),B.cp,A.cr(k,B.Gc,B.x,!1,k,k,k,k,k,k,k,k,k,k,k,k,k,new A.acO(a),k,k,k,k,k,k)],s),B.y,B.r,B.D)
 q=A.bT(10)
 q=A.c5(k,A.c8(A.b([l.om("bank","\ud83c\udfe6 \ud1b5\uc7a5"),l.om("credit","\ud83d\udcb3 \uc2e0\uc6a9\uce74\ub4dc"),l.om("debit","\ud83d\udcb3 \uccb4\ud06c\uce74\ub4dc")],s),B.y,B.r,B.D),B.o,k,k,new A.bi(B.c0,k,k,q,k,k,B.G),k,k,k,k,k,k,k)
-p=l.d==="credit"?"\uce74\ub4dc\uc0ac":"\uc740\ud589"
+p=l.d==="bank"?"\uc740\ud589":"\uce74\ub4dc\uc0ac"
 p=A.al(p,k,k,k,A.aG().$2$color$fontSize(B.aC,11),k,k)
 o=A.Z(h).h("af<1,fH>")
 o=A.cB(A.atU(A.a2(new A.af(h,new A.acP(l),o),!0,o.h("aH.E")),k,k,B.aO,!1),36,k)
@@ -80275,7 +80275,7 @@ $S:0}
 A.acG.prototype={
 $0(){var s=this.a,r=this.b
 s.d=r
-s.e=r==="credit"?B.b.gY(s.Q):B.b.gY(s.z)},
+s.e=r==="bank"?B.b.gY(s.z):B.b.gY(s.Q)},
 $S:0}
 A.v1.prototype={
 a1(){var s=$.ab()
