@@ -244,11 +244,13 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return SizedBox(
       height: 40,
-      child: ListView(
+      child: SingleChildScrollView(
         controller: _monthScrollCtrl,
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.only(left: 12, right: 200),
-        children: items,
+        child: Row(
+          children: items,
+        ),
       ),
     );
   }
