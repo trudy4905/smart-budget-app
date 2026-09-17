@@ -1171,7 +1171,7 @@ class _AddAccountSheetState extends State<AddAccountSheet> {
   @override
   Widget build(BuildContext context) {
     final state = context.watch<AppState>();
-    final bankList = _type == 'credit' ? _cards : _banks;
+    final bankList = _type == 'bank' ? _banks : _cards;
     final bankAccounts = state.accounts.where((a) => a.isBank).toList();
 
     return Container(
@@ -1203,7 +1203,7 @@ class _AddAccountSheetState extends State<AddAccountSheet> {
             ),
             const SizedBox(height: 14),
             // Bank/card selection
-            Text(_type == 'credit' ? '카드사' : '은행', style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF64748B))),
+            Text(_type == 'bank' ? '은행' : '카드사', style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF64748B))),
             const SizedBox(height: 6),
             SizedBox(
               height: 36,
@@ -1341,7 +1341,7 @@ class _AddAccountSheetState extends State<AddAccountSheet> {
     final isActive = _type == type;
     return Expanded(
       child: GestureDetector(
-        onTap: () => setState(() { _type = type; _bank = type == 'credit' ? _cards.first : _banks.first; }),
+        onTap: () => setState(() { _type = type; _bank = type == 'bank' ? _banks.first : _cards.first; }),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 150),
           padding: const EdgeInsets.symmetric(vertical: 10),
