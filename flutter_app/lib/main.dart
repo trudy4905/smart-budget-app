@@ -60,6 +60,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final ScrollController _monthScrollCtrl = ScrollController();
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final GlobalKey _activeMonthKey = GlobalKey();
+  bool _shouldScrollMonthToLeft = true;
 
   @override
   void dispose() {
@@ -157,9 +158,10 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
           const Spacer(),
-          // Today button (displays today's day number e.g. 17일, jumps calendar to today when clicked)
+          // Today button (displays today's day number e.g. 17일, jumps calendar to today and aligns month to left when clicked)
           GestureDetector(
             onTap: () {
+              _shouldScrollMonthToLeft = true;
               final today = DateTime.now();
               state.setCurrentDate(today);
               state.setSelectedDate('${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}');
@@ -186,7 +188,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // ---- Month Carousel (active month ALWAYS aligned to far left, past months available by sliding left) ----
+  // ---- Month Carousel ----
   Widget _buildMonthCarousel(AppState state) {
     final now = DateTime.now();
     // Allow past months (3 years back) and future months (2 years forward)
@@ -223,19 +225,22 @@ class _HomeScreenState extends State<HomeScreen> {
       items.add(_monthPill(m, isActive, state, key: isActive ? _activeMonthKey : null));
     }
 
-    // Force active month to far left edge
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (_monthScrollCtrl.hasClients) {
-        if (_activeMonthKey.currentContext != null) {
-          Scrollable.ensureVisible(
-            _activeMonthKey.currentContext!,
-            alignment: 0.0,
-          );
-        } else {
-          _monthScrollCtrl.jumpTo(targetOffset);
+    // Force active month to far left edge ONLY when requested (e.g. initial start or today button)
+    if (_shouldScrollMonthToLeft) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (_monthScrollCtrl.hasClients) {
+          if (_activeMonthKey.currentContext != null) {
+            Scrollable.ensureVisible(
+              _activeMonthKey.currentContext!,
+              alignment: 0.0,
+            );
+          } else {
+            _monthScrollCtrl.jumpTo(targetOffset);
+          }
         }
-      }
-    });
+        _shouldScrollMonthToLeft = false;
+      });
+    }
 
     return SizedBox(
       height: 40,
@@ -252,6 +257,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return GestureDetector(
       key: key,
       onTap: () {
+        _shouldScrollMonthToLeft = false;
         state.setCurrentDate(m);
         state.setSelectedDate('${m.year}-${m.month.toString().padLeft(2, '0')}-01');
       },
@@ -633,6 +639,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 final isActive = displayYear == state.currentDate.year && i + 1 == state.currentDate.month;
                 return GestureDetector(
                   onTap: () {
+                    _shouldScrollMonthToLeft = true;
                     state.setCurrentDate(DateTime(displayYear, i + 1, 1));
                     state.setSelectedDate('$displayYear-${(i + 1).toString().padLeft(2, '0')}-01');
                     Navigator.pop(ctx);
