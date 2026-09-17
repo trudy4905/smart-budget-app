@@ -1241,23 +1241,59 @@ class _AddAccountSheetState extends State<AddAccountSheet> {
               const SizedBox(height: 14),
               Text('초기 잔액', style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF64748B))),
               const SizedBox(height: 6),
-              TextField(
-                controller: _balanceCtrl,
-                keyboardType: const TextInputType.numberWithOptions(signed: true, decimal: true),
-                style: GoogleFonts.notoSansKr(color: Color(0xFF0F172A)),
-                decoration: _inputDec('예: 1,500,000'),
-                onChanged: (value) {
-                  String text = value.replaceAll(',', '');
-                  if (text.isEmpty || text == '-') return;
-                  final number = int.tryParse(text);
-                  if (number != null) {
-                    final formatted = formatNumber(number);
-                    _balanceCtrl.value = TextEditingValue(
-                      text: formatted,
-                      selection: TextSelection.collapsed(offset: formatted.length),
-                    );
-                  }
-                },
+              Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _balanceCtrl,
+                      keyboardType: const TextInputType.numberWithOptions(signed: true, decimal: true),
+                      style: GoogleFonts.notoSansKr(color: Color(0xFF0F172A)),
+                      decoration: _inputDec('예: 1,500,000'),
+                      onChanged: (value) {
+                        String text = value.replaceAll(',', '');
+                        if (text.isEmpty || text == '-') return;
+                        final number = int.tryParse(text);
+                        if (number != null) {
+                          final formatted = formatNumber(number);
+                          _balanceCtrl.value = TextEditingValue(
+                            text: formatted,
+                            selection: TextSelection.collapsed(offset: formatted.length),
+                          );
+                        }
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  GestureDetector(
+                    onTap: () {
+                      String current = _balanceCtrl.text.replaceAll(',', '');
+                      if (current.isEmpty) {
+                        _balanceCtrl.text = '-';
+                        return;
+                      }
+                      if (current == '-') {
+                        _balanceCtrl.clear();
+                        return;
+                      }
+                      int val = int.tryParse(current) ?? 0;
+                      val = -val;
+                      final formatted = formatNumber(val);
+                      _balanceCtrl.value = TextEditingValue(
+                        text: formatted,
+                        selection: TextSelection.collapsed(offset: formatted.length),
+                      );
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF1F5F9),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: const Color(0xFFE2E8F0)),
+                      ),
+                      child: Text('+ / -', style: GoogleFonts.notoSansKr(fontSize: 16, fontWeight: FontWeight.w700, color: const Color(0xFF475569))),
+                    ),
+                  ),
+                ],
               ),
             ],
             if (_type == 'credit') ...[
