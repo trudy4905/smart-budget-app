@@ -226,9 +226,14 @@ class _HomeScreenState extends State<HomeScreen> {
     // Force active month to far left edge
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_monthScrollCtrl.hasClients) {
-        final maxScroll = _monthScrollCtrl.position.maxScrollExtent;
-        final clampOffset = targetOffset.clamp(0.0, maxScroll);
-        _monthScrollCtrl.jumpTo(clampOffset);
+        if (_activeMonthKey.currentContext != null) {
+          Scrollable.ensureVisible(
+            _activeMonthKey.currentContext!,
+            alignment: 0.0,
+          );
+        } else {
+          _monthScrollCtrl.jumpTo(targetOffset);
+        }
       }
     });
 

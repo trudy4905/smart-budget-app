@@ -169,7 +169,7 @@ class Transaction {
 class AppState extends ChangeNotifier {
   List<Account> accounts = [];
   List<Transaction> transactions = [];
-  DateTime currentDate = DateTime.now();
+  DateTime currentDate = DateTime(DateTime.now().year, DateTime.now().month, 1);
   String selectedDateStr = _formatDate(DateTime.now());
   List<String> selectedAccountIds = ['all'];
   String drawerFilter = 'all'; // 'all', 'income', 'cash', 'card', 'total_expense'
