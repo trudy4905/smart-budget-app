@@ -1184,7 +1184,7 @@ class _AddAccountSheetState extends State<AddAccountSheet> {
           children: [
             Row(
               children: [
-                Text('계좌 추가', style: GoogleFonts.notoSansKr(fontSize: 18, fontWeight: FontWeight.w700, color: Color(0xFF0F172A))),
+                Text('계좌/카드 추가', style: GoogleFonts.notoSansKr(fontSize: 18, fontWeight: FontWeight.w700, color: Color(0xFF0F172A))),
                 const Spacer(),
                 GestureDetector(onTap: () => Navigator.pop(context), child: const Icon(Icons.close, color: Color(0xFF94A3B8))),
               ],
@@ -1218,11 +1218,11 @@ class _AddAccountSheetState extends State<AddAccountSheet> {
                       margin: const EdgeInsets.only(right: 6),
                       padding: const EdgeInsets.symmetric(horizontal: 12),
                       decoration: BoxDecoration(
-                        color: isActive ? const Color(0xFF4F46E5) : const Color(0xFFF1F5F9),
+                        color: isActive ? const Color(0xFF475569) : const Color(0xFFF1F5F9),
                         borderRadius: BorderRadius.circular(18),
-                        border: Border.all(color: isActive ? const Color(0xFF4F46E5) : const Color(0xFFE2E8F0)),
+                        border: Border.all(color: isActive ? const Color(0xFF475569) : const Color(0xFFE2E8F0)),
                       ),
-                      child: Center(child: Text(b, style: GoogleFonts.notoSansKr(fontSize: 11, color: isActive ? Color(0xFF0F172A) : const Color(0xFF64748B)))),
+                      child: Center(child: Text(b, style: GoogleFonts.notoSansKr(fontSize: 11, color: isActive ? const Color(0xFFFFFFFF) : const Color(0xFF64748B)))),
                     ),
                   );
                 }).toList(),
@@ -1243,7 +1243,7 @@ class _AddAccountSheetState extends State<AddAccountSheet> {
               const SizedBox(height: 6),
               TextField(
                 controller: _balanceCtrl,
-                keyboardType: TextInputType.number,
+                keyboardType: const TextInputType.numberWithOptions(signed: true, decimal: false),
                 style: GoogleFonts.notoSansKr(color: Color(0xFF0F172A)),
                 decoration: _inputDec('예: 1500000'),
               ),
@@ -1312,11 +1312,11 @@ class _AddAccountSheetState extends State<AddAccountSheet> {
               child: ElevatedButton(
                 onPressed: _save,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF4F46E5),
+                  backgroundColor: const Color(0xFF475569),
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                 ),
-                child: Text('저장하기', style: GoogleFonts.notoSansKr(fontWeight: FontWeight.w700, color: Color(0xFF0F172A), fontSize: 15)),
+                child: Text('저장하기', style: GoogleFonts.notoSansKr(fontWeight: FontWeight.w700, color: const Color(0xFFFFFFFF), fontSize: 15)),
               ),
             ),
           ],
@@ -1334,13 +1334,13 @@ class _AddAccountSheetState extends State<AddAccountSheet> {
           duration: const Duration(milliseconds: 150),
           padding: const EdgeInsets.symmetric(vertical: 10),
           decoration: BoxDecoration(
-            color: isActive ? const Color(0xFF4F46E5) : Colors.transparent,
+            color: isActive ? const Color(0xFF475569) : Colors.transparent,
             borderRadius: BorderRadius.circular(10),
           ),
           child: Center(
             child: Text(label,
                 style: GoogleFonts.notoSansKr(
-                  fontSize: 11, color: isActive ? Color(0xFF0F172A) : const Color(0xFF94A3B8),
+                  fontSize: 11, color: isActive ? const Color(0xFFFFFFFF) : const Color(0xFF94A3B8),
                   fontWeight: isActive ? FontWeight.w700 : FontWeight.w400,
                 )),
           ),
