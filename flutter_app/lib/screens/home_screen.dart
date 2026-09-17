@@ -822,7 +822,6 @@ class AppDrawer extends StatelessWidget {
                       const Spacer(),
                       GestureDetector(
                         onTap: () {
-                          Navigator.pop(context);
                           _showAddAccountDialog(context, state);
                         },
                         child: Container(
