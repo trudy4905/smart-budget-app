@@ -1154,7 +1154,7 @@ class _AddAccountSheetState extends State<AddAccountSheet> {
       _type = acc.cardKind ?? 'bank';
       _bank = acc.bank;
       _nameCtrl.text = acc.name;
-      _balanceCtrl.text = acc.initialBalance.toString();
+      _balanceCtrl.text = formatNumber(acc.initialBalance);
       _paymentDay = acc.paymentDay ?? 25;
       _linkedBankId = acc.linkedBankAccountId;
       _color = acc.color;
@@ -1245,7 +1245,19 @@ class _AddAccountSheetState extends State<AddAccountSheet> {
                 controller: _balanceCtrl,
                 keyboardType: const TextInputType.numberWithOptions(signed: true, decimal: false),
                 style: GoogleFonts.notoSansKr(color: Color(0xFF0F172A)),
-                decoration: _inputDec('예: 1500000'),
+                decoration: _inputDec('예: 1,500,000'),
+                onChanged: (value) {
+                  String text = value.replaceAll(',', '');
+                  if (text.isEmpty || text == '-') return;
+                  final number = int.tryParse(text);
+                  if (number != null) {
+                    final formatted = formatNumber(number);
+                    _balanceCtrl.value = TextEditingValue(
+                      text: formatted,
+                      selection: TextSelection.collapsed(offset: formatted.length),
+                    );
+                  }
+                },
               ),
             ],
             if (_type == 'credit') ...[
@@ -1373,7 +1385,7 @@ class _AddAccountSheetState extends State<AddAccountSheet> {
       bank: _bank,
       color: _color,
       cardKind: _type == 'bank' ? null : _type,
-      initialBalance: _type == 'bank' ? (int.tryParse(_balanceCtrl.text) ?? 0) : 0,
+      initialBalance: _type == 'bank' ? (int.tryParse(_balanceCtrl.text.replaceAll(',', '')) ?? 0) : 0,
       paymentDay: _type == 'credit' ? _paymentDay : null,
       linkedBankAccountId: _linkedBankId,
     );
