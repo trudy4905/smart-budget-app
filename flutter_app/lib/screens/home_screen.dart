@@ -805,11 +805,10 @@ class AppDrawer extends StatelessWidget {
                   padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
                   child: Text('요약', style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF94A3B8), fontWeight: FontWeight.w600)),
                 ),
-                _drawerFilterItem(context, state, 'all', '🌐 전체', null, summary['income']! - summary['total']!),
-                _drawerFilterItem(context, state, 'income', '💵 수입', null, summary['income']!),
-                _drawerFilterItem(context, state, 'cash', '💰 현금 지출', '(현금/체크)', summary['cash']!),
-                _drawerFilterItem(context, state, 'card', '💳 카드 지출', '(다음달 예정)', summary['card']!),
-                _drawerFilterItem(context, state, 'total_expense', '📊 전체 지출', null, summary['total']!),
+                _drawerFilterItem(context, state, 'all', '전체', Icons.public, null, summary['income']! - summary['total']!),
+                _drawerFilterItem(context, state, 'income', '수입', Icons.attach_money, null, summary['income']!),
+                _drawerFilterItem(context, state, 'cash', '현금 지출', Icons.money, '/현금/체크/지난달 카드', summary['cash']!),
+                _drawerFilterItem(context, state, 'card', '카드 지출', Icons.credit_card, '(다음달 예정)', summary['card']!),
 
                 const Divider(color: Color(0xFFFFFFFF), height: 24),
 
@@ -862,13 +861,19 @@ class AppDrawer extends StatelessWidget {
                       return _accountCheckItem(
                         context, state,
                         id: acc.id,
-                        icon: acc.isCredit ? '💳' : acc.isDebit ? '💳' : '🏦',
+                        icon: acc.isCredit ? Icons.credit_card : acc.isDebit ? Icons.credit_card : Icons.account_balance,
                         label: acc.name,
                         subLabel: acc.isCredit ? '[신용]' : acc.isDebit ? '[체크]' : '[통장] ${acc.bank}',
                         color: hexToColor(acc.color),
                         amount: amount,
                         isAll: false,
-                        onLongPress: () => _showAccountActions(context, state, acc),
+                        onAction: (action) {
+                          if (action == 'edit') {
+                            _showAddAccountDialog(context, state, editAccount: acc);
+                          } else if (action == 'delete') {
+                            _showAccountActions(context, state, acc);
+                          }
+                        },
                       );
                     }),
                   ],
@@ -905,7 +910,7 @@ class AppDrawer extends StatelessWidget {
     );
   }
 
-  Widget _drawerFilterItem(BuildContext context, AppState state, String filter, String label, String? sub, int amount) {
+  Widget _drawerFilterItem(BuildContext context, AppState state, String filter, String label, IconData icon, String? sub, int amount) {
     final isActive = state.drawerFilter == filter;
     final isPositive = amount >= 0;
     final amountColor = filter == 'income'
@@ -933,6 +938,8 @@ class AppDrawer extends StatelessWidget {
         ),
         child: Row(
           children: [
+            Icon(icon, size: 18, color: const Color(0xFF64748B)),
+            const SizedBox(width: 10),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -963,13 +970,13 @@ class AppDrawer extends StatelessWidget {
     BuildContext context,
     AppState state, {
     required String id,
-    required String icon,
+    required IconData icon,
     required String label,
     required String subLabel,
     required Color color,
     required int? amount,
     required bool isAll,
-    VoidCallback? onLongPress,
+    Function(String)? onAction,
   }) {
     final isAllActive = state.selectedAccountIds.contains('all');
     final isChecked = isAll ? isAllActive : (isAllActive || state.selectedAccountIds.contains(id));
@@ -985,7 +992,8 @@ class AppDrawer extends StatelessWidget {
           }
         } else {
           if (state.selectedAccountIds.contains('all')) {
-            state.setSelectedAccountIds([id]);
+            final next = state.accounts.map((e) => e.id).where((x) => x != id).toList();
+            state.setSelectedAccountIds(next);
           } else {
             if (state.selectedAccountIds.contains(id)) {
               final next = state.selectedAccountIds.where((x) => x != id).toList();
@@ -997,7 +1005,6 @@ class AppDrawer extends StatelessWidget {
           }
         }
       },
-      onLongPress: onLongPress,
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
@@ -1019,7 +1026,8 @@ class AppDrawer extends StatelessWidget {
               child: isChecked ? const Icon(Icons.check, size: 12, color: Color(0xFF0F172A)) : null,
             ),
             const SizedBox(width: 12),
-            Text('$icon ', style: const TextStyle(fontSize: 14)),
+            Icon(icon, size: 18, color: const Color(0xFF64748B)),
+            const SizedBox(width: 10),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -1042,13 +1050,15 @@ class AppDrawer extends StatelessWidget {
                   color: amount >= 0 ? const Color(0xFF059669) : const Color(0xFFE11D48),
                 ),
               ),
-            if (onLongPress != null)
-              GestureDetector(
-                onTap: onLongPress,
-                child: const Padding(
-                  padding: EdgeInsets.only(left: 8),
-                  child: Icon(Icons.more_vert, size: 16, color: Color(0xFF94A3B8)),
-                ),
+            if (onAction != null)
+              PopupMenuButton<String>(
+                icon: const Icon(Icons.more_vert, size: 16, color: Color(0xFF94A3B8)),
+                color: const Color(0xFFFFFFFF),
+                onSelected: onAction,
+                itemBuilder: (ctx) => [
+                  PopupMenuItem(value: 'edit', child: Text('수정', style: GoogleFonts.notoSansKr(fontSize: 13, color: const Color(0xFF0F172A)))),
+                  PopupMenuItem(value: 'delete', child: Text('삭제', style: GoogleFonts.notoSansKr(fontSize: 13, color: const Color(0xFFE11D48)))),
+                ],
               ),
           ],
         ),
@@ -1099,7 +1109,7 @@ class AppDrawer extends StatelessWidget {
     );
   }
 
-  void _showAddAccountDialog(BuildContext context, AppState state) {
+  void _showAddAccountDialog(BuildContext context, AppState state, {Account? editAccount}) {
     showModalBottomSheet(
       context: context,
       backgroundColor: const Color(0xFFFFFFFF),
@@ -1107,7 +1117,7 @@ class AppDrawer extends StatelessWidget {
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (_) => ChangeNotifierProvider.value(
         value: state,
-        child: const AddAccountSheet(),
+        child: AddAccountSheet(editAccount: editAccount),
       ),
     );
   }
@@ -1117,7 +1127,8 @@ class AppDrawer extends StatelessWidget {
 // ADD ACCOUNT SHEET
 // ============================================================
 class AddAccountSheet extends StatefulWidget {
-  const AddAccountSheet({super.key});
+  final Account? editAccount;
+  const AddAccountSheet({super.key, this.editAccount});
 
   @override
   State<AddAccountSheet> createState() => _AddAccountSheetState();
@@ -1135,6 +1146,21 @@ class _AddAccountSheetState extends State<AddAccountSheet> {
   final _banks = ['신한은행', 'KB국민은행', '우리은행', '하나은행', 'NH농협은행', '기업은행', '토스뱅크', '카카오뱅크', '케이뱅크', '현금/기타'];
   final _cards = ['신한카드', 'KB국민카드', '삼성카드', '현대카드', '롯데카드', '하나카드', '우리카드', 'NH농협카드', 'BC카드', '카카오페이카드', '토스카드'];
   final _colors = ['#6366f1', '#3b82f6', '#10b981', '#ec4899', '#f59e0b', '#8b5cf6'];
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.editAccount != null) {
+      final acc = widget.editAccount!;
+      _type = acc.cardKind ?? 'bank';
+      _bank = acc.bank;
+      _nameCtrl.text = acc.name;
+      _balanceCtrl.text = acc.initialBalance.toString();
+      _paymentDay = acc.paymentDay ?? 25;
+      _linkedBankId = acc.linkedBankAccountId;
+      _color = acc.color;
+    }
+  }
 
   @override
   void dispose() {
@@ -1342,7 +1368,7 @@ class _AddAccountSheetState extends State<AddAccountSheet> {
       return;
     }
     final acc = Account(
-      id: 'acc_${DateTime.now().millisecondsSinceEpoch}',
+      id: widget.editAccount?.id ?? 'acc_${DateTime.now().millisecondsSinceEpoch}',
       type: _type == 'bank' ? 'bank' : 'card',
       name: name,
       bank: _bank,
@@ -1352,11 +1378,17 @@ class _AddAccountSheetState extends State<AddAccountSheet> {
       paymentDay: _type == 'credit' ? _paymentDay : null,
       linkedBankAccountId: _linkedBankId,
     );
-    context.read<AppState>().addAccount(acc);
+    
+    if (widget.editAccount != null) {
+      context.read<AppState>().updateAccount(acc);
+    } else {
+      context.read<AppState>().addAccount(acc);
+    }
+    
     Navigator.pop(context);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('$name이(가) 추가되었습니다', style: GoogleFonts.notoSansKr()),
+        content: Text(widget.editAccount != null ? '$name이(가) 수정되었습니다' : '$name이(가) 추가되었습니다', style: GoogleFonts.notoSansKr()),
         backgroundColor: const Color(0xFF059669),
       ),
     );
