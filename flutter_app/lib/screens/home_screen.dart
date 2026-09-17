@@ -80,7 +80,7 @@ class _CustomSpeedDialState extends State<CustomSpeedDial> with SingleTickerProv
       children: [
         SizeTransition(
           sizeFactor: _anim,
-          axisAlignment: -1.0,
+          axisAlignment: 1.0,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
@@ -130,7 +130,9 @@ class _HomeScreenState extends State<HomeScreen> {
       key: _scaffoldKey,
       backgroundColor: const Color(0xFFFFFFFF),
       drawer: const AppDrawer(),
-      body: Consumer<AppState>(
+      body: Stack(
+        children: [
+          Consumer<AppState>(
         builder: (context, state, _) {
           if (!state.loaded) {
             return const Center(child: CircularProgressIndicator(color: Color(0xFF4F46E5)));
@@ -146,8 +148,16 @@ class _HomeScreenState extends State<HomeScreen> {
           );
         },
       ),
-      floatingActionButton: CustomSpeedDial(
-        onSelect: (type) => _showAddTransactionModal(context, initialType: type),
+      Positioned(
+            right: 20,
+            bottom: 20,
+            child: SafeArea(
+              child: CustomSpeedDial(
+                onSelect: (type) => _showAddTransactionModal(context, initialType: type),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
