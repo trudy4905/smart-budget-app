@@ -40,6 +40,7 @@ dependencies:
   intl: ^0.20.2
   lucide_icons: ^0.257.0
   google_fonts: 6.2.1
+  flutter_speed_dial: ^7.0.0
 
 dev_dependencies:
   flutter_test:

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
@@ -49,11 +50,36 @@ class _HomeScreenState extends State<HomeScreen> {
           );
         },
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _showAddTransactionModal(context),
+      floatingActionButton: SpeedDial(
+        icon: Icons.add,
+        activeIcon: Icons.close,
+        spacing: 3,
+        mini: false,
+        childPadding: const EdgeInsets.all(5),
+        spaceBetweenChildren: 4,
         backgroundColor: const Color(0xFFC2E7FF),
-        elevation: 2,
-        child: const Icon(Icons.add, color: Color(0xFF001D35), size: 28),
+        foregroundColor: const Color(0xFF001D35),
+        elevation: 8.0,
+        animationCurve: Curves.elasticInOut,
+        isOpenOnStart: false,
+        children: [
+          SpeedDialChild(
+            child: const Icon(Icons.remove, color: Colors.white),
+            backgroundColor: const Color(0xFFE11D48),
+            foregroundColor: Colors.white,
+            label: '지출',
+            labelStyle: GoogleFonts.notoSansKr(fontWeight: FontWeight.w600, color: const Color(0xFF0F172A)),
+            onTap: () => _showAddTransactionModal(context, initialType: 'expense'),
+          ),
+          SpeedDialChild(
+            child: const Icon(Icons.add, color: Colors.white),
+            backgroundColor: const Color(0xFF059669),
+            foregroundColor: Colors.white,
+            label: '수입',
+            labelStyle: GoogleFonts.notoSansKr(fontWeight: FontWeight.w600, color: const Color(0xFF0F172A)),
+            onTap: () => _showAddTransactionModal(context, initialType: 'income'),
+          ),
+        ],
       ),
     );
   }
@@ -620,15 +646,14 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void _showAddTransactionModal(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        fullscreenDialog: true,
-        builder: (_) => ChangeNotifierProvider.value(
-          value: context.read<AppState>(),
-          child: const AddTransactionScreen(),
-        ),
+  void _showAddTransactionModal(BuildContext context, {String initialType = 'expense'}) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => ChangeNotifierProvider.value(
+        value: context.read<AppState>(),
+        child: AddTransactionScreen(initialType: initialType),
       ),
     );
   }
@@ -1265,14 +1290,15 @@ class _AddAccountSheetState extends State<AddAccountSheet> {
 // ADD TRANSACTION SCREEN
 // ============================================================
 class AddTransactionScreen extends StatefulWidget {
-  const AddTransactionScreen({super.key});
+  final String initialType;
+  const AddTransactionScreen({super.key, this.initialType = 'expense'});
 
   @override
   State<AddTransactionScreen> createState() => _AddTransactionScreenState();
 }
 
 class _AddTransactionScreenState extends State<AddTransactionScreen> {
-  String _type = 'expense';
+  late String _type;
   String _category = '식당';
   String? _accountId;
   final _amountCtrl = TextEditingController();
@@ -1283,6 +1309,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   @override
   void initState() {
     super.initState();
+    _type = widget.initialType;
     final s = context.read<AppState>();
     _dateStr = s.selectedDateStr;
     if (s.accounts.isNotEmpty) _accountId = s.accounts.first.id;
@@ -1301,20 +1328,24 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
     final cats = _type == 'expense' ? kExpenseCategories : kIncomeCategories;
     if (!cats.any((c) => c.name == _category)) _category = cats.first.name;
 
-    return Scaffold(
-      backgroundColor: const Color(0xFFFFFFFF),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFFFFFFFF),
-        title: Text('항목 추가', style: GoogleFonts.notoSansKr(fontWeight: FontWeight.w700, color: Color(0xFF0F172A))),
-        leading: IconButton(icon: const Icon(Icons.close, color: Color(0xFF0F172A)), onPressed: () => Navigator.pop(context)),
-        actions: [
-          TextButton(
-            onPressed: _save,
-            child: Text('저장', style: GoogleFonts.notoSansKr(color: const Color(0xFF4F46E5), fontWeight: FontWeight.w700, fontSize: 16)),
+    return FractionallySizedBox(
+      heightFactor: 0.9,
+      child: ClipRRect(
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        child: Scaffold(
+          backgroundColor: const Color(0xFFFFFFFF),
+          appBar: AppBar(
+            backgroundColor: const Color(0xFFFFFFFF),
+            title: Text('항목 추가', style: GoogleFonts.notoSansKr(fontWeight: FontWeight.w700, color: const Color(0xFF0F172A))),
+            leading: IconButton(icon: const Icon(Icons.close, color: Color(0xFF0F172A)), onPressed: () => Navigator.pop(context)),
+            actions: [
+              TextButton(
+                onPressed: _save,
+                child: Text('저장', style: GoogleFonts.notoSansKr(color: const Color(0xFF4F46E5), fontWeight: FontWeight.w700, fontSize: 16)),
+              ),
+            ],
           ),
-        ],
-      ),
-      body: SingleChildScrollView(
+          body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -1418,7 +1449,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
           ],
         ),
       ),
-    );
+    )));
   }
 
   Widget _typeTab(String type, String label) {
