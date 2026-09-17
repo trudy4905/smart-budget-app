@@ -735,11 +735,11 @@ class AppDrawer extends StatelessWidget {
                   padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
                   child: Text('요약', style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF64748B), fontWeight: FontWeight.w600)),
                 ),
-                _drawerFilterItem(context, state, 'all', '🌐 전체 내역', summary['income']! - summary['total']!),
-                _drawerFilterItem(context, state, 'income', '💵 수입만 보기', summary['income']!),
-                _drawerFilterItem(context, state, 'cash', '💰 현금/이체 지출', summary['cash']!),
-                _drawerFilterItem(context, state, 'card', '💳 신용카드 지출', summary['card']!),
-                _drawerFilterItem(context, state, 'total_expense', '📊 전체 지출', summary['total']!),
+                _drawerFilterItem(context, state, 'all', '🌐 전체', null, summary['income']! - summary['total']!),
+                _drawerFilterItem(context, state, 'income', '💵 수입', null, summary['income']!),
+                _drawerFilterItem(context, state, 'cash', '💰 현금 지출', '(현금/체크)', summary['cash']!),
+                _drawerFilterItem(context, state, 'card', '💳 카드 지출', '(다음달 예정)', summary['card']!),
+                _drawerFilterItem(context, state, 'total_expense', '📊 전체 지출', null, summary['total']!),
 
                 const Divider(color: Color(0xFF1E293B), height: 24),
 
@@ -849,7 +849,7 @@ class AppDrawer extends StatelessWidget {
     );
   }
 
-  Widget _drawerFilterItem(BuildContext context, AppState state, String filter, String label, int amount) {
+  Widget _drawerFilterItem(BuildContext context, AppState state, String filter, String label, String? sub, int amount) {
     final isActive = state.drawerFilter == filter;
     final isPositive = amount >= 0;
     final amountColor = filter == 'income'
@@ -863,8 +863,8 @@ class AppDrawer extends StatelessWidget {
 
     return GestureDetector(
       onTap: () {
+        // 드로어를 닫지 않고 필터만 변경
         state.setDrawerFilter(filter);
-        Navigator.pop(context);
       },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 150),
@@ -878,11 +878,18 @@ class AppDrawer extends StatelessWidget {
         child: Row(
           children: [
             Expanded(
-              child: Text(label,
-                  style: GoogleFonts.notoSansKr(
-                    fontSize: 13, fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
-                    color: isActive ? const Color(0xFF6366F1) : Colors.white,
-                  )),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(label,
+                      style: GoogleFonts.notoSansKr(
+                        fontSize: 13, fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
+                        color: isActive ? const Color(0xFF6366F1) : Colors.white,
+                      )),
+                  if (sub != null)
+                    Text(sub, style: GoogleFonts.notoSansKr(fontSize: 10, color: const Color(0xFF64748B))),
+                ],
+              ),
             ),
             Text(amountStr,
                 style: GoogleFonts.notoSansKr(fontSize: 12, fontWeight: FontWeight.w700, color: amountColor)),
@@ -908,20 +915,25 @@ class AppDrawer extends StatelessWidget {
     required bool isAll,
     VoidCallback? onLongPress,
   }) {
-    final isAllActive = state.selectedAccountIds.contains('all') || state.selectedAccountIds.isEmpty;
+    final isAllActive = state.selectedAccountIds.contains('all');
     final isChecked = isAll ? isAllActive : (isAllActive || state.selectedAccountIds.contains(id));
 
     return GestureDetector(
       onTap: () {
         if (isAll) {
-          state.setSelectedAccountIds(['all']);
+          // 전체 체크박스는 토글 가능 (해제하면 아무것도 표시 안됨)
+          if (isAllActive) {
+            state.setSelectedAccountIds([]); // 전체 해제
+          } else {
+            state.setSelectedAccountIds(['all']); // 전체 선택
+          }
         } else {
           if (state.selectedAccountIds.contains('all')) {
             state.setSelectedAccountIds([id]);
           } else {
             if (state.selectedAccountIds.contains(id)) {
               final next = state.selectedAccountIds.where((x) => x != id).toList();
-              state.setSelectedAccountIds(next.isEmpty ? ['all'] : next);
+              state.setSelectedAccountIds(next); // 빈 배열도 허용
             } else {
               final next = [...state.selectedAccountIds, id];
               state.setSelectedAccountIds(next.length == state.accounts.length ? ['all'] : next);

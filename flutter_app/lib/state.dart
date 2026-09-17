@@ -257,22 +257,25 @@ class AppState extends ChangeNotifier {
   }
 
   // ---- Filtering ----
-  bool isTransactionMatchingSelection(Transaction t) {
+  bool isTransactionMatchingSelection(Transaction t, {bool ignoreDrawerFilter = false}) {
     final txAcc = accounts.firstWhereOrNull((a) => a.id == t.accountId);
     final isCardTx = txAcc != null && txAcc.isCredit;
     final isCashTx = txAcc == null || txAcc.isBank || txAcc.isDebit;
 
-    if (drawerFilter == 'income') {
-      if (t.type != 'income') return false;
-    } else if (drawerFilter == 'cash') {
-      if (!isCashTx || t.type != 'expense') return false;
-    } else if (drawerFilter == 'card') {
-      if (!isCardTx || t.type != 'expense') return false;
-    } else if (drawerFilter == 'total_expense') {
-      if (t.type != 'expense') return false;
+    if (!ignoreDrawerFilter) {
+      if (drawerFilter == 'income') {
+        if (t.type != 'income') return false;
+      } else if (drawerFilter == 'cash') {
+        if (!isCashTx || t.type != 'expense') return false;
+      } else if (drawerFilter == 'card') {
+        if (!isCardTx || t.type != 'expense') return false;
+      } else if (drawerFilter == 'total_expense') {
+        if (t.type != 'expense') return false;
+      }
     }
 
-    if (selectedAccountIds.contains('all') || selectedAccountIds.isEmpty) return true;
+    if (selectedAccountIds.contains('all')) return true;
+    if (selectedAccountIds.isEmpty) return false;
     if (selectedAccountIds.contains(t.accountId)) return true;
 
     if (txAcc != null && txAcc.isDebit && txAcc.linkedBankAccountId != null) {
@@ -285,20 +288,20 @@ class AppState extends ChangeNotifier {
     return transactions.where((t) => t.date == dateStr && isTransactionMatchingSelection(t)).toList();
   }
 
-  List<Transaction> getTransactionsForMonth(int year, int month) {
+  List<Transaction> getTransactionsForMonth(int year, int month, {bool ignoreDrawerFilter = false}) {
     return transactions.where((t) {
       final parts = t.date.split('-');
       if (parts.length < 3) return false;
       final y = int.tryParse(parts[0]) ?? 0;
       final m = int.tryParse(parts[1]) ?? 0;
-      return y == year && m == month && isTransactionMatchingSelection(t);
+      return y == year && m == month && isTransactionMatchingSelection(t, ignoreDrawerFilter: ignoreDrawerFilter);
     }).toList();
   }
 
   // ---- Computed summaries ----
   Map<String, int> getMonthlySummary(int year, int month) {
     int income = 0, cash = 0, card = 0;
-    for (final t in getTransactionsForMonth(year, month)) {
+    for (final t in getTransactionsForMonth(year, month, ignoreDrawerFilter: true)) {
       final acc = accounts.firstWhereOrNull((a) => a.id == t.accountId);
       if (t.type == 'income') {
         income += t.amount;
