@@ -895,7 +895,7 @@ class AppDrawer extends StatelessWidget {
                           if (action == 'edit') {
                             _showAddAccountDialog(context, state, editAccount: acc);
                           } else if (action == 'delete') {
-                            _showAccountActions(context, state, acc);
+                            _showDeleteConfirmation(context, state, acc);
                           }
                         },
                       );
@@ -1090,45 +1090,20 @@ class AppDrawer extends StatelessWidget {
     );
   }
 
-  void _showAccountActions(BuildContext context, AppState state, Account acc) {
-    showModalBottomSheet(
+  void _showDeleteConfirmation(BuildContext context, AppState state, Account acc) {
+    showDialog(
       context: context,
-      backgroundColor: const Color(0xFFFFFFFF),
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-      builder: (_) => Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(acc.name, style: GoogleFonts.notoSansKr(fontSize: 16, fontWeight: FontWeight.w700, color: Color(0xFF0F172A))),
-            const SizedBox(height: 4),
-            Text(acc.bank, style: GoogleFonts.notoSansKr(fontSize: 12, color: const Color(0xFF94A3B8))),
-            const SizedBox(height: 16),
-            ListTile(
-              leading: const Icon(Icons.delete_outline, color: Color(0xFFE11D48)),
-              title: Text('계좌 삭제', style: GoogleFonts.notoSansKr(color: const Color(0xFFE11D48))),
-              onTap: () {
-                Navigator.pop(context);
-                showDialog(
-                  context: context,
-                  builder: (_) => AlertDialog(
-                    backgroundColor: const Color(0xFFFFFFFF),
-                    title: Text('계좌 삭제', style: GoogleFonts.notoSansKr(color: Color(0xFF0F172A))),
-                    content: Text('${acc.name}을(를) 삭제하시겠습니까?', style: GoogleFonts.notoSansKr(color: const Color(0xFF64748B))),
-                    actions: [
-                      TextButton(onPressed: () => Navigator.pop(context), child: Text('취소', style: GoogleFonts.notoSansKr(color: const Color(0xFF94A3B8)))),
-                      TextButton(
-                        onPressed: () { state.deleteAccount(acc.id); Navigator.pop(context); },
-                        child: Text('삭제', style: GoogleFonts.notoSansKr(color: const Color(0xFFE11D48))),
-                      ),
-                    ],
-                  ),
-                );
-              },
-            ),
-          ],
-        ),
+      builder: (_) => AlertDialog(
+        backgroundColor: const Color(0xFFFFFFFF),
+        title: Text('계좌 삭제', style: GoogleFonts.notoSansKr(color: Color(0xFF0F172A))),
+        content: Text('${acc.name}을(를) 삭제하시겠습니까?', style: GoogleFonts.notoSansKr(color: const Color(0xFF64748B))),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: Text('취소', style: GoogleFonts.notoSansKr(color: const Color(0xFF94A3B8)))),
+          TextButton(
+            onPressed: () { state.deleteAccount(acc.id); Navigator.pop(context); },
+            child: Text('삭제', style: GoogleFonts.notoSansKr(color: const Color(0xFFE11D48))),
+          ),
+        ],
       ),
     );
   }
