@@ -773,13 +773,10 @@ class AppDrawer extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [Color(0xFF4F46E5), Color(0xFF7C3AED)],
-                            begin: Alignment.topLeft, end: Alignment.bottomRight,
-                          ),
+                          color: const Color(0xFFF1F5F9),
                           borderRadius: BorderRadius.circular(14),
                         ),
-                        child: const Icon(Icons.account_balance_wallet, color: Color(0xFF0F172A), size: 20),
+                        child: const Icon(Icons.account_balance_wallet, color: Color(0xFF64748B), size: 20),
                       ),
                       const SizedBox(width: 12),
                       Column(
@@ -800,6 +797,33 @@ class AppDrawer extends StatelessWidget {
                   ),
                 ),
 
+                // ---- 자산 ----
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
+                  child: Text('자산', style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF94A3B8), fontWeight: FontWeight.w600)),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Builder(
+                    builder: (context) {
+                      int totalAssets = 0;
+                      for (final acc in state.accounts) {
+                        if (acc.isBank) {
+                          int bal = acc.initialBalance;
+                          for (final t in state.transactions) {
+                            if (t.accountId != acc.id) continue;
+                            if (t.type == 'income') bal += t.amount;
+                            if (t.type == 'expense') bal -= t.amount;
+                          }
+                          totalAssets += bal;
+                        }
+                      }
+                      return Text('₩${formatNumber(totalAssets)}', style: GoogleFonts.notoSansKr(fontSize: 24, fontWeight: FontWeight.w700, color: const Color(0xFF0F172A)));
+                    }
+                  ),
+                ),
+                const SizedBox(height: 8),
+
                 // ---- 요약 (Filter Menu) ----
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
@@ -807,7 +831,7 @@ class AppDrawer extends StatelessWidget {
                 ),
                 _drawerFilterItem(context, state, 'all', '전체', Icons.public, null, summary['income']! - summary['total']!),
                 _drawerFilterItem(context, state, 'income', '수입', Icons.attach_money, null, summary['income']!),
-                _drawerFilterItem(context, state, 'cash', '현금 지출', Icons.money, '/현금/체크/지난달 카드', summary['cash']!),
+                _drawerFilterItem(context, state, 'cash', '현금 지출', Icons.money, '(현금/체크/지난달 카드)', summary['cash']!),
                 _drawerFilterItem(context, state, 'card', '카드 지출', Icons.credit_card, '(다음달 예정)', summary['card']!),
 
                 const Divider(color: Color(0xFFFFFFFF), height: 24),
