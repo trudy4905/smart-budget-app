@@ -1093,7 +1093,8 @@ class _AddAccountSheetState extends State<AddAccountSheet> {
     final bankList = _type == 'credit' ? _cards : _banks;
     final bankAccounts = state.accounts.where((a) => a.isBank).toList();
 
-    return Padding(
+    return Container(
+      height: MediaQuery.of(context).size.height * 0.75,
       padding: EdgeInsets.fromLTRB(20, 20, 20, MediaQuery.of(context).viewInsets.bottom + 20),
       child: SingleChildScrollView(
         child: Column(
