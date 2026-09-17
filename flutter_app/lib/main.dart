@@ -115,6 +115,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // ---- Header ----
   Widget _buildHeader(AppState state) {
+    final now = DateTime.now();
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
       child: Row(
@@ -156,21 +157,28 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
           const Spacer(),
-          // Net asset badge
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              color: const Color(0xFF1E293B),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: const Color(0xFF334155)),
-            ),
-            child: Row(
-              children: [
-                const Icon(Icons.account_balance_wallet_rounded, size: 14, color: Color(0xFF6366F1)),
-                const SizedBox(width: 6),
-                Text('₩${formatNumber(state.getNetAssets())}',
-                    style: GoogleFonts.notoSansKr(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.white)),
-              ],
+          // Today button (displays today's day number e.g. 17일, jumps calendar to today when clicked)
+          GestureDetector(
+            onTap: () {
+              final today = DateTime.now();
+              state.setCurrentDate(today);
+              state.setSelectedDate('${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}');
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: const Color(0xFF1E293B),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: const Color(0xFF6366F1).withOpacity(0.6)),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.today_rounded, size: 16, color: Color(0xFF6366F1)),
+                  const SizedBox(width: 6),
+                  Text('${now.day}일',
+                      style: GoogleFonts.notoSansKr(fontSize: 13, fontWeight: FontWeight.w700, color: Colors.white)),
+                ],
+              ),
             ),
           ),
         ],
@@ -178,7 +186,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // ---- Month Carousel (active month aligned to left, past months available by sliding left) ----
+  // ---- Month Carousel (active month ALWAYS aligned to far left, past months available by sliding left) ----
   Widget _buildMonthCarousel(AppState state) {
     final now = DateTime.now();
     // Allow past months (3 years back) and future months (2 years forward)
@@ -192,19 +200,10 @@ class _HomeScreenState extends State<HomeScreen> {
       cur = DateTime(cur.year, cur.month + 1, 1);
     }
 
-    // Scroll active month to far left edge after frame layout
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (_monthScrollCtrl.hasClients && _activeMonthKey.currentContext != null) {
-        Scrollable.ensureVisible(
-          _activeMonthKey.currentContext!,
-          alignment: 0.0,
-          duration: const Duration(milliseconds: 200),
-          curve: Curves.easeOut,
-        );
-      }
-    });
-
+    double currentAccumulatedWidth = 0.0;
+    double targetOffset = 0.0;
     int? lastYear;
+
     final items = <Widget>[];
     for (final m in months) {
       if (lastYear != null && m.year != lastYear) {
@@ -213,18 +212,32 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Text('${m.year}년',
               style: GoogleFonts.notoSansKr(fontSize: 11, fontWeight: FontWeight.bold, color: const Color(0xFF64748B))),
         ));
+        currentAccumulatedWidth += 46.0;
       }
       lastYear = m.year;
       final isActive = m.year == state.currentDate.year && m.month == state.currentDate.month;
+      if (isActive) {
+        targetOffset = currentAccumulatedWidth;
+      }
+      currentAccumulatedWidth += 54.0;
       items.add(_monthPill(m, isActive, state, key: isActive ? _activeMonthKey : null));
     }
+
+    // Force active month to far left edge
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_monthScrollCtrl.hasClients) {
+        final maxScroll = _monthScrollCtrl.position.maxScrollExtent;
+        final clampOffset = targetOffset.clamp(0.0, maxScroll);
+        _monthScrollCtrl.jumpTo(clampOffset);
+      }
+    });
 
     return SizedBox(
       height: 40,
       child: ListView(
         controller: _monthScrollCtrl,
         scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 12),
+        padding: const EdgeInsets.only(left: 12, right: 200),
         children: items,
       ),
     );
