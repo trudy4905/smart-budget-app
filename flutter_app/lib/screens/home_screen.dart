@@ -1137,7 +1137,7 @@ class _AddAccountSheetState extends State<AddAccountSheet> {
   String _type = 'bank'; // 'bank', 'credit', 'debit'
   String _bank = '신한은행';
   final _nameCtrl = TextEditingController();
-  final _balanceCtrl = TextEditingController(text: '0');
+  final _balanceCtrl = TextEditingController();
   int _paymentDay = 25;
   String? _linkedBankId;
   String _color = '#6366f1';
