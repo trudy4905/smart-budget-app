@@ -86,7 +86,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   children: [
                     _buildHeader(state),
                     _buildMonthCarousel(state),
-                    _buildSummaryCards(state),
                     Expanded(child: _buildCalendarAndDetail(state)),
                   ],
                 ),
@@ -95,11 +94,10 @@ class _HomeScreenState extends State<HomeScreen> {
           );
         },
       ),
-      floatingActionButton: FloatingActionButton.extended(
+      floatingActionButton: FloatingActionButton(
         onPressed: () => _showAddTransactionModal(context),
         backgroundColor: const Color(0xFF6366F1),
-        icon: const Icon(Icons.add),
-        label: Text('항목 추가', style: GoogleFonts.notoSansKr(fontWeight: FontWeight.w600)),
+        child: const Icon(Icons.add, color: Colors.white, size: 28),
       ),
     );
   }
@@ -169,10 +167,11 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // ---- Month Carousel ----
+  // ---- Month Carousel (starts at current month) ----
   Widget _buildMonthCarousel(AppState state) {
     final now = DateTime.now();
-    final start = DateTime(now.year, now.month - 24, 1);
+    // Show current month first, then up to 18 months in the future
+    final start = DateTime(state.currentDate.year, state.currentDate.month, 1);
     final end = DateTime(now.year, now.month + 18, 1);
 
     final months = <DateTime>[];
@@ -182,18 +181,10 @@ class _HomeScreenState extends State<HomeScreen> {
       cur = DateTime(cur.year, cur.month + 1, 1);
     }
 
-    final activeIdx = months.indexWhere(
-      (m) => m.year == state.currentDate.year && m.month == state.currentDate.month,
-    );
-
+    // Scroll to start (left edge) whenever currentDate changes
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (_monthScrollCtrl.hasClients && activeIdx >= 0) {
-        final offset = (activeIdx * 56.0) - (MediaQuery.of(context).size.width / 2) + 28.0;
-        _monthScrollCtrl.animateTo(
-          offset.clamp(0.0, _monthScrollCtrl.position.maxScrollExtent),
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeOut,
-        );
+      if (_monthScrollCtrl.hasClients) {
+        _monthScrollCtrl.jumpTo(0);
       }
     });
 
@@ -693,7 +684,6 @@ class AppDrawer extends StatelessWidget {
     return Consumer<AppState>(
       builder: (context, state, _) {
         final summary = state.getMonthlySummary(state.currentDate.year, state.currentDate.month);
-        final netAssets = state.getNetAssets();
 
         return Drawer(
           width: MediaQuery.of(context).size.width * 0.82,
@@ -708,96 +698,57 @@ class AppDrawer extends StatelessWidget {
                   decoration: const BoxDecoration(
                     border: Border(bottom: BorderSide(color: Color(0xFF1E293B))),
                   ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  child: Row(
                     children: [
-                      Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(10),
-                            decoration: BoxDecoration(
-                              gradient: const LinearGradient(
-                                colors: [Color(0xFF6366F1), Color(0xFF8B5CF6)],
-                                begin: Alignment.topLeft, end: Alignment.bottomRight,
-                              ),
-                              borderRadius: BorderRadius.circular(14),
-                            ),
-                            child: const Icon(Icons.account_balance_wallet, color: Colors.white, size: 20),
-                          ),
-                          const SizedBox(width: 12),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text('Smart Budget',
-                                  style: GoogleFonts.notoSansKr(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
-                              Text(state.currentMonthStr,
-                                  style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF64748B))),
-                            ],
-                          ),
-                          const Spacer(),
-                          GestureDetector(
-                            onTap: () => Navigator.pop(context),
-                            child: const Icon(Icons.close, color: Color(0xFF64748B), size: 20),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      // Net assets
                       Container(
-                        padding: const EdgeInsets.all(14),
+                        padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF1E293B),
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFF6366F1), Color(0xFF8B5CF6)],
+                            begin: Alignment.topLeft, end: Alignment.bottomRight,
+                          ),
                           borderRadius: BorderRadius.circular(14),
-                          border: Border.all(color: const Color(0xFF334155)),
                         ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('순자산 (예금 - 카드대금)',
-                                style: GoogleFonts.notoSansKr(fontSize: 10, color: const Color(0xFF64748B))),
-                            const SizedBox(height: 6),
-                            Text('₩${formatNumber(netAssets)}',
-                                style: GoogleFonts.notoSansKr(
-                                  fontSize: 22, fontWeight: FontWeight.w700,
-                                  color: netAssets >= 0 ? const Color(0xFF10B981) : const Color(0xFFF43F5E),
-                                )),
-                          ],
-                        ),
+                        child: const Icon(Icons.account_balance_wallet, color: Colors.white, size: 20),
                       ),
-                      const SizedBox(height: 10),
-                      // Quick stats row
-                      Row(
+                      const SizedBox(width: 12),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _statChip('💵 수입', summary['income']!, const Color(0xFF10B981)),
-                          const SizedBox(width: 6),
-                          _statChip('💰 현금', summary['cash']!, const Color(0xFFF43F5E)),
-                          const SizedBox(width: 6),
-                          _statChip('💳 카드', summary['card']!, const Color(0xFFA855F7)),
+                          Text('Smart Budget',
+                              style: GoogleFonts.notoSansKr(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
+                          Text(state.currentMonthStr,
+                              style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF64748B))),
                         ],
+                      ),
+                      const Spacer(),
+                      GestureDetector(
+                        onTap: () => Navigator.pop(context),
+                        child: const Icon(Icons.close, color: Color(0xFF64748B), size: 20),
                       ),
                     ],
                   ),
                 ),
 
-                // ---- Filter Menu ----
+                // ---- 요약 (Filter Menu) ----
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                  child: Text('보기 필터', style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF64748B), fontWeight: FontWeight.w600)),
+                  child: Text('요약', style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF64748B), fontWeight: FontWeight.w600)),
                 ),
-                _drawerFilterItem(context, state, 'all', '🌐 전체 내역', '모든 수입·지출'),
-                _drawerFilterItem(context, state, 'income', '💵 수입만 보기', '이번 달 수입'),
-                _drawerFilterItem(context, state, 'cash', '💰 현금/이체 지출', '계좌이체·현금'),
-                _drawerFilterItem(context, state, 'card', '💳 신용카드 지출', '신용카드만'),
-                _drawerFilterItem(context, state, 'total_expense', '📊 전체 지출', '현금 + 카드'),
+                _drawerFilterItem(context, state, 'all', '🌐 전체 내역', summary['income']! - summary['total']!),
+                _drawerFilterItem(context, state, 'income', '💵 수입만 보기', summary['income']!),
+                _drawerFilterItem(context, state, 'cash', '💰 현금/이체 지출', summary['cash']!),
+                _drawerFilterItem(context, state, 'card', '💳 신용카드 지출', summary['card']!),
+                _drawerFilterItem(context, state, 'total_expense', '📊 전체 지출', summary['total']!),
 
                 const Divider(color: Color(0xFF1E293B), height: 24),
 
-                // ---- Account Checklist ----
+                // ---- 목록 선택 ----
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                   child: Row(
                     children: [
-                      Text('계좌 선택', style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF64748B), fontWeight: FontWeight.w600)),
+                      Text('목록 선택', style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF64748B), fontWeight: FontWeight.w600)),
                       const Spacer(),
                       GestureDetector(
                         onTap: () {
@@ -816,7 +767,7 @@ class AppDrawer extends StatelessWidget {
                             children: [
                               const Icon(Icons.add, size: 12, color: Color(0xFF6366F1)),
                               const SizedBox(width: 4),
-                              Text('계좌 추가', style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF6366F1))),
+                              Text('계좌/카드 추가', style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF6366F1))),
                             ],
                           ),
                         ),
@@ -898,8 +849,18 @@ class AppDrawer extends StatelessWidget {
     );
   }
 
-  Widget _drawerFilterItem(BuildContext context, AppState state, String filter, String label, String sub) {
+  Widget _drawerFilterItem(BuildContext context, AppState state, String filter, String label, int amount) {
     final isActive = state.drawerFilter == filter;
+    final isPositive = amount >= 0;
+    final amountColor = filter == 'income'
+        ? const Color(0xFF10B981)
+        : filter == 'all'
+            ? (isPositive ? const Color(0xFF10B981) : const Color(0xFFF43F5E))
+            : const Color(0xFFF43F5E);
+    final amountStr = filter == 'income' || filter == 'all'
+        ? (isPositive ? '+₩${formatCompactNumber(amount)}' : '-₩${formatCompactNumber(amount.abs())}')
+        : '-₩${formatCompactNumber(amount)}';
+
     return GestureDetector(
       onTap: () {
         state.setDrawerFilter(filter);
@@ -917,19 +878,18 @@ class AppDrawer extends StatelessWidget {
         child: Row(
           children: [
             Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(label,
-                      style: GoogleFonts.notoSansKr(
-                        fontSize: 13, fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
-                        color: isActive ? const Color(0xFF6366F1) : Colors.white,
-                      )),
-                  Text(sub, style: GoogleFonts.notoSansKr(fontSize: 10, color: const Color(0xFF64748B))),
-                ],
-              ),
+              child: Text(label,
+                  style: GoogleFonts.notoSansKr(
+                    fontSize: 13, fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
+                    color: isActive ? const Color(0xFF6366F1) : Colors.white,
+                  )),
             ),
-            if (isActive) const Icon(Icons.check_rounded, size: 16, color: Color(0xFF6366F1)),
+            Text(amountStr,
+                style: GoogleFonts.notoSansKr(fontSize: 12, fontWeight: FontWeight.w700, color: amountColor)),
+            if (isActive) ...[
+              const SizedBox(width: 6),
+              const Icon(Icons.check_rounded, size: 14, color: Color(0xFF6366F1)),
+            ],
           ],
         ),
       ),
