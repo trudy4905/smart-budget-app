@@ -6,9 +6,9 @@ import '../models/transaction.dart';
 import '../models/category_info.dart';
 import '../utils/helpers.dart';
 
-const kStorageKeyTx = 'smart_budget_transactions_v5.0';
-const kStorageKeyAcc = 'smart_budget_accounts_v5.0';
-const kStorageKeyRec = 'smart_budget_recurring_v5.0';
+const kStorageKeyTx = 'smart_budget_transactions_v6.0';
+const kStorageKeyAcc = 'smart_budget_accounts_v6.0';
+const kStorageKeyRec = 'smart_budget_recurring_v6.0';
 
 class AppState extends ChangeNotifier {
   List<Account> accounts = [];
