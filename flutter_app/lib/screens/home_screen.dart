@@ -9,6 +9,102 @@ import '../models/account.dart';
 import '../models/category_info.dart';
 import '../utils/helpers.dart';
 
+
+class CustomSpeedDial extends StatefulWidget {
+  final Function(String) onSelect;
+  const CustomSpeedDial({super.key, required this.onSelect});
+
+  @override
+  State<CustomSpeedDial> createState() => _CustomSpeedDialState();
+}
+
+class _CustomSpeedDialState extends State<CustomSpeedDial> with SingleTickerProviderStateMixin {
+  bool _isOpen = false;
+  late AnimationController _ctrl;
+  late Animation<double> _anim;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 250));
+    _anim = CurvedAnimation(parent: _ctrl, curve: Curves.easeOutBack);
+  }
+  
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  void _toggle() {
+    if (_isOpen) {
+      _ctrl.reverse();
+    } else {
+      _ctrl.forward();
+    }
+    setState(() => _isOpen = !_isOpen);
+  }
+
+  Widget _buildItem(String label, IconData icon, String type) {
+    return GestureDetector(
+      onTap: () {
+        _toggle();
+        widget.onSelect(type);
+      },
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          color: const Color(0xFFE5EDFA),
+          borderRadius: BorderRadius.circular(30),
+          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 4, offset: const Offset(0, 2))],
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, color: const Color(0xFF1D4ED8), size: 20),
+            const SizedBox(width: 8),
+            Text(label, style: GoogleFonts.notoSansKr(fontSize: 15, fontWeight: FontWeight.w600, color: const Color(0xFF1D4ED8))),
+          ],
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        SizeTransition(
+          sizeFactor: _anim,
+          axisAlignment: -1.0,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              _buildItem('수입', Icons.download_rounded, 'income'),
+              _buildItem('지출', Icons.upload_rounded, 'expense'),
+            ],
+          ),
+        ),
+        FloatingActionButton(
+          onPressed: _toggle,
+          backgroundColor: const Color(0xFF2563EB),
+          elevation: 4,
+          shape: const CircleBorder(),
+          child: AnimatedRotation(
+            turns: _isOpen ? 0.125 : 0,
+            duration: const Duration(milliseconds: 250),
+            child: const Icon(Icons.add, color: Colors.white, size: 28),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -50,36 +146,8 @@ class _HomeScreenState extends State<HomeScreen> {
           );
         },
       ),
-      floatingActionButton: SpeedDial(
-        icon: Icons.add,
-        activeIcon: Icons.close,
-        spacing: 3,
-        mini: false,
-        childPadding: const EdgeInsets.all(5),
-        spaceBetweenChildren: 4,
-        backgroundColor: const Color(0xFFC2E7FF),
-        foregroundColor: const Color(0xFF001D35),
-        elevation: 8.0,
-        animationCurve: Curves.elasticInOut,
-        isOpenOnStart: false,
-        children: [
-          SpeedDialChild(
-            child: const Icon(Icons.remove, color: Colors.white),
-            backgroundColor: const Color(0xFFE11D48),
-            foregroundColor: Colors.white,
-            label: '지출',
-            labelStyle: GoogleFonts.notoSansKr(fontWeight: FontWeight.w600, color: const Color(0xFF0F172A)),
-            onTap: () => _showAddTransactionModal(context, initialType: 'expense'),
-          ),
-          SpeedDialChild(
-            child: const Icon(Icons.add, color: Colors.white),
-            backgroundColor: const Color(0xFF059669),
-            foregroundColor: Colors.white,
-            label: '수입',
-            labelStyle: GoogleFonts.notoSansKr(fontWeight: FontWeight.w600, color: const Color(0xFF0F172A)),
-            onTap: () => _showAddTransactionModal(context, initialType: 'income'),
-          ),
-        ],
+      floatingActionButton: CustomSpeedDial(
+        onSelect: (type) => _showAddTransactionModal(context, initialType: type),
       ),
     );
   }
