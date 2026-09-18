@@ -65,9 +65,14 @@ class _AddAccountSheetState extends State<AddAccountSheet> {
           children: [
             Row(
               children: [
+                GestureDetector(onTap: () => Navigator.pop(context), child: const Icon(Icons.close, color: Color(0xFF0F172A))),
+                const SizedBox(width: 8),
                 Text('계좌/카드 추가', style: GoogleFonts.notoSansKr(fontSize: 18, fontWeight: FontWeight.w700, color: const Color(0xFF0F172A))),
                 const Spacer(),
-                GestureDetector(onTap: () => Navigator.pop(context), child: const Icon(Icons.close, color: Color(0xFF94A3B8))),
+                GestureDetector(
+                  onTap: _save,
+                  child: Text('저장', style: GoogleFonts.notoSansKr(color: const Color(0xFF4F46E5), fontWeight: FontWeight.w700, fontSize: 16)),
+                ),
               ],
             ),
             const SizedBox(height: 16),
@@ -201,18 +206,6 @@ class _AddAccountSheetState extends State<AddAccountSheet> {
               }).toList(),
             ),
             const SizedBox(height: 20),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: _save,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF4F46E5),
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                ),
-                child: Text('저장하기', style: GoogleFonts.notoSansKr(fontWeight: FontWeight.w700, color: const Color(0xFFFFFFFF), fontSize: 15)),
-              ),
-            ),
           ],
         ),
       ),
