@@ -60,12 +60,12 @@ class AppDrawer extends StatelessWidget {
 
                   // ---- 내 자산 현황 Section Header ----
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
+                    padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
                     child: Text('내 자산 현황', style: GoogleFonts.notoSansKr(fontSize: 13, color: const Color(0xFF0F172A), fontWeight: FontWeight.w700)),
                   ),
                   // ---- 자산 ----
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+                    padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
