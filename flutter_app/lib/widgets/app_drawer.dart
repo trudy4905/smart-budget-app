@@ -207,7 +207,7 @@ class AppDrawer extends StatelessWidget {
                           id: acc.id,
                           icon: acc.isCredit ? Icons.credit_card : acc.isDebit ? Icons.credit_card : Icons.account_balance,
                           label: acc.name,
-                          subLabel: acc.isCredit ? '[신용카드] ${acc.bank}' : acc.isDebit ? '[체크카드] ${acc.bank}' : '[통장] ${acc.bank}',
+                          subLabel: acc.isCredit ? '[신용] ${acc.bank}' : acc.isDebit ? '[체크] ${acc.bank}' : '[통장] ${acc.bank}',
                           color: hexToColor(acc.color),
                           amount: amount,
                           isAll: false,
