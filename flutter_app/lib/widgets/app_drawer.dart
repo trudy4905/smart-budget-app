@@ -53,15 +53,12 @@ class AppDrawer extends StatelessWidget {
 
                   // ---- 내 자산 현황 Section Header ----
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
-                    child: Text('내 자산 현황', style: GoogleFonts.notoSansKr(fontSize: 13, color: const Color(0xFF0F172A), fontWeight: FontWeight.w700)),
-                  ),
-                  // ---- 자산 ----
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    padding: const EdgeInsets.fromLTRB(20, 24, 20, 4),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
+                        Text('내 자산 현황', style: GoogleFonts.notoSansKr(fontSize: 13, color: const Color(0xFF0F172A), fontWeight: FontWeight.w700)),
                         GestureDetector(
                           onTap: () async {
                             final picked = await showDatePicker(
@@ -77,34 +74,37 @@ class AppDrawer extends StatelessWidget {
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Text('${state.assetReferenceDate.year.toString().substring(2)}년 ${state.assetReferenceDate.month}월 ${state.assetReferenceDate.day}일 기준 총자산', style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF64748B), fontWeight: FontWeight.w600)),
+                              Text('${state.assetReferenceDate.year.toString().substring(2)}년 ${state.assetReferenceDate.month}월 ${state.assetReferenceDate.day}일 기준', style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF64748B), fontWeight: FontWeight.w600)),
                               const SizedBox(width: 4),
                               const Icon(Icons.keyboard_arrow_down, size: 14, color: Color(0xFF64748B)),
                             ],
                           ),
                         ),
-                        const SizedBox(height: 4),
-                        Builder(
-                          builder: (context) {
-                            int totalAssets = 0;
-                            final now = state.assetReferenceDate;
-                            final todayStr = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
-                            for (final acc in state.accounts) {
-                              if (acc.isBank) {
-                                int bal = acc.initialBalance;
-                                for (final t in state.transactions) {
-                                  if (t.accountId != acc.id) continue;
-                                  if (t.date.compareTo(todayStr) > 0) continue;
-                                  if (t.type == 'income') bal += t.amount;
-                                  if (t.type == 'expense') bal -= t.amount;
-                                }
-                                totalAssets += bal;
-                              }
-                            }
-                            return Text('${formatNumber(totalAssets)}원', style: GoogleFonts.notoSansKr(fontSize: 28, fontWeight: FontWeight.w700, color: const Color(0xFF334155), letterSpacing: -0.5));
-                          }
-                        ),
                       ],
+                    ),
+                  ),
+                  // ---- 자산 ----
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+                    child: Builder(
+                      builder: (context) {
+                        int totalAssets = 0;
+                        final now = state.assetReferenceDate;
+                        final todayStr = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+                        for (final acc in state.accounts) {
+                          if (acc.isBank) {
+                            int bal = acc.initialBalance;
+                            for (final t in state.transactions) {
+                              if (t.accountId != acc.id) continue;
+                              if (t.date.compareTo(todayStr) > 0) continue;
+                              if (t.type == 'income') bal += t.amount;
+                              if (t.type == 'expense') bal -= t.amount;
+                            }
+                            totalAssets += bal;
+                          }
+                        }
+                        return Text('${formatNumber(totalAssets)}원', style: GoogleFonts.notoSansKr(fontSize: 28, fontWeight: FontWeight.w700, color: const Color(0xFF334155), letterSpacing: -0.5));
+                      }
                     ),
                   ),
 
@@ -112,7 +112,7 @@ class AppDrawer extends StatelessWidget {
 
                   // ---- 월별 가계부 요약 Section Header ----
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 24, 20, 8),
+                    padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
                     child: Row(
                       children: [
                         Text('가계부 요약', style: GoogleFonts.notoSansKr(fontSize: 13, color: const Color(0xFF0F172A), fontWeight: FontWeight.w700)),
@@ -155,10 +155,10 @@ class AppDrawer extends StatelessWidget {
 
                   // ---- 등록 계좌/카드 ----
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                    padding: const EdgeInsets.fromLTRB(20, 0, 16, 8),
                     child: Row(
                       children: [
-                        Text('등록 계좌/카드', style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF94A3B8), fontWeight: FontWeight.w600)),
+                        Text('등록 계좌/카드', style: GoogleFonts.notoSansKr(fontSize: 13, color: const Color(0xFF0F172A), fontWeight: FontWeight.w700)),
                         const Spacer(),
                         GestureDetector(
                           onTap: () {
