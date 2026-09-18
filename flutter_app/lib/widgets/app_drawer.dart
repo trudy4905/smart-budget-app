@@ -26,50 +26,37 @@ class AppDrawer extends StatelessWidget {
                   // ---- 자산 ----
                   Container(
                     margin: const EdgeInsets.fromLTRB(16, 24, 16, 8),
-                    padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+                    padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF4F46E5).withOpacity(0.15),
-                      border: Border.all(color: const Color(0xFF4F46E5).withOpacity(0.4)),
+                      color: const Color(0xFFFFFFFF),
                       borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 8, offset: const Offset(0, 2)),
+                      ],
                     ),
                     child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text('총 자산', style: GoogleFonts.notoSansKr(fontSize: 12, color: const Color(0xFF64748B), fontWeight: FontWeight.w600)),
-                            const SizedBox(width: 8),
-                            GestureDetector(
-                              onTap: () async {
-                                final picked = await showDatePicker(
-                                  context: context,
-                                  initialDate: state.assetReferenceDate,
-                                  firstDate: DateTime(2000),
-                                  lastDate: DateTime(2100),
-                                );
-                                if (picked != null) {
-                                  state.setAssetReferenceDate(picked);
-                                }
-                              },
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFE2E8F0),
-                                  borderRadius: BorderRadius.circular(6),
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Text('${state.assetReferenceDate.year.toString().substring(2)}년 ${state.assetReferenceDate.month}월 ${state.assetReferenceDate.day}일 기준', style: GoogleFonts.notoSansKr(fontSize: 10, color: const Color(0xFF475569))),
-                                    const SizedBox(width: 2),
-                                    const Icon(Icons.keyboard_arrow_down, size: 12, color: Color(0xFF475569)),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
+                        GestureDetector(
+                          onTap: () async {
+                            final picked = await showDatePicker(
+                              context: context,
+                              initialDate: state.assetReferenceDate,
+                              firstDate: DateTime(2000),
+                              lastDate: DateTime(2100),
+                            );
+                            if (picked != null) {
+                              state.setAssetReferenceDate(picked);
+                            }
+                          },
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text('${state.assetReferenceDate.year.toString().substring(2)}년 ${state.assetReferenceDate.month}월 ${state.assetReferenceDate.day}일 기준 총자산', style: GoogleFonts.notoSansKr(fontSize: 14, color: const Color(0xFF0F172A), fontWeight: FontWeight.w700)),
+                              const SizedBox(width: 4),
+                              const Icon(Icons.keyboard_arrow_down, size: 16, color: Color(0xFF0F172A)),
+                            ],
+                          ),
                         ),
                         const SizedBox(height: 12),
                         Builder(
@@ -89,7 +76,7 @@ class AppDrawer extends StatelessWidget {
                                 totalAssets += bal;
                               }
                             }
-                            return Text('₩${formatNumber(totalAssets)}', style: GoogleFonts.notoSansKr(fontSize: 28, fontWeight: FontWeight.w700, color: const Color(0xFF0F172A)));
+                            return Text('${formatNumber(totalAssets)}원', style: GoogleFonts.notoSansKr(fontSize: 32, fontWeight: FontWeight.w800, color: const Color(0xFF4F46E5)));
                           }
                         ),
                       ],
