@@ -42,6 +42,7 @@ class MonthCarouselState extends State<MonthCarousel> {
 
     double currentAccumulatedWidth = 0.0;
     double targetOffset = 0.0;
+    double prevOffset = 0.0;
     int? lastYear;
 
     final items = <Widget>[];
@@ -56,7 +57,8 @@ class MonthCarouselState extends State<MonthCarousel> {
       }
       lastYear = m.year;
       final isActive = m.year == state.currentDate.year && m.month == state.currentDate.month;
-      if (isActive) targetOffset = currentAccumulatedWidth;
+      if (isActive) targetOffset = prevOffset; // Use the previous item's offset
+      prevOffset = currentAccumulatedWidth;
       currentAccumulatedWidth += 54.0;
       items.add(_monthPill(m, isActive, state, key: isActive ? _activeMonthKey : null));
     }
@@ -64,11 +66,11 @@ class MonthCarouselState extends State<MonthCarousel> {
     if (_shouldScrollToLeft) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (_scrollCtrl.hasClients) {
-          if (_activeMonthKey.currentContext != null) {
-            Scrollable.ensureVisible(_activeMonthKey.currentContext!, alignment: 0.0);
-          } else {
-            _scrollCtrl.jumpTo(targetOffset);
-          }
+          _scrollCtrl.animateTo(
+            targetOffset,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOut,
+          );
         }
         _shouldScrollToLeft = false;
       });
