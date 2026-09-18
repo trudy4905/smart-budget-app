@@ -263,6 +263,12 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
+  void addTransactions(List<Transaction> txs) {
+    transactions.insertAll(0, txs.reversed);
+    _saveTransactions();
+    notifyListeners();
+  }
+
   void deleteTransaction(String id) {
     transactions.removeWhere((t) => t.id == id);
     _saveTransactions();

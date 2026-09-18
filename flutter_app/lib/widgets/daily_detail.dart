@@ -20,16 +20,31 @@ class DailyDetail extends StatelessWidget {
     final titleText = '${dateObj.month}월 ${dateObj.day}일 (${dayNames[dateObj.weekday % 7]})';
     final txs = state.getTransactionsForDate(dateStr);
     final dailyExpense = txs.where((t) => t.type == 'expense').fold(0, (s, t) => s + t.amount);
+    final dailyIncome = txs.where((t) => t.type == 'income').fold(0, (s, t) => s + t.amount);
+    final total = dailyIncome - dailyExpense;
 
     return Column(
       children: [
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(titleText, style: GoogleFonts.notoSansKr(fontSize: 15, fontWeight: FontWeight.w700, color: const Color(0xFF0F172A))),
               const Spacer(),
-              Text('지출 ₩${formatNumber(dailyExpense)}', style: GoogleFonts.notoSansKr(fontSize: 12, color: const Color(0xFFE11D48))),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Row(
+                    children: [
+                      Text('수입 ₩${formatNumber(dailyIncome)}', style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF059669))),
+                      const SizedBox(width: 6),
+                      Text('지출 ₩${formatNumber(dailyExpense)}', style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFFE11D48))),
+                    ],
+                  ),
+                  Text('합계 ₩${formatNumber(total)}', style: GoogleFonts.notoSansKr(fontSize: 11, fontWeight: FontWeight.w700, color: const Color(0xFF0F172A))),
+                ],
+              ),
             ],
           ),
         ),
@@ -71,7 +86,7 @@ class _TxItem extends StatelessWidget {
     final amountColor = isExpense ? const Color(0xFFE11D48) : const Color(0xFF059669);
     final accLabel = acc != null
         ? (acc.isCredit ? '💳[신용] ${acc.name}' : acc.isDebit ? '💳[체크] ${acc.name}' : '🏦 ${acc.name}')
-        : '미지정 계좌';
+        : '미지정 결제수단';
 
     return Container(
       margin: const EdgeInsets.only(bottom: 8),

@@ -22,6 +22,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   final _amountCtrl = TextEditingController();
   final _memoCtrl = TextEditingController();
   late String _dateStr;
+  bool _isFixed = false;
 
   @override
   void initState() {
@@ -69,7 +70,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
               children: [
                 Container(
                   decoration: BoxDecoration(color: const Color(0xFFFFFFFF), borderRadius: BorderRadius.circular(12)),
-                  child: Row(children: [_typeTab('expense', '지출'), _typeTab('income', '수입')]),
+                  child: Row(children: [_typeTab('income', '수입'), _typeTab('expense', '지출')]),
                 ),
                 const SizedBox(height: 16),
                 _label('금액'),
@@ -104,6 +105,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                     _amountBtn('+1만', 10000),
                     _amountBtn('+5만', 50000),
                     _amountBtn('+10만', 100000),
+                    _amountBtn('+100만', 1000000),
                     _amountBtn('C', 0),
                   ],
                 ),
@@ -156,12 +158,28 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                   }).toList(),
                 ),
                 const SizedBox(height: 16),
-                _label(_type == 'expense' ? '계좌/카드' : '계좌'),
+                Row(
+                  children: [
+                    SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: Checkbox(
+                        value: _isFixed,
+                        onChanged: (v) => setState(() => _isFixed = v ?? false),
+                        activeColor: const Color(0xFF4F46E5),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text('매달 고정 지출', style: GoogleFonts.notoSansKr(fontSize: 13, color: const Color(0xFF0F172A))),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                _label('결제수단'),
                 DropdownButtonFormField<String>(
                   value: _accountId,
                   dropdownColor: const Color(0xFFFFFFFF),
                   style: GoogleFonts.notoSansKr(color: const Color(0xFF0F172A)),
-                  decoration: _inputDecoration('계좌 선택'),
+                  decoration: _inputDecoration('결제수단 선택'),
                   items: state.accounts.where((a) => _type == 'income' ? a.isBank : true).map((a) {
                     final icon = a.isCredit ? '💳[신용]' : a.isDebit ? '💳[체크]' : '🏦';
                     return DropdownMenuItem(value: a.id, child: Text('$icon ${a.name}'));
@@ -282,14 +300,45 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   void _save() {
     final amount = int.tryParse(_amountCtrl.text.replaceAll(',', '')) ?? 0;
     if (_accountId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('계좌를 선택해주세요', style: GoogleFonts.notoSansKr())));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('결제수단을 선택해주세요', style: GoogleFonts.notoSansKr())));
       return;
     }
-    context.read<AppState>().addTransaction(Transaction(
-      id: 'tx_${DateTime.now().millisecondsSinceEpoch}',
-      date: _dateStr, accountId: _accountId!, type: _type,
-      amount: amount, category: _category, memo: _memoCtrl.text, payment: '자동',
-    ));
+
+    final baseId = 'tx_${DateTime.now().millisecondsSinceEpoch}';
+
+    if (_isFixed) {
+      final parts = _dateStr.split('-');
+      int y = int.parse(parts[0]);
+      int m = int.parse(parts[1]);
+      int d = int.parse(parts[2]);
+      
+      List<Transaction> txs = [];
+      for (int i = 0; i < 60; i++) {
+        int curM = m + i;
+        int curY = y + ((curM - 1) ~/ 12);
+        curM = ((curM - 1) % 12) + 1;
+        
+        int lastDay = DateTime(curY, curM + 1, 0).day;
+        int curD = d > lastDay ? lastDay : d;
+        
+        final dateStr = '$curY-${curM.toString().padLeft(2, '0')}-${curD.toString().padLeft(2, '0')}';
+        
+        txs.add(Transaction(
+          id: '${baseId}_$i',
+          date: dateStr, accountId: _accountId!, type: _type,
+          amount: amount, category: _category, memo: _memoCtrl.text, payment: '자동',
+          isRecurring: true, recurringId: baseId,
+        ));
+      }
+      context.read<AppState>().addTransactions(txs);
+    } else {
+      context.read<AppState>().addTransaction(Transaction(
+        id: baseId,
+        date: _dateStr, accountId: _accountId!, type: _type,
+        amount: amount, category: _category, memo: _memoCtrl.text, payment: '자동',
+      ));
+    }
+    
     Navigator.pop(context);
   }
 }

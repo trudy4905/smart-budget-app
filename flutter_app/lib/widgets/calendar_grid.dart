@@ -191,30 +191,41 @@ class _Chip extends StatelessWidget {
   Widget build(BuildContext context) {
     final acc = accounts.firstWhereOrNull((a) => a.id == tx.accountId);
     final isIncome = tx.type == 'income';
-    final isCard = acc != null && acc.isCredit;
+    final isCredit = acc != null && acc.isCredit;
+    final isDebit = acc != null && acc.isDebit;
 
     Color chipColor;
-    String icon, text;
+    IconData iconData;
+    String text;
+    
     if (isIncome) {
-      chipColor = const Color(0xFF059669); icon = '💵';
+      chipColor = const Color(0xFF059669);
+      iconData = Icons.account_balance;
       text = '+${formatCompactNumber(tx.amount)}';
-    } else if (isCard) {
-      chipColor = const Color(0xFF9333EA); icon = '💳';
+    } else if (isCredit) {
+      chipColor = const Color(0xFF2563EB);
+      iconData = Icons.credit_card;
+      text = tx.memo.isNotEmpty ? tx.memo.split(' ').first : tx.category;
+    } else if (isDebit) {
+      chipColor = const Color(0xFFD97706);
+      iconData = Icons.credit_score;
       text = tx.memo.isNotEmpty ? tx.memo.split(' ').first : tx.category;
     } else {
-      chipColor = const Color(0xFFE11D48); icon = '💰';
+      chipColor = const Color(0xFF059669);
+      iconData = Icons.account_balance;
       text = tx.amount > 0 ? '-${formatCompactNumber(tx.amount)}' : (tx.memo.isNotEmpty ? tx.memo : tx.category);
     }
 
     return Container(
       margin: const EdgeInsets.only(top: 1),
-      padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 1),
-      decoration: BoxDecoration(color: chipColor.withOpacity(0.2), borderRadius: BorderRadius.circular(3)),
+      padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 1),
+      width: double.infinity,
+      decoration: BoxDecoration(color: chipColor.withOpacity(0.15), borderRadius: BorderRadius.circular(2)),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(icon, style: const TextStyle(fontSize: 7)),
-          const SizedBox(width: 1),
+          Icon(iconData, size: 8, color: chipColor),
+          const SizedBox(width: 2),
           Flexible(
             child: Text(text,
                 style: GoogleFonts.notoSansKr(fontSize: 8, color: chipColor, fontWeight: FontWeight.w600),
