@@ -130,13 +130,13 @@ class AppDrawer extends StatelessWidget {
                   Builder(
                     builder: (context) {
                       String cashSub = [
-                        if (summary['bankExpense']! > 0) '현금 ${formatCompactNumber(summary['bankExpense']!)}',
-                        if (summary['debitExpense']! > 0) '체크 ${formatCompactNumber(summary['debitExpense']!)}',
-                        if (summary['lastMonthCardBill']! > 0) '지난달 카드 ${formatCompactNumber(summary['lastMonthCardBill']!)}',
+                        '현금 ${formatCompactNumber(summary['bankExpense']!)}',
+                        '체크 ${formatCompactNumber(summary['debitExpense']!)}',
+                        '지난달 카드 ${formatCompactNumber(summary['lastMonthCardBill']!)}',
                       ].join(' / ');
                       return _drawerFilterItem(
                         context, state, 'cash', '지출', Icons.money,
-                        cashSub.isEmpty ? null : '($cashSub)',
+                        '($cashSub)',
                         summary['cash']!
                       );
                     }
@@ -149,7 +149,7 @@ class AppDrawer extends StatelessWidget {
                   ),
                   _drawerFilterItem(context, state, 'next_all', '전체', Icons.public, null, -summary['card']!),
                   _drawerFilterItem(context, state, 'next_income', '수입', Icons.attach_money, null, 0),
-                  _drawerFilterItem(context, state, 'next_card', '지출', Icons.credit_card, '(고정 지출/이번달 카드)', summary['card']!),
+                  _drawerFilterItem(context, state, 'next_card', '지출', Icons.credit_card, '(고정 지출 0 / 이번달 카드 ${formatCompactNumber(summary['card']!)})', summary['card']!),
 
                   const Divider(color: Color(0xFFFFFFFF), height: 24),
 
