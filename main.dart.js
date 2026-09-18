@@ -80190,7 +80190,7 @@ j=o.o3(a1,a2,"next_all","\uc804\uccb4",B.no,c,-j)
 i=o.o3(a1,a2,"next_income","\uc218\uc785",B.nj,c,0)
 h=a0.i(0,"card")
 h.toString
-h=o.o3(a1,a2,"next_card","\uc9c0\ucd9c",B.ju,"(\uc774\ubc88\ub2ec \uce74\ub4dc)",h)
+h=o.o3(a1,a2,"next_card","\uc9c0\ucd9c",B.ju,"(\uace0\uc815 \uc9c0\ucd9c/\uc774\ubc88\ub2ec \uce74\ub4dc)",h)
 g=A.aj("\ub4f1\ub85d \uacc4\uc88c/\uce74\ub4dc",c,c,c,A.aF().$3$color$fontSize$fontWeight(B.ax,11,B.b3),c,c)
 f=A.F(38,79,70,229)
 e=A.bT(8)
