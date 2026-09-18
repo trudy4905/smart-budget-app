@@ -233,7 +233,8 @@ class AppDrawer extends StatelessWidget {
   }
 
   Widget _drawerFilterItem(BuildContext context, AppState state, String filter, String label, IconData icon, String? sub, int amount) {
-    final isActive = state.drawerFilter == filter;
+    final isSelectable = !filter.startsWith('next_');
+    final isActive = isSelectable && state.drawerFilter == filter;
     final isPositive = amount >= 0;
     final isIncomeFilter = filter == 'income' || filter == 'next_income';
     final isAllFilter = filter == 'all' || filter == 'next_all';
@@ -247,9 +248,9 @@ class AppDrawer extends StatelessWidget {
         : '-₩${formatCompactNumber(amount)}';
 
     return GestureDetector(
-      onTap: () {
+      onTap: isSelectable ? () {
         state.setDrawerFilter(filter);
-      },
+      } : null,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 150),
         margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
