@@ -149,7 +149,7 @@ class AppDrawer extends StatelessWidget {
                   ),
                   _drawerFilterItem(context, state, 'next_all', '전체', Icons.public, null, -summary['card']!),
                   _drawerFilterItem(context, state, 'next_income', '수입', Icons.attach_money, null, 0),
-                  _drawerFilterItem(context, state, 'next_card', '지출', Icons.credit_card, '(고정 지출 0 / 이번달 카드 ${formatCompactNumber(summary['card']!)})', summary['card']!),
+                  _drawerFilterItem(context, state, 'next_card', '지출', Icons.credit_card, '(고정 0 / 이번달 카드 ${formatCompactNumber(summary['card']!)})', summary['card']!),
 
                   const Divider(color: Color(0xFFFFFFFF), height: 24),
 
