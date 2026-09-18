@@ -110,11 +110,11 @@ class _TxItem extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(tx.memo.isNotEmpty ? tx.memo : tx.category,
+                Text(tx.memo.isNotEmpty ? '${tx.category} (${tx.memo})' : tx.category,
                     style: GoogleFonts.notoSansKr(fontSize: 13, fontWeight: FontWeight.w600, color: const Color(0xFF0F172A)),
                     overflow: TextOverflow.ellipsis),
                 const SizedBox(height: 3),
-                Text('$accLabel • ${tx.category}',
+                Text(accLabel,
                     style: GoogleFonts.notoSansKr(fontSize: 10, color: const Color(0xFF94A3B8)),
                     overflow: TextOverflow.ellipsis),
               ],
