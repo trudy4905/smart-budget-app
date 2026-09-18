@@ -50,9 +50,9 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
       child: ClipRRect(
         borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
         child: Scaffold(
-          backgroundColor: const Color(0xFFFFFFFF),
+          backgroundColor: const Color(0xFFF1F5F9),
           appBar: AppBar(
-            backgroundColor: const Color(0xFFFFFFFF),
+            backgroundColor: const Color(0xFFF1F5F9),
             title: Text('항목 추가', style: GoogleFonts.notoSansKr(fontWeight: FontWeight.w700, color: const Color(0xFF0F172A))),
             leading: IconButton(icon: const Icon(Icons.close, color: Color(0xFF0F172A)), onPressed: () => Navigator.pop(context)),
             actions: [
@@ -116,7 +116,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                     decoration: BoxDecoration(
                       color: const Color(0xFFFFFFFF),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: const Color(0xFFE2E8F0)),
+                      border: Border.all(color: Colors.transparent),
                     ),
                     child: Row(
                       children: [
@@ -139,9 +139,9 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                         duration: const Duration(milliseconds: 150),
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                         decoration: BoxDecoration(
-                          color: isSelected ? c.color.withOpacity(0.2) : const Color(0xFFFFFFFF),
+                          color: isSelected ? c.color.withOpacity(0.15) : const Color(0xFFFFFFFF),
                           borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: isSelected ? c.color : const Color(0xFFE2E8F0)),
+                          border: Border.all(color: isSelected ? c.color.withOpacity(0.4) : const Color(0xFFFFFFFF)),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
@@ -202,13 +202,14 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
           duration: const Duration(milliseconds: 200),
           padding: const EdgeInsets.symmetric(vertical: 12),
           decoration: BoxDecoration(
-            color: isActive ? const Color(0xFF475569) : Colors.transparent,
+            color: isActive ? const Color(0xFF4F46E5).withOpacity(0.15) : Colors.transparent,
             borderRadius: BorderRadius.circular(12),
+            border: isActive ? Border.all(color: const Color(0xFF4F46E5).withOpacity(0.4)) : Border.all(color: Colors.transparent),
           ),
           child: Center(
             child: Text(label,
                 style: GoogleFonts.notoSansKr(
-                  color: isActive ? const Color(0xFFFFFFFF) : const Color(0xFF94A3B8),
+                  color: isActive ? const Color(0xFF4F46E5) : const Color(0xFF94A3B8),
                   fontWeight: isActive ? FontWeight.w700 : FontWeight.w400,
                 )),
           ),
@@ -235,7 +236,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
-          color: const Color(0xFFF1F5F9),
+          color: const Color(0xFFFFFFFF),
           borderRadius: BorderRadius.circular(20),
         ),
         child: Text(label, style: GoogleFonts.notoSansKr(fontSize: 12, color: const Color(0xFF475569), fontWeight: FontWeight.w600)),
@@ -252,11 +253,10 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
 
   InputDecoration _inputDecoration(String hint) => InputDecoration(
         hintText: hint,
-        hintStyle: GoogleFonts.notoSansKr(color: const Color(0xFFF8FAFC)),
+        hintStyle: GoogleFonts.notoSansKr(color: const Color(0xFF94A3B8)),
         filled: true, fillColor: const Color(0xFFFFFFFF),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
-        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
-        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFF4F46E5))),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       );
 
   Future<void> _pickDate() async {
