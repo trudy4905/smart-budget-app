@@ -3,7 +3,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import '../models/account.dart';
 import '../models/transaction.dart';
-import '../models/category_info.dart';
 import '../utils/helpers.dart';
 
 const kStorageKeyTx = 'smart_budget_transactions_v6.0';

@@ -26,7 +26,7 @@ String formatCompactNumber(int n) {
   if (n >= 10000) {
     final man = n ~/ 10000;
     final rem = (n % 10000) ~/ 1000;
-    return rem > 0 ? '${man}만${rem}천' : '${man}만';
+    return rem > 0 ? '$man만$rem천' : '$man만';
   } else if (n >= 1000) {
     return '${n ~/ 1000}천';
   }
