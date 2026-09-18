@@ -26,10 +26,10 @@ class AppDrawer extends StatelessWidget {
                   // ---- 자산 ----
                   Container(
                     margin: const EdgeInsets.fromLTRB(16, 24, 16, 8),
-                    padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+                    padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF8FAFC),
-                      border: Border.all(color: const Color(0xFFE2E8F0)),
+                      color: const Color(0xFF4F46E5).withOpacity(0.15),
+                      border: Border.all(color: const Color(0xFF4F46E5).withOpacity(0.4)),
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Column(
