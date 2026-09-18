@@ -6,16 +6,8 @@ import '../models/account.dart';
 import '../utils/helpers.dart';
 import 'add_account_sheet.dart';
 
-class AppDrawer extends StatefulWidget {
+class AppDrawer extends StatelessWidget {
   const AppDrawer({super.key});
-
-  @override
-  State<AppDrawer> createState() => _AppDrawerState();
-}
-
-class _AppDrawerState extends State<AppDrawer> {
-  // 'this_month' or 'next_month'
-  String _selectedTab = 'this_month';
 
   @override
   Widget build(BuildContext context) {
@@ -76,11 +68,14 @@ class _AppDrawerState extends State<AppDrawer> {
                     child: Builder(
                       builder: (context) {
                         int totalAssets = 0;
+                        final now = DateTime.now();
+                        final todayStr = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
                         for (final acc in state.accounts) {
                           if (acc.isBank) {
                             int bal = acc.initialBalance;
                             for (final t in state.transactions) {
                               if (t.accountId != acc.id) continue;
+                              if (t.date.compareTo(todayStr) > 0) continue;
                               if (t.type == 'income') bal += t.amount;
                               if (t.type == 'expense') bal -= t.amount;
                             }
@@ -93,32 +88,23 @@ class _AppDrawerState extends State<AppDrawer> {
                   ),
                   const SizedBox(height: 8),
 
-                  // ---- 탭: 이번달 / 다음달 ----
+                  // ---- 이번달 ----
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFFFFFFF),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Row(
-                        children: [
-                          _tab('this_month', '이번달'),
-                          _tab('next_month', '다음달'),
-                        ],
-                      ),
-                    ),
+                    child: Text('이번달', style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF94A3B8), fontWeight: FontWeight.w600)),
                   ),
+                  _drawerFilterItem(context, state, 'all', '전체', Icons.public, null, summary['income']! - summary['total']!),
+                  _drawerFilterItem(context, state, 'income', '수입', Icons.attach_money, null, summary['income']!),
+                  _drawerFilterItem(context, state, 'cash', '지출', Icons.money, '(현금/체크/지난달 카드)', summary['cash']!),
 
-                  if (_selectedTab == 'this_month') ...[
-                    _drawerFilterItem(context, state, 'all', '전체', Icons.public, null, summary['income']! - summary['total']!),
-                    _drawerFilterItem(context, state, 'income', '수입', Icons.attach_money, null, summary['income']!),
-                    _drawerFilterItem(context, state, 'cash', '지출', Icons.money, '(현금/체크/지난달 카드)', summary['cash']!),
-                  ] else ...[
-                    _drawerFilterItem(context, state, 'next_all', '전체', Icons.public, null, -summary['card']!),
-                    _drawerFilterItem(context, state, 'next_income', '수입', Icons.attach_money, null, 0),
-                    _drawerFilterItem(context, state, 'next_card', '지출', Icons.credit_card, '(이번달 카드)', summary['card']!),
-                  ],
+                  // ---- 다음달 ----
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                    child: Text('다음달', style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF94A3B8), fontWeight: FontWeight.w600)),
+                  ),
+                  _drawerFilterItem(context, state, 'next_all', '전체', Icons.public, null, -summary['card']!),
+                  _drawerFilterItem(context, state, 'next_income', '수입', Icons.attach_money, null, 0),
+                  _drawerFilterItem(context, state, 'next_card', '지출', Icons.credit_card, '(이번달 카드)', summary['card']!),
 
                   const Divider(color: Color(0xFFFFFFFF), height: 24),
 
@@ -159,8 +145,11 @@ class _AppDrawerState extends State<AppDrawer> {
                         int? amount;
                         if (acc.isBank) {
                           int bal = acc.initialBalance;
+                          final now = DateTime.now();
+                          final todayStr = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
                           for (final t in state.transactions) {
                             if (t.accountId != acc.id) continue;
+                            if (t.date.compareTo(todayStr) > 0) continue;
                             if (t.type == 'income') bal += t.amount;
                             if (t.type == 'expense') bal -= t.amount;
                           }
@@ -195,31 +184,7 @@ class _AppDrawerState extends State<AppDrawer> {
         );
       },
     );
-  }
 
-  Widget _tab(String tabKey, String label) {
-    final isActive = _selectedTab == tabKey;
-    return Expanded(
-      child: GestureDetector(
-        onTap: () => setState(() => _selectedTab = tabKey),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 150),
-          padding: const EdgeInsets.symmetric(vertical: 9),
-          decoration: BoxDecoration(
-            color: isActive ? const Color(0xFF475569) : Colors.transparent,
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Center(
-            child: Text(label,
-                style: GoogleFonts.notoSansKr(
-                  fontSize: 12,
-                  fontWeight: isActive ? FontWeight.w700 : FontWeight.w400,
-                  color: isActive ? const Color(0xFFFFFFFF) : const Color(0xFF94A3B8),
-                )),
-          ),
-        ),
-      ),
-    );
   }
 
   Widget _drawerFilterItem(BuildContext context, AppState state, String filter, String label, IconData icon, String? sub, int amount) {

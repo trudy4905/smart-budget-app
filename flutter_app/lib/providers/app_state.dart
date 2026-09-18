@@ -172,11 +172,14 @@ class AppState extends ChangeNotifier {
     int bankInitial = 0;
     int bankIncome = 0;
     int bankExpense = 0;
+    final now = DateTime.now();
+    final todayStr = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
 
     for (final a in accounts.where((a) => a.isBank)) {
       bankInitial += a.initialBalance;
     }
     for (final t in transactions) {
+      if (t.date.compareTo(todayStr) > 0) continue;
       final acc = accounts.firstWhereOrNull((a) => a.id == t.accountId);
       if (acc != null && (acc.isBank || acc.isDebit)) {
         if (t.type == 'income') bankIncome += t.amount;
@@ -193,7 +196,11 @@ class AppState extends ChangeNotifier {
   }
 
   int getCardBillForMonth(String cardId, int year, int month) {
+    final now = DateTime.now();
+    final todayStr = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+
     return transactions.where((t) {
+      if (t.date.compareTo(todayStr) > 0) return false;
       final parts = t.date.split('-');
       final y = int.tryParse(parts[0]) ?? 0;
       final m = int.tryParse(parts[1]) ?? 0;
