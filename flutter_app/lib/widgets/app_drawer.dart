@@ -24,67 +24,77 @@ class AppDrawer extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // ---- 자산 ----
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
-                    child: Row(
+                  Container(
+                    margin: const EdgeInsets.fromLTRB(16, 24, 16, 8),
+                    padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF8FAFC),
+                      border: Border.all(color: const Color(0xFFE2E8F0)),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Text('자산', style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF94A3B8), fontWeight: FontWeight.w600)),
-                        const SizedBox(width: 6),
-                        GestureDetector(
-                          onTap: () async {
-                            final picked = await showDatePicker(
-                              context: context,
-                              initialDate: state.assetReferenceDate,
-                              firstDate: DateTime(2000),
-                              lastDate: DateTime(2100),
-                            );
-                            if (picked != null) {
-                              state.setAssetReferenceDate(picked);
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text('총 자산', style: GoogleFonts.notoSansKr(fontSize: 12, color: const Color(0xFF64748B), fontWeight: FontWeight.w600)),
+                            const SizedBox(width: 8),
+                            GestureDetector(
+                              onTap: () async {
+                                final picked = await showDatePicker(
+                                  context: context,
+                                  initialDate: state.assetReferenceDate,
+                                  firstDate: DateTime(2000),
+                                  lastDate: DateTime(2100),
+                                );
+                                if (picked != null) {
+                                  state.setAssetReferenceDate(picked);
+                                }
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFE2E8F0),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text('${state.assetReferenceDate.year.toString().substring(2)}년 ${state.assetReferenceDate.month}월 ${state.assetReferenceDate.day}일 기준', style: GoogleFonts.notoSansKr(fontSize: 10, color: const Color(0xFF475569))),
+                                    const SizedBox(width: 2),
+                                    const Icon(Icons.keyboard_arrow_down, size: 12, color: Color(0xFF475569)),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        Builder(
+                          builder: (context) {
+                            int totalAssets = 0;
+                            final now = state.assetReferenceDate;
+                            final todayStr = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+                            for (final acc in state.accounts) {
+                              if (acc.isBank) {
+                                int bal = acc.initialBalance;
+                                for (final t in state.transactions) {
+                                  if (t.accountId != acc.id) continue;
+                                  if (t.date.compareTo(todayStr) > 0) continue;
+                                  if (t.type == 'income') bal += t.amount;
+                                  if (t.type == 'expense') bal -= t.amount;
+                                }
+                                totalAssets += bal;
+                              }
                             }
-                          },
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFE2E8F0),
-                              borderRadius: BorderRadius.circular(6),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text('${state.assetReferenceDate.year.toString().substring(2)}년 ${state.assetReferenceDate.month}월 ${state.assetReferenceDate.day}일 기준', style: GoogleFonts.notoSansKr(fontSize: 10, color: const Color(0xFF64748B))),
-                                const SizedBox(width: 2),
-                                const Icon(Icons.keyboard_arrow_down, size: 12, color: Color(0xFF64748B)),
-                              ],
-                            ),
-                          ),
+                            return Text('₩${formatNumber(totalAssets)}', style: GoogleFonts.notoSansKr(fontSize: 28, fontWeight: FontWeight.w700, color: const Color(0xFF0F172A)));
+                          }
                         ),
                       ],
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Builder(
-                      builder: (context) {
-                        int totalAssets = 0;
-                        final now = state.assetReferenceDate;
-                        final todayStr = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
-                        for (final acc in state.accounts) {
-                          if (acc.isBank) {
-                            int bal = acc.initialBalance;
-                            for (final t in state.transactions) {
-                              if (t.accountId != acc.id) continue;
-                              if (t.date.compareTo(todayStr) > 0) continue;
-                              if (t.type == 'income') bal += t.amount;
-                              if (t.type == 'expense') bal -= t.amount;
-                            }
-                            totalAssets += bal;
-                          }
-                        }
-                        return Text('₩${formatNumber(totalAssets)}', style: GoogleFonts.notoSansKr(fontSize: 24, fontWeight: FontWeight.w700, color: const Color(0xFF0F172A)));
-                      }
-                    ),
-                  ),
-                  const SizedBox(height: 8),
 
                   // ---- Header ----
                   Container(
