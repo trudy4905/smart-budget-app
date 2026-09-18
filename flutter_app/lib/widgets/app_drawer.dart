@@ -85,15 +85,15 @@ class AppDrawer extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
 
-                  // ---- 요약 (Filter Menu) ----
+                  // ---- 이번달 (Filter Menu) ----
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                    child: Text('요약', style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF94A3B8), fontWeight: FontWeight.w600)),
+                    child: Text('이번달', style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF94A3B8), fontWeight: FontWeight.w600)),
                   ),
                   _drawerFilterItem(context, state, 'all', '전체', Icons.public, null, summary['income']! - summary['total']!),
                   _drawerFilterItem(context, state, 'income', '수입', Icons.attach_money, null, summary['income']!),
-                  _drawerFilterItem(context, state, 'cash', '현금 지출', Icons.money, '(현금/체크/지난달 카드)', summary['cash']!),
-                  _drawerFilterItem(context, state, 'card', '카드 지출', Icons.credit_card, '(다음달 예정)', summary['card']!),
+                  _drawerFilterItem(context, state, 'cash', '지출', Icons.money, '(현금/체크/이번달 카드)', summary['cash']!),
+                  _drawerFilterItem(context, state, 'card', '다음달', Icons.credit_card, '(다음달 예정)', summary['card']!),
 
                   const Divider(color: Color(0xFFFFFFFF), height: 24),
 
