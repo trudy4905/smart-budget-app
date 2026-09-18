@@ -15,6 +15,7 @@ class AppDrawer extends StatefulWidget {
 
 class _AppDrawerState extends State<AppDrawer> {
   bool _isSummaryExpanded = true;
+  bool _isAssetVisible = true;
 
   @override
   Widget build(BuildContext context) {
@@ -110,7 +111,25 @@ class _AppDrawerState extends State<AppDrawer> {
                             totalAssets += bal;
                           }
                         }
-                        return Text('${formatNumber(totalAssets)}원', style: GoogleFonts.notoSansKr(fontSize: 28, fontWeight: FontWeight.w700, color: const Color(0xFF334155), letterSpacing: -0.5));
+                        return Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text(_isAssetVisible ? '${formatNumber(totalAssets)}원' : '******** 원', style: GoogleFonts.notoSansKr(fontSize: 28, fontWeight: FontWeight.w700, color: const Color(0xFF334155), letterSpacing: -0.5)),
+                            const SizedBox(width: 8),
+                            GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  _isAssetVisible = !_isAssetVisible;
+                                });
+                              },
+                              child: Icon(
+                                _isAssetVisible ? Icons.visibility : Icons.visibility_off,
+                                size: 20,
+                                color: const Color(0xFF94A3B8),
+                              ),
+                            ),
+                          ],
+                        );
                       }
                     ),
                   ),
