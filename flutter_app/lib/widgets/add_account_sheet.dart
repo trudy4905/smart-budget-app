@@ -81,9 +81,9 @@ class _AddAccountSheetState extends State<AddAccountSheet> {
               decoration: BoxDecoration(color: const Color(0xFFFFFFFF), borderRadius: BorderRadius.circular(10)),
               child: Row(
                 children: [
-                  _typeTab('bank', '🏦 통장'),
-                  _typeTab('credit', '💳 신용카드'),
-                  _typeTab('debit', '💳 체크카드'),
+                  _typeTab('bank', '통장', Icons.account_balance, const Color(0xFF059669)),
+                  _typeTab('credit', '신용카드', Icons.credit_card, const Color(0xFF2563EB)),
+                  _typeTab('debit', '체크카드', Icons.credit_card_outlined, const Color(0xFFD97706)),
                 ],
               ),
             ),
@@ -212,7 +212,7 @@ class _AddAccountSheetState extends State<AddAccountSheet> {
     );
   }
 
-  Widget _typeTab(String type, String label) {
+  Widget _typeTab(String type, String label, IconData iconData, Color iconColor) {
     final isActive = _type == type;
     return Expanded(
       child: GestureDetector(
@@ -225,12 +225,17 @@ class _AddAccountSheetState extends State<AddAccountSheet> {
             borderRadius: BorderRadius.circular(10),
             border: isActive ? Border.all(color: const Color(0xFF4F46E5).withOpacity(0.4)) : Border.all(color: Colors.transparent),
           ),
-          child: Center(
-            child: Text(label,
-                style: GoogleFonts.notoSansKr(
-                  fontSize: 11, color: isActive ? const Color(0xFF4F46E5) : const Color(0xFF94A3B8),
-                  fontWeight: isActive ? FontWeight.w700 : FontWeight.w400,
-                )),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(iconData, size: 14, color: isActive ? iconColor : const Color(0xFF94A3B8)),
+              const SizedBox(width: 4),
+              Text(label,
+                  style: GoogleFonts.notoSansKr(
+                    fontSize: 11, color: isActive ? const Color(0xFF4F46E5) : const Color(0xFF94A3B8),
+                    fontWeight: isActive ? FontWeight.w700 : FontWeight.w400,
+                  )),
+            ],
           ),
         ),
       ),
