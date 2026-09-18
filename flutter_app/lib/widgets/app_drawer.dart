@@ -61,7 +61,13 @@ class AppDrawer extends StatelessWidget {
                   // ---- 자산 ----
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
-                    child: Text('자산', style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF94A3B8), fontWeight: FontWeight.w600)),
+                    child: Row(
+                      children: [
+                        Text('자산', style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF94A3B8), fontWeight: FontWeight.w600)),
+                        const SizedBox(width: 4),
+                        Text('(${DateTime.now().year.toString().substring(2)}년${DateTime.now().month}월${DateTime.now().day}일 기준)', style: GoogleFonts.notoSansKr(fontSize: 10, color: const Color(0xFF94A3B8))),
+                      ],
+                    ),
                   ),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
