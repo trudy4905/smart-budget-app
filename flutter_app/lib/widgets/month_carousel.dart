@@ -12,7 +12,7 @@ class MonthCarousel extends StatefulWidget {
 
 class MonthCarouselState extends State<MonthCarousel> {
   final ScrollController _scrollCtrl = ScrollController();
-  final GlobalKey _activeMonthKey = GlobalKey();
+  final Map<String, GlobalKey> _monthKeys = {};
   bool _shouldScrollToLeft = true;
 
   @override
@@ -40,11 +40,7 @@ class MonthCarouselState extends State<MonthCarousel> {
       cur = DateTime(cur.year, cur.month + 1, 1);
     }
 
-    double currentAccumulatedWidth = 0.0;
-    double targetOffset = 0.0;
-    double prevOffset = 0.0;
     int? lastYear;
-
     final items = <Widget>[];
     for (final m in months) {
       if (lastYear != null && m.year != lastYear) {
@@ -53,24 +49,35 @@ class MonthCarouselState extends State<MonthCarousel> {
           child: Text('${m.year}년',
               style: GoogleFonts.notoSansKr(fontSize: 11, fontWeight: FontWeight.bold, color: const Color(0xFF94A3B8))),
         ));
-        currentAccumulatedWidth += 46.0;
       }
       lastYear = m.year;
       final isActive = m.year == state.currentDate.year && m.month == state.currentDate.month;
-      if (isActive) targetOffset = prevOffset; // Use the previous item's offset
-      prevOffset = currentAccumulatedWidth;
-      currentAccumulatedWidth += 54.0;
-      items.add(_monthPill(m, isActive, state, key: isActive ? _activeMonthKey : null));
+      
+      final keyStr = '${m.year}-${m.month}';
+      final key = _monthKeys.putIfAbsent(keyStr, () => GlobalKey());
+      
+      items.add(_monthPill(m, isActive, state, key: key));
     }
 
     if (_shouldScrollToLeft) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (_scrollCtrl.hasClients) {
-          _scrollCtrl.animateTo(
-            targetOffset,
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeOut,
-          );
+          int prevYear = state.currentDate.year;
+          int prevMonth = state.currentDate.month - 1;
+          if (prevMonth == 0) { prevMonth = 12; prevYear--; }
+          
+          final prevKeyStr = '$prevYear-$prevMonth';
+          final activeKeyStr = '${state.currentDate.year}-${state.currentDate.month}';
+          final keyToScroll = _monthKeys[prevKeyStr] ?? _monthKeys[activeKeyStr];
+          
+          if (keyToScroll?.currentContext != null) {
+            Scrollable.ensureVisible(
+              keyToScroll!.currentContext!,
+              alignment: 0.0,
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeOut,
+            );
+          }
         }
         _shouldScrollToLeft = false;
       });
