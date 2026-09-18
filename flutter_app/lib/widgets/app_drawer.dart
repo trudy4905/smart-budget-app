@@ -68,7 +68,7 @@ class AppDrawer extends StatelessWidget {
                                 totalAssets += bal;
                               }
                             }
-                            return Text('${formatNumber(totalAssets)}원', style: GoogleFonts.notoSansKr(fontSize: 28, fontWeight: FontWeight.w700, color: const Color(0xFF0F172A), letterSpacing: -0.5));
+                            return Text('${formatNumber(totalAssets)}원', style: GoogleFonts.notoSansKr(fontSize: 28, fontWeight: FontWeight.w700, color: const Color(0xFF334155), letterSpacing: -0.5));
                           }
                         ),
                       ],
