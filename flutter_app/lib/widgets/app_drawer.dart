@@ -23,6 +23,41 @@ class AppDrawer extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // ---- Header ----
+                  Container(
+                    padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
+                    decoration: const BoxDecoration(
+                      border: Border(bottom: BorderSide(color: Color(0xFFFFFFFF))),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF1F5F9),
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          child: const Icon(Icons.account_balance_wallet, color: Color(0xFF64748B), size: 20),
+                        ),
+                        const SizedBox(width: 12),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Smart Budget',
+                                style: GoogleFonts.notoSansKr(fontSize: 16, fontWeight: FontWeight.w700, color: const Color(0xFF0F172A))),
+                            Text(state.currentMonthStr,
+                                style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF94A3B8))),
+                          ],
+                        ),
+                        const Spacer(),
+                        GestureDetector(
+                          onTap: () => Navigator.pop(context),
+                          child: const Icon(Icons.close, color: Color(0xFF94A3B8), size: 20),
+                        ),
+                      ],
+                    ),
+                  ),
+
                   // ---- 자산 ----
                   Padding(
                     padding: const EdgeInsets.fromLTRB(20, 24, 20, 16),
@@ -70,41 +105,6 @@ class AppDrawer extends StatelessWidget {
                             }
                             return Text('${formatNumber(totalAssets)}원', style: GoogleFonts.notoSansKr(fontSize: 28, fontWeight: FontWeight.w700, color: const Color(0xFF334155), letterSpacing: -0.5));
                           }
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  // ---- Header ----
-                  Container(
-                    padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
-                    decoration: const BoxDecoration(
-                      border: Border(bottom: BorderSide(color: Color(0xFFFFFFFF))),
-                    ),
-                    child: Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFF1F5F9),
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                          child: const Icon(Icons.account_balance_wallet, color: Color(0xFF64748B), size: 20),
-                        ),
-                        const SizedBox(width: 12),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('Smart Budget',
-                                style: GoogleFonts.notoSansKr(fontSize: 16, fontWeight: FontWeight.w700, color: const Color(0xFF0F172A))),
-                            Text(state.currentMonthStr,
-                                style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF94A3B8))),
-                          ],
-                        ),
-                        const Spacer(),
-                        GestureDetector(
-                          onTap: () => Navigator.pop(context),
-                          child: const Icon(Icons.close, color: Color(0xFF94A3B8), size: 20),
                         ),
                       ],
                     ),
