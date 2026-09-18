@@ -6,8 +6,15 @@ import '../models/account.dart';
 import '../utils/helpers.dart';
 import 'add_account_sheet.dart';
 
-class AppDrawer extends StatelessWidget {
+class AppDrawer extends StatefulWidget {
   const AppDrawer({super.key});
+
+  @override
+  State<AppDrawer> createState() => _AppDrawerState();
+}
+
+class _AppDrawerState extends State<AppDrawer> {
+  bool _isSummaryExpanded = true;
 
   @override
   Widget build(BuildContext context) {
@@ -111,45 +118,71 @@ class AppDrawer extends StatelessWidget {
                   const Divider(color: Color(0xFFE2E8F0), height: 1, thickness: 1),
 
                   // ---- 월별 가계부 요약 Section Header ----
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
-                    child: Row(
-                      children: [
-                        Text('가계부 요약', style: GoogleFonts.notoSansKr(fontSize: 13, color: const Color(0xFF0F172A), fontWeight: FontWeight.w700)),
-                      ],
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _isSummaryExpanded = !_isSummaryExpanded;
+                      });
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+                      child: Row(
+                        children: [
+                          Text('가계부 요약', style: GoogleFonts.notoSansKr(fontSize: 13, color: const Color(0xFF0F172A), fontWeight: FontWeight.w700)),
+                          const Spacer(),
+                          if (!_isSummaryExpanded)
+                            Text('${summary['income']! - summary['total']! >= 0 ? '+' : '-'}₩${formatCompactNumber((summary['income']! - summary['total']!).abs())}',
+                                style: GoogleFonts.notoSansKr(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w700,
+                                    color: (summary['income']! - summary['total']!) >= 0 ? const Color(0xFF059669) : const Color(0xFFE11D48))),
+                          if (!_isSummaryExpanded) const SizedBox(width: 8),
+                          Icon(_isSummaryExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down, size: 16, color: const Color(0xFF64748B)),
+                        ],
+                      ),
                     ),
                   ),
 
-                  // ---- 이번달 ----
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-                    child: Text('이번달 (${state.currentDate.month}월)', style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF94A3B8), fontWeight: FontWeight.w600)),
-                  ),
-                  _drawerFilterItem(context, state, 'all', '전체', Icons.public, null, summary['income']! - summary['total']!),
-                  _drawerFilterItem(context, state, 'income', '수입', Icons.attach_money, null, summary['income']!),
-                  Builder(
-                    builder: (context) {
-                      String cashSub = [
-                        '현금 ${formatCompactNumber(summary['bankExpense']!)}',
-                        '체크 ${formatCompactNumber(summary['debitExpense']!)}',
-                        '지난달 카드 ${formatCompactNumber(summary['lastMonthCardBill']!)}',
-                      ].join(' / ');
-                      return _drawerFilterItem(
-                        context, state, 'cash', '지출', Icons.money,
-                        '($cashSub)',
-                        summary['cash']!
-                      );
-                    }
-                  ),
+                  AnimatedCrossFade(
+                    firstChild: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // ---- 이번달 ----
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                          child: Text('이번달 (${state.currentDate.month}월)', style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF94A3B8), fontWeight: FontWeight.w600)),
+                        ),
+                        _drawerFilterItem(context, state, 'all', '전체', Icons.public, null, summary['income']! - summary['total']!),
+                        _drawerFilterItem(context, state, 'income', '수입', Icons.attach_money, null, summary['income']!),
+                        Builder(
+                          builder: (context) {
+                            String cashSub = [
+                              '현금 ${formatCompactNumber(summary['bankExpense']!)}',
+                              '체크 ${formatCompactNumber(summary['debitExpense']!)}',
+                              '지난달 카드 ${formatCompactNumber(summary['lastMonthCardBill']!)}',
+                            ].join(' / ');
+                            return _drawerFilterItem(
+                              context, state, 'cash', '지출', Icons.money,
+                              '($cashSub)',
+                              summary['cash']!
+                            );
+                          }
+                        ),
 
-                  // ---- 다음달 ----
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                    child: Text('다음달 (${state.currentDate.month + 1 > 12 ? 1 : state.currentDate.month + 1}월)', style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF94A3B8), fontWeight: FontWeight.w600)),
+                        // ---- 다음달 ----
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                          child: Text('다음달 (${state.currentDate.month + 1 > 12 ? 1 : state.currentDate.month + 1}월)', style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF94A3B8), fontWeight: FontWeight.w600)),
+                        ),
+                        _drawerFilterItem(context, state, 'next_all', '전체', Icons.public, null, -summary['card']!),
+                        _drawerFilterItem(context, state, 'next_income', '수입', Icons.attach_money, null, 0),
+                        _drawerFilterItem(context, state, 'next_card', '지출', Icons.credit_card, '(고정 0 / 이번달 카드 ${formatCompactNumber(summary['card']!)})', summary['card']!),
+                      ],
+                    ),
+                    secondChild: const SizedBox(width: double.infinity),
+                    crossFadeState: _isSummaryExpanded ? CrossFadeState.showFirst : CrossFadeState.showSecond,
+                    duration: const Duration(milliseconds: 200),
                   ),
-                  _drawerFilterItem(context, state, 'next_all', '전체', Icons.public, null, -summary['card']!),
-                  _drawerFilterItem(context, state, 'next_income', '수입', Icons.attach_money, null, 0),
-                  _drawerFilterItem(context, state, 'next_card', '지출', Icons.credit_card, '(고정 0 / 이번달 카드 ${formatCompactNumber(summary['card']!)})', summary['card']!),
 
                   const Divider(color: Color(0xFFFFFFFF), height: 24),
 
