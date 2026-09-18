@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../providers/app_state.dart';
 import '../models/account.dart';
 import '../utils/helpers.dart';
@@ -17,6 +18,20 @@ class AppDrawer extends StatefulWidget {
 class _AppDrawerState extends State<AppDrawer> {
   bool _isSummaryExpanded = true;
   bool _isAssetVisible = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPrefs();
+  }
+
+  Future<void> _loadPrefs() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _isSummaryExpanded = prefs.getBool('isSummaryExpanded') ?? true;
+      _isAssetVisible = prefs.getBool('isAssetVisible') ?? true;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -76,6 +91,7 @@ class _AppDrawerState extends State<AppDrawer> {
                                 setState(() {
                                   _isAssetVisible = !_isAssetVisible;
                                 });
+                                SharedPreferences.getInstance().then((prefs) => prefs.setBool('isAssetVisible', _isAssetVisible));
                               },
                               child: Icon(
                                 _isAssetVisible ? Icons.visibility : Icons.visibility_off,
@@ -145,6 +161,7 @@ class _AppDrawerState extends State<AppDrawer> {
                       setState(() {
                         _isSummaryExpanded = !_isSummaryExpanded;
                       });
+                      SharedPreferences.getInstance().then((prefs) => prefs.setBool('isSummaryExpanded', _isSummaryExpanded));
                     },
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
