@@ -252,6 +252,89 @@ class _AppDrawerState extends State<AppDrawer> {
 
                   const Divider(color: Color(0xFFFFFFFF), height: 24),
 
+                  // ---- 고정 수입/지출 ----
+                  Builder(
+                    builder: (context) {
+                      final Map<String, Transaction> recurringMap = {};
+                      for (final t in state.transactions) {
+                        if (t.isRecurring && t.recurringId != null) {
+                          recurringMap[t.recurringId!] = t;
+                        }
+                      }
+                      final recurringTxs = recurringMap.values.toList();
+                      
+                      if (recurringTxs.isEmpty) return const SizedBox.shrink();
+
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(20, 0, 16, 8),
+                            child: Text('고정 수입/지출', style: GoogleFonts.notoSansKr(fontSize: 13, color: const Color(0xFF0F172A), fontWeight: FontWeight.w700)),
+                          ),
+                          ...recurringTxs.map((tx) {
+                            final catInfo = state.getCategoryInfo(tx.category);
+                            final isExpense = tx.type == 'expense';
+                            final amountColor = isExpense ? const Color(0xFFE11D48) : const Color(0xFF059669);
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFFFFFFF),
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(color: const Color(0xFFE2E8F0)),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Text(catInfo.emoji, style: const TextStyle(fontSize: 16)),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(tx.memo.isNotEmpty ? '${tx.category} (${tx.memo})' : tx.category, style: GoogleFonts.notoSansKr(fontSize: 12, fontWeight: FontWeight.w600, color: const Color(0xFF0F172A))),
+                                          Text('매달 ${int.tryParse(tx.date.split('-').last) ?? 0}일', style: GoogleFonts.notoSansKr(fontSize: 10, color: const Color(0xFF94A3B8))),
+                                        ],
+                                      ),
+                                    ),
+                                    Text('${isExpense ? '-' : '+'}₩${formatCompactNumber(tx.amount)}', style: GoogleFonts.notoSansKr(fontSize: 12, fontWeight: FontWeight.w700, color: amountColor)),
+                                    const SizedBox(width: 8),
+                                    GestureDetector(
+                                      onTap: () {
+                                        showDialog(
+                                          context: context,
+                                          builder: (_) => AlertDialog(
+                                            backgroundColor: const Color(0xFFFFFFFF),
+                                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                                            title: Text(isExpense ? '고정 지출 삭제' : '고정 수입 삭제', style: GoogleFonts.notoSansKr(fontWeight: FontWeight.w700, color: const Color(0xFFE11D48))),
+                                            content: Text('모든 일정에서 고정 항목이 삭제됩니다.', style: GoogleFonts.notoSansKr(color: const Color(0xFF64748B))),
+                                            actions: [
+                                              TextButton(onPressed: () => Navigator.pop(context), child: Text('취소', style: GoogleFonts.notoSansKr(color: const Color(0xFF94A3B8)))),
+                                              TextButton(
+                                                onPressed: () {
+                                                  state.deleteRecurringTransactions(tx.recurringId!);
+                                                  Navigator.pop(context);
+                                                },
+                                                child: Text('삭제', style: GoogleFonts.notoSansKr(color: const Color(0xFFE11D48), fontWeight: FontWeight.w700)),
+                                              ),
+                                            ],
+                                          ),
+                                        );
+                                      },
+                                      child: const Icon(Icons.delete_outline, size: 16, color: Color(0xFF94A3B8)),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          }),
+                          const Divider(color: Color(0xFFFFFFFF), height: 24),
+                        ],
+                      );
+                    }
+                  ),
+
                   // ---- 등록 계좌/카드 ----
                   Padding(
                     padding: const EdgeInsets.fromLTRB(20, 0, 16, 8),
