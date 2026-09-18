@@ -58,9 +58,14 @@ class AppDrawer extends StatelessWidget {
                     ),
                   ),
 
+                  // ---- 내 자산 현황 Section Header ----
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
+                    child: Text('내 자산 현황', style: GoogleFonts.notoSansKr(fontSize: 13, color: const Color(0xFF0F172A), fontWeight: FontWeight.w700)),
+                  ),
                   // ---- 자산 ----
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 24, 20, 16),
+                    padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -79,13 +84,13 @@ class AppDrawer extends StatelessWidget {
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Text('${state.assetReferenceDate.year.toString().substring(2)}년 ${state.assetReferenceDate.month}월 ${state.assetReferenceDate.day}일 기준 총자산', style: GoogleFonts.notoSansKr(fontSize: 12, color: const Color(0xFF64748B), fontWeight: FontWeight.w600)),
+                              Text('${state.assetReferenceDate.year.toString().substring(2)}년 ${state.assetReferenceDate.month}월 ${state.assetReferenceDate.day}일 기준 총자산', style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF64748B), fontWeight: FontWeight.w600)),
                               const SizedBox(width: 4),
                               const Icon(Icons.keyboard_arrow_down, size: 14, color: Color(0xFF64748B)),
                             ],
                           ),
                         ),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 4),
                         Builder(
                           builder: (context) {
                             int totalAssets = 0;
@@ -110,10 +115,31 @@ class AppDrawer extends StatelessWidget {
                     ),
                   ),
 
+                  const Divider(color: Color(0xFFE2E8F0), height: 1, thickness: 1),
+
+                  // ---- 월별 가계부 요약 Section Header ----
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 24, 20, 8),
+                    child: Row(
+                      children: [
+                        Text('월별 가계부 요약', style: GoogleFonts.notoSansKr(fontSize: 13, color: const Color(0xFF0F172A), fontWeight: FontWeight.w700)),
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFE2E8F0),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Text('${state.currentDate.month}월 (선택한 달)', style: GoogleFonts.notoSansKr(fontSize: 10, color: const Color(0xFF475569), fontWeight: FontWeight.w500)),
+                        ),
+                      ],
+                    ),
+                  ),
+
                   // ---- 이번달 ----
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                    child: Text('이번달', style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF94A3B8), fontWeight: FontWeight.w600)),
+                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                    child: Text('이번달 (${state.currentDate.month}월)', style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF94A3B8), fontWeight: FontWeight.w600)),
                   ),
                   _drawerFilterItem(context, state, 'all', '전체', Icons.public, null, summary['income']! - summary['total']!),
                   _drawerFilterItem(context, state, 'income', '수입', Icons.attach_money, null, summary['income']!),
@@ -135,7 +161,7 @@ class AppDrawer extends StatelessWidget {
                   // ---- 다음달 ----
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                    child: Text('다음달', style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF94A3B8), fontWeight: FontWeight.w600)),
+                    child: Text('다음달 (${state.currentDate.month + 1 > 12 ? 1 : state.currentDate.month + 1}월)', style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF94A3B8), fontWeight: FontWeight.w600)),
                   ),
                   _drawerFilterItem(context, state, 'next_all', '전체', Icons.public, null, -summary['card']!),
                   _drawerFilterItem(context, state, 'next_income', '수입', Icons.attach_money, null, 0),
