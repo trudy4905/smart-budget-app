@@ -24,16 +24,8 @@ class AppDrawer extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // ---- 자산 ----
-                  Container(
-                    margin: const EdgeInsets.fromLTRB(16, 24, 16, 8),
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFFFFFF),
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: [
-                        BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 8, offset: const Offset(0, 2)),
-                      ],
-                    ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 24, 20, 16),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -52,13 +44,13 @@ class AppDrawer extends StatelessWidget {
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Text('${state.assetReferenceDate.year.toString().substring(2)}년 ${state.assetReferenceDate.month}월 ${state.assetReferenceDate.day}일 기준 총자산', style: GoogleFonts.notoSansKr(fontSize: 14, color: const Color(0xFF0F172A), fontWeight: FontWeight.w700)),
+                              Text('${state.assetReferenceDate.year.toString().substring(2)}년 ${state.assetReferenceDate.month}월 ${state.assetReferenceDate.day}일 기준 총자산', style: GoogleFonts.notoSansKr(fontSize: 12, color: const Color(0xFF64748B), fontWeight: FontWeight.w600)),
                               const SizedBox(width: 4),
-                              const Icon(Icons.keyboard_arrow_down, size: 16, color: Color(0xFF0F172A)),
+                              const Icon(Icons.keyboard_arrow_down, size: 14, color: Color(0xFF64748B)),
                             ],
                           ),
                         ),
-                        const SizedBox(height: 12),
+                        const SizedBox(height: 8),
                         Builder(
                           builder: (context) {
                             int totalAssets = 0;
@@ -76,7 +68,7 @@ class AppDrawer extends StatelessWidget {
                                 totalAssets += bal;
                               }
                             }
-                            return Text('${formatNumber(totalAssets)}원', style: GoogleFonts.notoSansKr(fontSize: 32, fontWeight: FontWeight.w800, color: const Color(0xFF4F46E5)));
+                            return Text('${formatNumber(totalAssets)}원', style: GoogleFonts.notoSansKr(fontSize: 28, fontWeight: FontWeight.w700, color: const Color(0xFF0F172A), letterSpacing: -0.5));
                           }
                         ),
                       ],
