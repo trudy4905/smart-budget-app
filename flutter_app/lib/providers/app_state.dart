@@ -15,7 +15,7 @@ class AppState extends ChangeNotifier {
   DateTime currentDate = DateTime(DateTime.now().year, DateTime.now().month, 1);
   String selectedDateStr = _formatDate(DateTime.now());
   List<String> selectedAccountIds = ['all'];
-  String drawerFilter = 'all'; // 'all', 'income', 'cash', 'card', 'total_expense'
+  String drawerFilter = 'all'; // 'all', 'income', 'cash', 'card', 'total_expense', 'next_all', 'next_card'
 
   bool _loaded = false;
   bool get loaded => _loaded;
@@ -114,6 +114,15 @@ class AppState extends ChangeNotifier {
         if (!isCardTx || t.type != 'expense') return false;
       } else if (drawerFilter == 'total_expense') {
         if (t.type != 'expense') return false;
+      } else if (drawerFilter == 'next_all') {
+        // 다음달 전체 = 이번달 신용카드 사용분 (다음달에 결제)
+        if (!isCardTx || t.type != 'expense') return false;
+      } else if (drawerFilter == 'next_income') {
+        // 다음달 수입 = 해당 없음 (항상 빈 목록)
+        return false;
+      } else if (drawerFilter == 'next_card') {
+        // 다음달 지출 = 이번달 신용카드 사용분
+        if (!isCardTx || t.type != 'expense') return false;
       }
     }
 

@@ -6,8 +6,16 @@ import '../models/account.dart';
 import '../utils/helpers.dart';
 import 'add_account_sheet.dart';
 
-class AppDrawer extends StatelessWidget {
+class AppDrawer extends StatefulWidget {
   const AppDrawer({super.key});
+
+  @override
+  State<AppDrawer> createState() => _AppDrawerState();
+}
+
+class _AppDrawerState extends State<AppDrawer> {
+  // 'this_month' or 'next_month'
+  String _selectedTab = 'this_month';
 
   @override
   Widget build(BuildContext context) {
@@ -85,15 +93,32 @@ class AppDrawer extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
 
-                  // ---- 이번달 (Filter Menu) ----
+                  // ---- 탭: 이번달 / 다음달 ----
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                    child: Text('이번달', style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF94A3B8), fontWeight: FontWeight.w600)),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFFFFFF),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Row(
+                        children: [
+                          _tab('this_month', '이번달'),
+                          _tab('next_month', '다음달'),
+                        ],
+                      ),
+                    ),
                   ),
-                  _drawerFilterItem(context, state, 'all', '전체', Icons.public, null, summary['income']! - summary['total']!),
-                  _drawerFilterItem(context, state, 'income', '수입', Icons.attach_money, null, summary['income']!),
-                  _drawerFilterItem(context, state, 'cash', '지출', Icons.money, '(현금/체크/이번달 카드)', summary['cash']!),
-                  _drawerFilterItem(context, state, 'card', '다음달', Icons.credit_card, '(다음달 예정)', summary['card']!),
+
+                  if (_selectedTab == 'this_month') ...[
+                    _drawerFilterItem(context, state, 'all', '전체', Icons.public, null, summary['income']! - summary['total']!),
+                    _drawerFilterItem(context, state, 'income', '수입', Icons.attach_money, null, summary['income']!),
+                    _drawerFilterItem(context, state, 'cash', '지출', Icons.money, '(현금/체크/지난달 카드)', summary['cash']!),
+                  ] else ...[
+                    _drawerFilterItem(context, state, 'next_all', '전체', Icons.public, null, -summary['card']!),
+                    _drawerFilterItem(context, state, 'next_income', '수입', Icons.attach_money, null, 0),
+                    _drawerFilterItem(context, state, 'next_card', '지출', Icons.credit_card, '(이번달 카드)', summary['card']!),
+                  ],
 
                   const Divider(color: Color(0xFFFFFFFF), height: 24),
 
@@ -172,15 +197,42 @@ class AppDrawer extends StatelessWidget {
     );
   }
 
+  Widget _tab(String tabKey, String label) {
+    final isActive = _selectedTab == tabKey;
+    return Expanded(
+      child: GestureDetector(
+        onTap: () => setState(() => _selectedTab = tabKey),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 150),
+          padding: const EdgeInsets.symmetric(vertical: 9),
+          decoration: BoxDecoration(
+            color: isActive ? const Color(0xFF475569) : Colors.transparent,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Center(
+            child: Text(label,
+                style: GoogleFonts.notoSansKr(
+                  fontSize: 12,
+                  fontWeight: isActive ? FontWeight.w700 : FontWeight.w400,
+                  color: isActive ? const Color(0xFFFFFFFF) : const Color(0xFF94A3B8),
+                )),
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _drawerFilterItem(BuildContext context, AppState state, String filter, String label, IconData icon, String? sub, int amount) {
     final isActive = state.drawerFilter == filter;
     final isPositive = amount >= 0;
-    final amountColor = filter == 'income'
+    final isIncomeFilter = filter == 'income' || filter == 'next_income';
+    final isAllFilter = filter == 'all' || filter == 'next_all';
+    final amountColor = isIncomeFilter
         ? const Color(0xFF059669)
-        : filter == 'all'
+        : isAllFilter
             ? (isPositive ? const Color(0xFF059669) : const Color(0xFFE11D48))
             : const Color(0xFFE11D48);
-    final amountStr = filter == 'income' || filter == 'all'
+    final amountStr = isIncomeFilter || isAllFilter
         ? (isPositive ? '+₩${formatCompactNumber(amount)}' : '-₩${formatCompactNumber(amount.abs())}')
         : '-₩${formatCompactNumber(amount)}';
 
