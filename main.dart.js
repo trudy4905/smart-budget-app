@@ -80293,10 +80293,10 @@ n=h.b
 g=g==="card"
 if(g&&a.r==="credit")k=B.jt
 else k=g&&a.r==="debit"?B.jt:B.FI
-if(g&&a.r==="credit")g="[\uc2e0\uc6a9\uce74\ub4dc] "+a.d
+if(g&&a.r==="credit")g="[\uc2e0\uc6a9] "+a.d
 else{g=g&&a.r==="debit"
 i=a.d
-g=g?"[\uccb4\ud06c\uce74\ub4dc] "+i:"[\ud1b5\uc7a5] "+i}return p.a_E(o,n,j,A.ay0(a.y),k,a.a,!1,a.c,new A.Wi(p,o,n,a),g)},
+g=g?"[\uccb4\ud06c] "+i:"[\ud1b5\uc7a5] "+i}return p.a_E(o,n,j,A.ay0(a.y),k,a.a,!1,a.c,new A.Wi(p,o,n,a),g)},
 $S:498}
 A.Wi.prototype={
 $1(a){var s=this
