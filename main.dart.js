@@ -80164,7 +80164,7 @@ q=b.c
 p=t.p
 q=A.c5(f,A.c8(A.b([s,B.hP,A.cC(A.b([r,A.al(""+A.ay(q)+"\ub144 "+A.aQ(q)+"\uc6d4",f,f,f,A.aG().$2$color$fontSize(B.aE,11),f,f)],p),B.aY,B.r,B.D),B.cp,A.cr(f,B.Gb,B.x,!1,f,f,f,f,f,f,f,f,f,f,f,f,f,new A.Wj(a),f,f,f,f,f,f)],p),B.y,B.r,B.D),B.o,f,f,B.Ao,f,f,f,B.EX,f,f,f)
 r=A.al("\uc790\uc0b0",f,f,f,A.aG().$3$color$fontSize$fontWeight(B.aE,11,B.bb),f,f)
-s=A.al("\uc694\uc57d",f,f,f,A.aG().$3$color$fontSize$fontWeight(B.aE,11,B.bb),f,f)
+s=A.al("\uc774\ubc88\ub2ec",f,f,f,A.aG().$3$color$fontSize$fontWeight(B.aE,11,B.bb),f,f)
 o=this.a
 n=c.i(0,e)
 n.toString
@@ -80176,10 +80176,10 @@ n.toString
 n=o.vo(a,b,e,"\uc218\uc785",B.FE,f,n)
 l=c.i(0,"cash")
 l.toString
-l=o.vo(a,b,"cash","\ud604\uae08 \uc9c0\ucd9c",B.FH,"(\ud604\uae08/\uccb4\ud06c/\uc9c0\ub09c\ub2ec \uce74\ub4dc)",l)
+l=o.vo(a,b,"cash","\uc9c0\ucd9c",B.FH,"(\ud604\uae08/\uccb4\ud06c/\uc774\ubc88\ub2ec \uce74\ub4dc)",l)
 k=c.i(0,"card")
 k.toString
-k=o.vo(a,b,"card","\uce74\ub4dc \uc9c0\ucd9c",B.ju,"(\ub2e4\uc74c\ub2ec \uc608\uc815)",k)
+k=o.vo(a,b,"card","\ub2e4\uc74c\ub2ec",B.ju,"(\ub2e4\uc74c\ub2ec \uc608\uc815)",k)
 j=A.al("\ub4f1\ub85d \uacc4\uc88c/\uce74\ub4dc",f,f,f,A.aG().$3$color$fontSize$fontWeight(B.aE,11,B.bb),f,f)
 i=A.F(38,79,70,229)
 h=A.bT(8)
