@@ -36,13 +36,15 @@ class DailyDetail extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Row(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       Text('수입 ₩${formatNumber(dailyIncome)}', style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF059669))),
                       const SizedBox(width: 6),
                       Text('지출 ₩${formatNumber(dailyExpense)}', style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFFE11D48))),
+                      const SizedBox(width: 6),
+                      Text('합계 ₩${formatNumber(total)}', style: GoogleFonts.notoSansKr(fontSize: 11, fontWeight: FontWeight.w700, color: const Color(0xFF0F172A))),
                     ],
                   ),
-                  Text('합계 ₩${formatNumber(total)}', style: GoogleFonts.notoSansKr(fontSize: 11, fontWeight: FontWeight.w700, color: const Color(0xFF0F172A))),
                 ],
               ),
             ],
@@ -124,12 +126,22 @@ class _TxItem extends StatelessWidget {
             children: [
               Text('${isExpense ? '-' : '+'}₩${formatNumber(tx.amount)}',
                   style: GoogleFonts.notoSansKr(fontSize: 13, fontWeight: FontWeight.w700, color: amountColor)),
-              GestureDetector(
-                onTap: () => _confirmDelete(context, tx.id, state),
-                child: const Padding(
-                  padding: EdgeInsets.only(top: 4),
-                  child: Icon(Icons.delete_outline, size: 16, color: Color(0xFF94A3B8)),
-                ),
+              const SizedBox(height: 4),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('수정 기능은 준비 중입니다.', style: GoogleFonts.notoSansKr())));
+                    },
+                    child: const Icon(Icons.edit_outlined, size: 16, color: Color(0xFF94A3B8)),
+                  ),
+                  const SizedBox(width: 12),
+                  GestureDetector(
+                    onTap: () => _confirmDelete(context, tx.id, state),
+                    child: const Icon(Icons.delete_outline, size: 16, color: Color(0xFF94A3B8)),
+                  ),
+                ],
               ),
             ],
           ),
