@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../providers/app_state.dart';
 import '../models/account.dart';
+import '../models/transaction.dart';
 import '../utils/helpers.dart';
 import 'add_account_sheet.dart';
 
