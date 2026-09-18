@@ -95,7 +95,10 @@ class AppDrawer extends StatelessWidget {
                   ),
                   _drawerFilterItem(context, state, 'all', '전체', Icons.public, null, summary['income']! - summary['total']!),
                   _drawerFilterItem(context, state, 'income', '수입', Icons.attach_money, null, summary['income']!),
-                  _drawerFilterItem(context, state, 'cash', '지출', Icons.money, '(현금/체크/지난달 카드)', summary['cash']!),
+                  _drawerFilterItem(context, state, 'cash', '지출', Icons.money, null, summary['cash']!),
+                  if (summary['bankExpense']! > 0) _subItem('현금', summary['bankExpense']!),
+                  if (summary['debitExpense']! > 0) _subItem('체크', summary['debitExpense']!),
+                  if (summary['lastMonthCardBill']! > 0) _subItem('지난달 카드', summary['lastMonthCardBill']!),
 
                   // ---- 다음달 ----
                   Padding(
@@ -185,6 +188,25 @@ class AppDrawer extends StatelessWidget {
       },
     );
 
+  }
+
+  Widget _subItem(String label, int amount) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 48, right: 28, top: 2, bottom: 2),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.subdirectory_arrow_right, size: 14, color: Color(0xFF94A3B8)),
+              const SizedBox(width: 6),
+              Text(label, style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF64748B))),
+            ],
+          ),
+          Text(amount == 0 ? '₩0' : '-₩${formatCompactNumber(amount)}', style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF94A3B8))),
+        ],
+      ),
+    );
   }
 
   Widget _drawerFilterItem(BuildContext context, AppState state, String filter, String label, IconData icon, String? sub, int amount) {

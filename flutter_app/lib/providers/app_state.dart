@@ -152,7 +152,7 @@ class AppState extends ChangeNotifier {
 
   // ---- Computed summaries ----
   Map<String, int> getMonthlySummary(int year, int month) {
-    int income = 0, cash = 0, card = 0;
+    int income = 0, bankExpense = 0, debitExpense = 0, card = 0;
     for (final t in getTransactionsForMonth(year, month, ignoreDrawerFilter: true)) {
       final acc = accounts.firstWhereOrNull((a) => a.id == t.accountId);
       if (t.type == 'income') {
@@ -160,12 +160,33 @@ class AppState extends ChangeNotifier {
       } else if (t.type == 'expense') {
         if (acc != null && acc.isCredit) {
           card += t.amount;
+        } else if (acc != null && acc.isDebit) {
+          debitExpense += t.amount;
         } else {
-          cash += t.amount;
+          bankExpense += t.amount;
         }
       }
     }
-    return {'income': income, 'cash': cash, 'card': card, 'total': cash + card};
+
+    // Calculate last month's card bill
+    int lastMonthYear = month == 1 ? year - 1 : year;
+    int lastMonth = month == 1 ? 12 : month - 1;
+    int lastMonthCardBill = 0;
+    for (final c in accounts.where((a) => a.isCredit)) {
+      lastMonthCardBill += getCardBillForMonth(c.id, lastMonthYear, lastMonth);
+    }
+
+    int cash = bankExpense + debitExpense + lastMonthCardBill;
+
+    return {
+      'income': income, 
+      'cash': cash, 
+      'card': card, 
+      'total': cash, 
+      'bankExpense': bankExpense,
+      'debitExpense': debitExpense,
+      'lastMonthCardBill': lastMonthCardBill,
+    };
   }
 
   int getNetAssets() {
