@@ -82161,7 +82161,7 @@ h.toString
 h=A.nq(h)
 g=a1.i(0,a)
 g.toString
-g=n.oN(a2,a3,"next_card","\uc9c0\ucd9c",B.l1,"(\uace0\uc815 \uc9c0\ucd9c 0 / \uc774\ubc88\ub2ec \uce74\ub4dc "+h+")",g)
+g=n.oN(a2,a3,"next_card","\uc9c0\ucd9c",B.l1,"(\uace0\uc815 0 / \uc774\ubc88\ub2ec \uce74\ub4dc "+h+")",g)
 h=A.as("\ub4f1\ub85d \uacc4\uc88c/\uce74\ub4dc",c,c,c,A.aM().$3$color$fontSize$fontWeight(B.W,13,B.a5),c,c)
 f=A.G(38,79,70,229)
 e=A.c_(8)
