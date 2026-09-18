@@ -40,15 +40,8 @@ class AppDrawer extends StatelessWidget {
                           child: const Icon(Icons.account_balance_wallet, color: Color(0xFF64748B), size: 20),
                         ),
                         const SizedBox(width: 12),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('Smart Budget',
-                                style: GoogleFonts.notoSansKr(fontSize: 16, fontWeight: FontWeight.w700, color: const Color(0xFF0F172A))),
-                            Text(state.currentMonthStr,
-                                style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF94A3B8))),
-                          ],
-                        ),
+                        Text('Smart Budget',
+                            style: GoogleFonts.notoSansKr(fontSize: 16, fontWeight: FontWeight.w700, color: const Color(0xFF0F172A))),
                         const Spacer(),
                         GestureDetector(
                           onTap: () => Navigator.pop(context),
