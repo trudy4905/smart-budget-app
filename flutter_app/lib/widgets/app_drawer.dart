@@ -122,16 +122,7 @@ class AppDrawer extends StatelessWidget {
                     padding: const EdgeInsets.fromLTRB(20, 24, 20, 8),
                     child: Row(
                       children: [
-                        Text('월별 가계부 요약', style: GoogleFonts.notoSansKr(fontSize: 13, color: const Color(0xFF0F172A), fontWeight: FontWeight.w700)),
-                        const SizedBox(width: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFE2E8F0),
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: Text('${state.currentDate.month}월 (선택한 달)', style: GoogleFonts.notoSansKr(fontSize: 10, color: const Color(0xFF475569), fontWeight: FontWeight.w500)),
-                        ),
+                        Text('가계부 요약', style: GoogleFonts.notoSansKr(fontSize: 13, color: const Color(0xFF0F172A), fontWeight: FontWeight.w700)),
                       ],
                     ),
                   ),
