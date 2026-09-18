@@ -73,7 +73,7 @@ class _AddAccountSheetState extends State<AddAccountSheet> {
             const SizedBox(height: 16),
             // Type toggle
             Container(
-              decoration: BoxDecoration(color: const Color(0xFFF1F5F9), borderRadius: BorderRadius.circular(10)),
+              decoration: BoxDecoration(color: const Color(0xFFFFFFFF), borderRadius: BorderRadius.circular(10)),
               child: Row(
                 children: [
                   _typeTab('bank', '🏦 통장'),
@@ -99,11 +99,11 @@ class _AddAccountSheetState extends State<AddAccountSheet> {
                       margin: const EdgeInsets.only(right: 6),
                       padding: const EdgeInsets.symmetric(horizontal: 12),
                       decoration: BoxDecoration(
-                        color: isActive ? const Color(0xFF475569) : const Color(0xFFF1F5F9),
+                        color: isActive ? const Color(0xFF4F46E5).withOpacity(0.15) : const Color(0xFFFFFFFF),
                         borderRadius: BorderRadius.circular(18),
-                        border: Border.all(color: isActive ? const Color(0xFF475569) : const Color(0xFFE2E8F0)),
+                        border: Border.all(color: isActive ? const Color(0xFF4F46E5).withOpacity(0.4) : const Color(0xFFE2E8F0)),
                       ),
-                      child: Center(child: Text(b, style: GoogleFonts.notoSansKr(fontSize: 11, color: isActive ? const Color(0xFFFFFFFF) : const Color(0xFF64748B)))),
+                      child: Center(child: Text(b, style: GoogleFonts.notoSansKr(fontSize: 11, color: isActive ? const Color(0xFF4F46E5) : const Color(0xFF64748B)))),
                     ),
                   );
                 }).toList(),
@@ -206,7 +206,7 @@ class _AddAccountSheetState extends State<AddAccountSheet> {
               child: ElevatedButton(
                 onPressed: _save,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF475569),
+                  backgroundColor: const Color(0xFF4F46E5),
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                 ),
@@ -228,13 +228,14 @@ class _AddAccountSheetState extends State<AddAccountSheet> {
           duration: const Duration(milliseconds: 150),
           padding: const EdgeInsets.symmetric(vertical: 10),
           decoration: BoxDecoration(
-            color: isActive ? const Color(0xFF475569) : Colors.transparent,
+            color: isActive ? const Color(0xFF4F46E5).withOpacity(0.15) : Colors.transparent,
             borderRadius: BorderRadius.circular(10),
+            border: isActive ? Border.all(color: const Color(0xFF4F46E5).withOpacity(0.4)) : Border.all(color: Colors.transparent),
           ),
           child: Center(
             child: Text(label,
                 style: GoogleFonts.notoSansKr(
-                  fontSize: 11, color: isActive ? const Color(0xFFFFFFFF) : const Color(0xFF94A3B8),
+                  fontSize: 11, color: isActive ? const Color(0xFF4F46E5) : const Color(0xFF94A3B8),
                   fontWeight: isActive ? FontWeight.w700 : FontWeight.w400,
                 )),
           ),
@@ -245,13 +246,14 @@ class _AddAccountSheetState extends State<AddAccountSheet> {
 
   InputDecoration _inputDec(String hint) => InputDecoration(
         hintText: hint,
-        hintStyle: GoogleFonts.notoSansKr(color: const Color(0xFFF8FAFC)),
+        hintStyle: GoogleFonts.notoSansKr(color: const Color(0xFF94A3B8)),
         filled: true,
-        fillColor: const Color(0xFFF1F5F9),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
-        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
-        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFF4F46E5))),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        fillColor: const Color(0xFFFFFFFF),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       );
 
   void _save() {

@@ -464,7 +464,7 @@ class _AppDrawerState extends State<AppDrawer> {
   void _showAddAccountDialog(BuildContext context, AppState state, {Account? editAccount}) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: const Color(0xFFFFFFFF),
+      backgroundColor: const Color(0xFFF1F5F9),
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (_) => ChangeNotifierProvider.value(
