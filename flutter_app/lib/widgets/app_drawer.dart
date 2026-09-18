@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -66,7 +67,24 @@ class _AppDrawerState extends State<AppDrawer> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Text('내 자산 현황', style: GoogleFonts.notoSansKr(fontSize: 13, color: const Color(0xFF0F172A), fontWeight: FontWeight.w700)),
+                        Row(
+                          children: [
+                            Text('내 자산 현황', style: GoogleFonts.notoSansKr(fontSize: 13, color: const Color(0xFF0F172A), fontWeight: FontWeight.w700)),
+                            const SizedBox(width: 6),
+                            GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  _isAssetVisible = !_isAssetVisible;
+                                });
+                              },
+                              child: Icon(
+                                _isAssetVisible ? Icons.visibility : Icons.visibility_off,
+                                size: 16,
+                                color: const Color(0xFF94A3B8),
+                              ),
+                            ),
+                          ],
+                        ),
                         GestureDetector(
                           onTap: () async {
                             final picked = await showDatePicker(
@@ -111,24 +129,9 @@ class _AppDrawerState extends State<AppDrawer> {
                             totalAssets += bal;
                           }
                         }
-                        return Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Text(_isAssetVisible ? '${formatNumber(totalAssets)}원' : '******** 원', style: GoogleFonts.notoSansKr(fontSize: 28, fontWeight: FontWeight.w700, color: const Color(0xFF334155), letterSpacing: -0.5)),
-                            const SizedBox(width: 8),
-                            GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  _isAssetVisible = !_isAssetVisible;
-                                });
-                              },
-                              child: Icon(
-                                _isAssetVisible ? Icons.visibility : Icons.visibility_off,
-                                size: 20,
-                                color: const Color(0xFF94A3B8),
-                              ),
-                            ),
-                          ],
+                        return ImageFiltered(
+                          imageFilter: ImageFilter.blur(sigmaX: _isAssetVisible ? 0 : 8, sigmaY: _isAssetVisible ? 0 : 8),
+                          child: Text('${formatNumber(totalAssets)}원', style: GoogleFonts.notoSansKr(fontSize: 28, fontWeight: FontWeight.w700, color: const Color(0xFF334155), letterSpacing: -0.5)),
                         );
                       }
                     ),
