@@ -304,6 +304,12 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
+  void deleteRecurringTransactions(String recurringId) {
+    transactions.removeWhere((t) => t.recurringId == recurringId);
+    _saveTransactions();
+    notifyListeners();
+  }
+
   // ---- Category Management ----
   CategoryInfo getCategoryInfo(String name) {
     for (final c in categories) {

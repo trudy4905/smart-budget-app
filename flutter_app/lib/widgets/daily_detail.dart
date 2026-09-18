@@ -127,7 +127,7 @@ class _TxItem extends StatelessWidget {
                   style: GoogleFonts.notoSansKr(fontSize: 13, fontWeight: FontWeight.w700, color: amountColor)),
               const SizedBox(height: 4),
               GestureDetector(
-                onTap: () => _confirmDelete(context, tx.id, state),
+                onTap: () => _confirmDelete(context, tx, state),
                 child: const Padding(
                   padding: EdgeInsets.only(top: 4),
                   child: Icon(Icons.delete_outline, size: 16, color: Color(0xFF94A3B8)),
@@ -140,21 +140,45 @@ class _TxItem extends StatelessWidget {
     );
   }
 
-  void _confirmDelete(BuildContext context, String id, AppState state) {
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        backgroundColor: const Color(0xFFFFFFFF),
-        title: Text('삭제', style: GoogleFonts.notoSansKr(color: const Color(0xFF0F172A))),
-        content: Text('해당 내역을 삭제하시겠습니까?', style: GoogleFonts.notoSansKr(color: const Color(0xFF64748B))),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: Text('취소', style: GoogleFonts.notoSansKr(color: const Color(0xFF94A3B8)))),
-          TextButton(
-            onPressed: () { state.deleteTransaction(id); Navigator.pop(context); },
-            child: Text('삭제', style: GoogleFonts.notoSansKr(color: const Color(0xFFE11D48))),
-          ),
-        ],
-      ),
-    );
+  void _confirmDelete(BuildContext context, Transaction tx, AppState state) {
+    if (tx.isRecurring && tx.recurringId != null) {
+      showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          backgroundColor: const Color(0xFFFFFFFF),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: Text('고정 지출 삭제', style: GoogleFonts.notoSansKr(fontWeight: FontWeight.w700, color: const Color(0xFF0F172A))),
+          content: Text('이 항목은 매달 반복되는 고정 지출입니다.\n어떻게 삭제하시겠습니까?', style: GoogleFonts.notoSansKr(color: const Color(0xFF64748B))),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(context), child: Text('취소', style: GoogleFonts.notoSansKr(color: const Color(0xFF94A3B8)))),
+            TextButton(
+              onPressed: () { state.deleteTransaction(tx.id); Navigator.pop(context); },
+              child: Text('이 항목만', style: GoogleFonts.notoSansKr(color: const Color(0xFFE11D48), fontWeight: FontWeight.w700)),
+            ),
+            TextButton(
+              onPressed: () { state.deleteRecurringTransactions(tx.recurringId!); Navigator.pop(context); },
+              child: Text('모든 일정', style: GoogleFonts.notoSansKr(color: const Color(0xFFE11D48), fontWeight: FontWeight.w700)),
+            ),
+          ],
+        ),
+      );
+    } else {
+      showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          backgroundColor: const Color(0xFFFFFFFF),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: Text('삭제', style: GoogleFonts.notoSansKr(fontWeight: FontWeight.w700, color: const Color(0xFF0F172A))),
+          content: Text('해당 내역을 삭제하시겠습니까?', style: GoogleFonts.notoSansKr(color: const Color(0xFF64748B))),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(context), child: Text('취소', style: GoogleFonts.notoSansKr(color: const Color(0xFF94A3B8)))),
+            TextButton(
+              onPressed: () { state.deleteTransaction(tx.id); Navigator.pop(context); },
+              child: Text('삭제', style: GoogleFonts.notoSansKr(color: const Color(0xFFE11D48), fontWeight: FontWeight.w700)),
+            ),
+          ],
+        ),
+      );
+    }
   }
 }
