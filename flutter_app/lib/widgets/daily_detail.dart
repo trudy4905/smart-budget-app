@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../providers/app_state.dart';
 import '../models/transaction.dart';
-import '../models/category_info.dart';
 import '../utils/helpers.dart';
 
 class DailyDetail extends StatelessWidget {
@@ -83,7 +82,7 @@ class _TxItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final acc = state.accounts.firstWhereOrNull((a) => a.id == tx.accountId);
-    final catInfo = getCategoryInfo(tx.category);
+    final catInfo = state.getCategoryInfo(tx.category);
     final isExpense = tx.type == 'expense';
     final amountColor = isExpense ? const Color(0xFFE11D48) : const Color(0xFF059669);
     final accLabel = acc != null

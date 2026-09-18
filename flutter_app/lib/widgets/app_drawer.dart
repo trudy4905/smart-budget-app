@@ -192,14 +192,22 @@ class _AppDrawerState extends State<AppDrawer> {
                           child: Text('이번달 (${state.currentDate.month}월)', style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF94A3B8), fontWeight: FontWeight.w600)),
                         ),
                         _drawerFilterItem(context, state, 'all', '전체', Icons.public, null, summary['income']! - summary['total']!),
-                        _drawerFilterItem(context, state, 'income', '수입', Icons.attach_money, null, summary['income']!),
+                        _drawerFilterItem(
+                          context, state, 'income', '수입', Icons.attach_money,
+                          summary['noneIncome']! > 0 ? '(선택 안함 ${formatCompactNumber(summary['noneIncome']!)})' : null,
+                          summary['income']!
+                        ),
                         Builder(
                           builder: (context) {
-                            String cashSub = [
+                            List<String> subItems = [
                               '현금 ${formatCompactNumber(summary['bankExpense']!)}',
                               '체크 ${formatCompactNumber(summary['debitExpense']!)}',
                               '지난달 카드 ${formatCompactNumber(summary['lastMonthCardBill']!)}',
-                            ].join(' / ');
+                            ];
+                            if (summary['noneExpense']! > 0) {
+                              subItems.add('선택 안함 ${formatCompactNumber(summary['noneExpense']!)}');
+                            }
+                            String cashSub = subItems.join(' / ');
                             return _drawerFilterItem(
                               context, state, 'cash', '지출', Icons.money,
                               '($cashSub)',

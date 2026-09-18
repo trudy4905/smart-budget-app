@@ -6,6 +6,20 @@ class CategoryInfo {
   final Color color;
   final String type; // 'expense' or 'income'
   const CategoryInfo({required this.name, required this.emoji, required this.color, required this.type});
+
+  Map<String, dynamic> toJson() => {
+    'name': name,
+    'emoji': emoji,
+    'color': color.value,
+    'type': type,
+  };
+
+  factory CategoryInfo.fromJson(Map<String, dynamic> json) => CategoryInfo(
+    name: json['name'],
+    emoji: json['emoji'],
+    color: Color(json['color']),
+    type: json['type'],
+  );
 }
 
 const kExpenseCategories = [
@@ -25,14 +39,6 @@ const kIncomeCategories = [
   CategoryInfo(name: '상여금', emoji: '🏆', color: Color(0xFF7C3AED), type: 'income'),
 ];
 
-CategoryInfo getCategoryInfo(String name) {
-  for (final c in kExpenseCategories) {
-    if (c.name == name) return c;
-  }
-  for (final c in kIncomeCategories) {
-    if (c.name == name) return c;
-  }
-  return const CategoryInfo(name: '기타', emoji: '📌', color: Color(0xFF94A3B8), type: 'expense');
-}
+
 
 // ============================================================

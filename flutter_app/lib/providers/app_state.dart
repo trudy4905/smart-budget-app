@@ -5,13 +5,17 @@ import '../models/account.dart';
 import '../models/transaction.dart';
 import '../utils/helpers.dart';
 
+import '../models/category_info.dart';
+
 const kStorageKeyTx = 'smart_budget_transactions_v6.0';
 const kStorageKeyAcc = 'smart_budget_accounts_v6.0';
 const kStorageKeyRec = 'smart_budget_recurring_v6.0';
+const kStorageKeyCat = 'smart_budget_categories_v6.0';
 
 class AppState extends ChangeNotifier {
   List<Account> accounts = [];
   List<Transaction> transactions = [];
+  List<CategoryInfo> categories = [];
   DateTime currentDate = DateTime(DateTime.now().year, DateTime.now().month, 1);
   String selectedDateStr = _formatDate(DateTime.now());
   List<String> selectedAccountIds = ['all'];
@@ -70,6 +74,20 @@ class AppState extends ChangeNotifier {
       _saveTransactions(prefs);
     }
 
+    final catStr = prefs.getString(kStorageKeyCat);
+    if (catStr != null) {
+      try {
+        final List dec = jsonDecode(catStr);
+        categories = dec.map((e) => CategoryInfo.fromJson(e)).toList();
+      } catch (_) {
+        categories = [...kExpenseCategories, ...kIncomeCategories];
+        _saveCategories(prefs);
+      }
+    } else {
+      categories = [...kExpenseCategories, ...kIncomeCategories];
+      _saveCategories(prefs);
+    }
+
     _loaded = true;
     notifyListeners();
   }
@@ -82,6 +100,11 @@ class AppState extends ChangeNotifier {
   Future<void> _saveTransactions([SharedPreferences? prefs]) async {
     prefs ??= await SharedPreferences.getInstance();
     await prefs.setString(kStorageKeyTx, jsonEncode(transactions.map((e) => e.toJson()).toList()));
+  }
+
+  Future<void> _saveCategories([SharedPreferences? prefs]) async {
+    prefs ??= await SharedPreferences.getInstance();
+    await prefs.setString(kStorageKeyCat, jsonEncode(categories.map((e) => e.toJson()).toList()));
   }
 
   // ---- Navigation ----
@@ -158,13 +181,17 @@ class AppState extends ChangeNotifier {
 
   // ---- Computed summaries ----
   Map<String, int> getMonthlySummary(int year, int month) {
-    int income = 0, bankExpense = 0, debitExpense = 0, card = 0;
+    int income = 0, bankExpense = 0, debitExpense = 0, card = 0, noneIncome = 0, noneExpense = 0;
     for (final t in getTransactionsForMonth(year, month, ignoreDrawerFilter: true)) {
       final acc = accounts.firstWhereOrNull((a) => a.id == t.accountId);
       if (t.type == 'income') {
         income += t.amount;
+        if (t.accountId == 'none') noneIncome += t.amount;
       } else if (t.type == 'expense') {
-        if (acc != null && acc.isCredit) {
+        if (t.accountId == 'none') {
+          noneExpense += t.amount;
+          bankExpense += t.amount; // Treat 'none' expense as bank expense (cash)
+        } else if (acc != null && acc.isCredit) {
           card += t.amount;
         } else if (acc != null && acc.isDebit) {
           debitExpense += t.amount;
@@ -192,6 +219,8 @@ class AppState extends ChangeNotifier {
       'bankExpense': bankExpense,
       'debitExpense': debitExpense,
       'lastMonthCardBill': lastMonthCardBill,
+      'noneIncome': noneIncome,
+      'noneExpense': noneExpense,
     };
   }
 
@@ -272,6 +301,50 @@ class AppState extends ChangeNotifier {
   void deleteTransaction(String id) {
     transactions.removeWhere((t) => t.id == id);
     _saveTransactions();
+    notifyListeners();
+  }
+
+  // ---- Category Management ----
+  CategoryInfo getCategoryInfo(String name) {
+    for (final c in categories) {
+      if (c.name == name) return c;
+    }
+    return const CategoryInfo(name: '기타', emoji: '📌', color: Color(0xFF94A3B8), type: 'expense');
+  }
+
+  void addCategory(CategoryInfo cat) {
+    categories.add(cat);
+    _saveCategories();
+    notifyListeners();
+  }
+
+  void updateCategory(CategoryInfo cat, String oldName) {
+    final idx = categories.indexWhere((e) => e.name == oldName);
+    if (idx != -1) {
+      categories[idx] = cat;
+      // Update transactions
+      for (var t in transactions) {
+        if (t.category == oldName) {
+          t.category = cat.name;
+        }
+      }
+      _saveCategories();
+      _saveTransactions();
+      notifyListeners();
+    }
+  }
+
+  void deleteCategory(String name, String? transferToName) {
+    categories.removeWhere((e) => e.name == name);
+    if (transferToName != null) {
+      for (var t in transactions) {
+        if (t.category == name) {
+          t.category = transferToName;
+        }
+      }
+      _saveTransactions();
+    }
+    _saveCategories();
     notifyListeners();
   }
 
