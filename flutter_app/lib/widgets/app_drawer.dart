@@ -64,8 +64,35 @@ class AppDrawer extends StatelessWidget {
                     child: Row(
                       children: [
                         Text('자산', style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF94A3B8), fontWeight: FontWeight.w600)),
-                        const SizedBox(width: 4),
-                        Text('(${DateTime.now().year.toString().substring(2)}년${DateTime.now().month}월${DateTime.now().day}일 기준)', style: GoogleFonts.notoSansKr(fontSize: 10, color: const Color(0xFF94A3B8))),
+                        const SizedBox(width: 6),
+                        GestureDetector(
+                          onTap: () async {
+                            final picked = await showDatePicker(
+                              context: context,
+                              initialDate: state.assetReferenceDate,
+                              firstDate: DateTime(2000),
+                              lastDate: DateTime(2100),
+                            );
+                            if (picked != null) {
+                              state.setAssetReferenceDate(picked);
+                            }
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFE2E8F0),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text('${state.assetReferenceDate.year.toString().substring(2)}년 ${state.assetReferenceDate.month}월 ${state.assetReferenceDate.day}일 기준', style: GoogleFonts.notoSansKr(fontSize: 10, color: const Color(0xFF64748B))),
+                                const SizedBox(width: 2),
+                                const Icon(Icons.keyboard_arrow_down, size: 12, color: Color(0xFF64748B)),
+                              ],
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -74,7 +101,7 @@ class AppDrawer extends StatelessWidget {
                     child: Builder(
                       builder: (context) {
                         int totalAssets = 0;
-                        final now = DateTime.now();
+                        final now = state.assetReferenceDate;
                         final todayStr = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
                         for (final acc in state.accounts) {
                           if (acc.isBank) {

@@ -16,6 +16,12 @@ class AppState extends ChangeNotifier {
   String selectedDateStr = _formatDate(DateTime.now());
   List<String> selectedAccountIds = ['all'];
   String drawerFilter = 'all'; // 'all', 'income', 'cash', 'card', 'total_expense', 'next_all', 'next_card'
+  DateTime assetReferenceDate = DateTime.now();
+
+  void setAssetReferenceDate(DateTime date) {
+    assetReferenceDate = date;
+    notifyListeners();
+  }
 
   bool _loaded = false;
   bool get loaded => _loaded;
@@ -193,7 +199,7 @@ class AppState extends ChangeNotifier {
     int bankInitial = 0;
     int bankIncome = 0;
     int bankExpense = 0;
-    final now = DateTime.now();
+    final now = assetReferenceDate;
     final todayStr = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
 
     for (final a in accounts.where((a) => a.isBank)) {
@@ -217,7 +223,7 @@ class AppState extends ChangeNotifier {
   }
 
   int getCardBillForMonth(String cardId, int year, int month) {
-    final now = DateTime.now();
+    final now = assetReferenceDate;
     final todayStr = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
 
     return transactions.where((t) {
