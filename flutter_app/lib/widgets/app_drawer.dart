@@ -217,13 +217,32 @@ class _AppDrawerState extends State<AppDrawer> {
                         ),
 
                         // ---- 다음달 ----
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                          child: Text('다음달 (${state.currentDate.month + 1 > 12 ? 1 : state.currentDate.month + 1}월)', style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF94A3B8), fontWeight: FontWeight.w600)),
+                        Builder(
+                          builder: (context) {
+                            final nextYear = state.currentDate.month == 12 ? state.currentDate.year + 1 : state.currentDate.year;
+                            final nextMonth = state.currentDate.month == 12 ? 1 : state.currentDate.month + 1;
+                            
+                            int nextFixedExpense = 0;
+                            for (final t in state.getTransactionsForMonth(nextYear, nextMonth, ignoreDrawerFilter: true)) {
+                              if (t.type == 'expense' && t.isRecurring) {
+                                nextFixedExpense += t.amount;
+                              }
+                            }
+                            
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                                  child: Text('다음달 ($nextMonth월)', style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF94A3B8), fontWeight: FontWeight.w600)),
+                                ),
+                                _drawerFilterItem(context, state, 'next_all', '전체', Icons.public, null, -(summary['card']! + nextFixedExpense)),
+                                _drawerFilterItem(context, state, 'next_income', '수입', Icons.attach_money, null, 0),
+                                _drawerFilterItem(context, state, 'next_card', '지출', Icons.credit_card, '(고정 ${formatCompactNumber(nextFixedExpense)} / 이번달 카드 ${formatCompactNumber(summary['card']!)})', summary['card']! + nextFixedExpense),
+                              ],
+                            );
+                          }
                         ),
-                        _drawerFilterItem(context, state, 'next_all', '전체', Icons.public, null, -summary['card']!),
-                        _drawerFilterItem(context, state, 'next_income', '수입', Icons.attach_money, null, 0),
-                        _drawerFilterItem(context, state, 'next_card', '지출', Icons.credit_card, '(고정 0 / 이번달 카드 ${formatCompactNumber(summary['card']!)})', summary['card']!),
                       ],
                     ),
                     secondChild: const SizedBox(width: double.infinity),
