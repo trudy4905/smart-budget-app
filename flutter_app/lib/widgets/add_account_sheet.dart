@@ -83,7 +83,7 @@ class _AddAccountSheetState extends State<AddAccountSheet> {
                 children: [
                   _typeTab('bank', '통장', Icons.account_balance, const Color(0xFF059669)),
                   _typeTab('credit', '신용카드', Icons.credit_card, const Color(0xFF2563EB)),
-                  _typeTab('debit', '체크카드', Icons.credit_card_outlined, const Color(0xFFD97706)),
+                  _typeTab('debit', '체크카드', Icons.credit_score, const Color(0xFFD97706)),
                 ],
               ),
             ),
