@@ -196,25 +196,22 @@ class _Chip extends StatelessWidget {
 
     Color chipColor;
     IconData iconData;
-    String text;
     
     if (isIncome) {
       chipColor = const Color(0xFF059669);
-      iconData = Icons.account_balance;
-      text = '+${formatCompactNumber(tx.amount)}';
-    } else if (isCredit) {
-      chipColor = const Color(0xFF2563EB);
-      iconData = Icons.credit_card;
-      text = tx.memo.isNotEmpty ? tx.memo.split(' ').first : tx.category;
-    } else if (isDebit) {
-      chipColor = const Color(0xFFD97706);
-      iconData = Icons.credit_score;
-      text = tx.memo.isNotEmpty ? tx.memo.split(' ').first : tx.category;
     } else {
-      chipColor = const Color(0xFF059669);
-      iconData = Icons.account_balance;
-      text = tx.amount > 0 ? '-${formatCompactNumber(tx.amount)}' : (tx.memo.isNotEmpty ? tx.memo : tx.category);
+      chipColor = isCredit ? const Color(0xFF2563EB) : (isDebit ? const Color(0xFFD97706) : const Color(0xFFE11D48));
     }
+    
+    if (isCredit) {
+      iconData = Icons.credit_card;
+    } else if (isDebit) {
+      iconData = Icons.credit_score;
+    } else {
+      iconData = Icons.account_balance;
+    }
+
+    String text = isIncome ? '+${formatCompactNumber(tx.amount)}' : '-${formatCompactNumber(tx.amount)}';
 
     return Container(
       margin: const EdgeInsets.only(top: 1),
