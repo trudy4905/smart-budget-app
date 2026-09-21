@@ -142,7 +142,10 @@ class _AppDrawerState extends State<AppDrawer> {
                               if (acc.isBank) {
                                 int bal = acc.initialBalance;
                                 for (final t in state.transactions) {
-                                  if (t.accountId != acc.id) continue;
+                                  if (t.accountId != acc.id) {
+                                    final txAcc = state.accounts.firstWhereOrNull((a) => a.id == t.accountId);
+                                    if (txAcc == null || !txAcc.isDebit || txAcc.linkedBankAccountId != acc.id) continue;
+                                  }
                                   if (t.date.compareTo(todayStr) > 0) continue;
                                   if (t.type == 'income') bal += t.amount;
                                   if (t.type == 'expense') bal -= t.amount;
@@ -569,7 +572,10 @@ class _AppDrawerState extends State<AppDrawer> {
                                     final now = DateTime.now();
                                     final todayStr = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
                                     for (final t in state.transactions) {
-                                      if (t.accountId != acc.id) continue;
+                                      if (t.accountId != acc.id) {
+                                        final txAcc = state.accounts.firstWhereOrNull((a) => a.id == t.accountId);
+                                        if (txAcc == null || !txAcc.isDebit || txAcc.linkedBankAccountId != acc.id) continue;
+                                      }
                                       if (t.date.compareTo(todayStr) > 0) continue;
                                       if (t.type == 'income') bal += t.amount;
                                       if (t.type == 'expense') bal -= t.amount;
