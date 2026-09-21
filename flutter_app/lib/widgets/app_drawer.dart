@@ -375,38 +375,23 @@ class _AppDrawerState extends State<AppDrawer> {
                                       );
                                     }),
                                     ...cards.map((c) {
-                                      int cardPaymentAmount = 0;
-                                      CardPaymentInfo? cardInfo;
-                                      for (final info in dash.alreadyPaidCardList) {
-                                        if (info.account.id == c.id) {
-                                          cardPaymentAmount += info.amount;
-                                          cardInfo = info;
-                                        }
-                                      }
-                                      for (final info in dash.upcomingCardPayments) {
-                                        if (info.account.id == c.id) {
-                                          cardPaymentAmount += info.amount;
-                                          cardInfo = info;
-                                        }
-                                      }
+                                      final cardInfo = state.getCardPaymentInfo(c, state.currentDate.year, state.currentDate.month);
+                                      int cardPaymentAmount = cardInfo.amount;
                                       
-                                      String subtitle = '매달 ${c.paymentDay}일';
-                                      Widget? titleTag;
-                                      if (cardInfo != null) {
-                                        subtitle = '${cardInfo.startStr.replaceAll('.', '/')}~${cardInfo.endStr.replaceAll('.', '/')} | ${cardInfo.paymentDateStr.replaceAll('.', '/')}';
-                                        if (cardInfo.isFinalized) {
-                                          titleTag = Container(
-                                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                            decoration: BoxDecoration(color: const Color(0xFFEFF6FF), borderRadius: BorderRadius.circular(4)),
-                                            child: Text('확정', style: GoogleFonts.notoSansKr(fontSize: 10, fontWeight: FontWeight.w600, color: const Color(0xFF2563EB))),
-                                          );
-                                        } else {
-                                          titleTag = Container(
-                                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                            decoration: BoxDecoration(color: const Color(0xFFF1F5F9), borderRadius: BorderRadius.circular(4)),
-                                            child: Text('누적중', style: GoogleFonts.notoSansKr(fontSize: 10, fontWeight: FontWeight.w600, color: const Color(0xFF64748B))),
-                                          );
-                                        }
+                                      String subtitle = '${cardInfo.startStr.replaceAll('.', '/')}~${cardInfo.endStr.replaceAll('.', '/')} | ${cardInfo.paymentDateStr.replaceAll('.', '/')}';
+                                      Widget titleTag;
+                                      if (cardInfo.isFinalized) {
+                                        titleTag = Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                          decoration: BoxDecoration(color: const Color(0xFFEFF6FF), borderRadius: BorderRadius.circular(4)),
+                                          child: Text('확정', style: GoogleFonts.notoSansKr(fontSize: 10, fontWeight: FontWeight.w600, color: const Color(0xFF2563EB))),
+                                        );
+                                      } else {
+                                        titleTag = Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                          decoration: BoxDecoration(color: const Color(0xFFF1F5F9), borderRadius: BorderRadius.circular(4)),
+                                          child: Text('누적중', style: GoogleFonts.notoSansKr(fontSize: 10, fontWeight: FontWeight.w600, color: const Color(0xFF64748B))),
+                                        );
                                       }
                                       
                                       return _recurringItem(
