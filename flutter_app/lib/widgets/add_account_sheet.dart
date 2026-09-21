@@ -72,7 +72,39 @@ class _AddAccountSheetState extends State<AddAccountSheet> {
       _billingEndDay = acc.billingEndDay ?? 31;
       _linkedBankId = acc.linkedBankAccountId;
       _color = acc.color;
+    } else {
+      // Set default linked bank if adding new card
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        if (_type == 'credit' || _type == 'debit') {
+          final banks = context.read<AppState>().accounts.where((a) => a.isBank).toList();
+          if (banks.isNotEmpty) {
+            setState(() {
+              _linkedBankId = banks.first.id;
+            });
+          }
+        }
+      });
     }
+  }
+
+  // Helper to change type and reset bank
+  void _changeType(String newType) {
+    setState(() {
+      _type = newType;
+      final bankList = _type == 'bank' ? _banks : _cards;
+      _bank = bankList[0];
+      if (_type == 'credit' || _type == 'debit') {
+        final banks = context.read<AppState>().accounts.where((a) => a.isBank).toList();
+        if (banks.isNotEmpty) {
+          _linkedBankId = banks.first.id;
+        } else {
+          _linkedBankId = null;
+        }
+      } else {
+        _linkedBankId = null;
+      }
+    });
   }
 
   @override
@@ -250,9 +282,8 @@ class _AddAccountSheetState extends State<AddAccountSheet> {
                 value: _linkedBankId,
                 dropdownColor: const Color(0xFFFFFFFF),
                 style: GoogleFonts.notoSansKr(color: const Color(0xFF0F172A)),
-                decoration: _inputDec('선택 안 함'),
+                decoration: _inputDec('통장을 선택해주세요'),
                 items: [
-                  const DropdownMenuItem(value: null, child: Text('선택 안 함')),
                   ...bankAccounts.map((a) => DropdownMenuItem(value: a.id, child: Text(a.name))),
                 ],
                 onChanged: (v) => setState(() => _linkedBankId = v),
@@ -339,8 +370,8 @@ class _AddAccountSheetState extends State<AddAccountSheet> {
   Widget _typeTab(String type, String label, IconData iconData, Color iconColor) {
     final isActive = _type == type;
     return Expanded(
-      child: GestureDetector(
-        onTap: () => setState(() { _type = type; _bank = type == 'bank' ? _banks.first : _cards.first; }),
+      child: InkWell(
+        onTap: () => _changeType(type),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 150),
           padding: const EdgeInsets.symmetric(vertical: 10),
@@ -427,6 +458,10 @@ class _AddAccountSheetState extends State<AddAccountSheet> {
     final name = _nameCtrl.text.trim();
     if (name.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('별칭을 입력해주세요', style: GoogleFonts.notoSansKr())));
+      return;
+    }
+    if ((_type == 'credit' || _type == 'debit') && _linkedBankId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('연결할 통장을 선택해주세요', style: GoogleFonts.notoSansKr())));
       return;
     }
     final acc = Account(

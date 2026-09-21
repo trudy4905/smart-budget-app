@@ -203,7 +203,6 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                   style: GoogleFonts.notoSansKr(color: const Color(0xFF0F172A)),
                   decoration: _inputDecoration('결제수단 선택'),
                   items: [
-                    DropdownMenuItem(value: 'none', child: Text('🚫 선택 안함', style: GoogleFonts.notoSansKr())),
                     ...state.accounts.where((a) => _type == 'income' ? a.isBank : true).map((a) {
                       final icon = a.isCredit ? '💳[신용]' : a.isDebit ? '💳[체크]' : '🏦';
                       return DropdownMenuItem(value: a.id, child: Text('$icon ${a.name}'));
@@ -324,6 +323,10 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
 
   void _save() {
     final amount = int.tryParse(_amountCtrl.text.replaceAll(',', '')) ?? 0;
+    if (amount <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('금액을 입력해주세요', style: GoogleFonts.notoSansKr())));
+      return;
+    }
     if (_accountId == null) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('결제수단을 선택해주세요', style: GoogleFonts.notoSansKr())));
       return;

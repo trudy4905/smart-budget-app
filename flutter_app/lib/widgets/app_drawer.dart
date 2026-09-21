@@ -153,28 +153,6 @@ class _AppDrawerState extends State<AppDrawer> {
                                 totalAssets += bal;
                               }
                             }
-                            
-                            // 2. Unassigned Cash / Unlinked Debit
-                            if (state.selectedAccountIds.contains('all') || state.selectedAccountIds.contains('none')) {
-                              int unassignedBal = 0;
-                              for (final t in state.transactions) {
-                                if (t.date.compareTo(todayStr) > 0) continue;
-                                bool isUnassigned = false;
-                                if (t.accountId == 'none') {
-                                  isUnassigned = true;
-                                } else {
-                                  final txAcc = state.accounts.firstWhereOrNull((a) => a.id == t.accountId);
-                                  if (txAcc != null && txAcc.isDebit && txAcc.linkedBankAccountId == null) {
-                                    isUnassigned = true;
-                                  }
-                                }
-                                if (isUnassigned) {
-                                  if (t.type == 'income') unassignedBal += t.amount;
-                                  if (t.type == 'expense') unassignedBal -= t.amount;
-                                }
-                              }
-                              totalAssets += unassignedBal;
-                            }
                             return ImageFiltered(
                               imageFilter: ImageFilter.blur(sigmaX: _isAssetVisible ? 0 : 8, sigmaY: _isAssetVisible ? 0 : 8),
                               child: Text('${formatNumber(totalAssets)}원', style: GoogleFonts.notoSansKr(fontSize: 28, fontWeight: FontWeight.w700, color: const Color(0xFF0F172A), letterSpacing: -0.5)),
@@ -631,43 +609,6 @@ class _AppDrawerState extends State<AppDrawer> {
                                     },
                                   );
                                 }),
-                                Builder(builder: (context) {
-                                  int unassignedBal = 0;
-                                  bool hasUnassignedTxs = false;
-                                  final now = DateTime.now();
-                                  final todayStr = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
-                                  for (final t in state.transactions) {
-                                    if (t.date.compareTo(todayStr) > 0) continue;
-                                    bool isUnassigned = false;
-                                    if (t.accountId == 'none') {
-                                      isUnassigned = true;
-                                    } else {
-                                      final txAcc = state.accounts.firstWhereOrNull((a) => a.id == t.accountId);
-                                      if (txAcc != null && txAcc.isDebit && txAcc.linkedBankAccountId == null) {
-                                        isUnassigned = true;
-                                      }
-                                    }
-                                    if (isUnassigned) {
-                                      hasUnassignedTxs = true;
-                                      if (t.type == 'income') unassignedBal += t.amount;
-                                      if (t.type == 'expense') unassignedBal -= t.amount;
-                                    }
-                                  }
-                                  
-                                  if (!hasUnassignedTxs && unassignedBal == 0) return const SizedBox.shrink();
-                                  
-                                  return _accountCheckItem(
-                                    context, state,
-                                    id: 'none',
-                                    icon: Icons.account_balance_wallet,
-                                    label: '연결 계좌 없음',
-                                    subLabel: '[미지정/현금 자산]',
-                                    color: const Color(0xFF94A3B8),
-                                    amount: unassignedBal,
-                                    isAll: false,
-                                    onAction: null,
-                                  );
-                                }),
                                 const SizedBox(height: 8),
                               ],
                             ),
@@ -676,6 +617,50 @@ class _AppDrawerState extends State<AppDrawer> {
                             duration: const Duration(milliseconds: 200),
                           ),
                         ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  // Clear Data Button
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: InkWell(
+                      onTap: () {
+                        showDialog(
+                          context: context,
+                          builder: (c) => AlertDialog(
+                            title: Text('데이터 초기화', style: GoogleFonts.notoSansKr(fontWeight: FontWeight.w700)),
+                            content: Text('모든 데이터가 삭제되고 앱이 초기 상태로 돌아갑니다. 계속하시겠습니까?', style: GoogleFonts.notoSansKr()),
+                            actions: [
+                              TextButton(onPressed: () => Navigator.pop(c), child: Text('취소', style: GoogleFonts.notoSansKr(color: const Color(0xFF64748B)))),
+                              TextButton(
+                                onPressed: () {
+                                  context.read<AppState>().clearAllData();
+                                  Navigator.pop(c);
+                                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('데이터가 초기화되었습니다.', style: GoogleFonts.notoSansKr())));
+                                },
+                                child: Text('초기화', style: GoogleFonts.notoSansKr(color: const Color(0xFFE11D48), fontWeight: FontWeight.w700)),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                      borderRadius: BorderRadius.circular(12),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFEF2F2),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.delete_forever, size: 18, color: Color(0xFFEF4444)),
+                            const SizedBox(width: 8),
+                            Text('모든 데이터 초기화', style: GoogleFonts.notoSansKr(color: const Color(0xFFEF4444), fontWeight: FontWeight.w600, fontSize: 13)),
+                          ],
+                        ),
                       ),
                     ),
                   ),

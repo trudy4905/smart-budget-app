@@ -215,9 +215,6 @@ class AppState extends ChangeNotifier {
     if (txAcc != null && txAcc.isDebit) {
       if (txAcc.linkedBankAccountId != null) {
         if (selectedAccountIds.contains(txAcc.linkedBankAccountId)) return true;
-      } else {
-        // Unlinked debit card treated as 'none'
-        if (selectedAccountIds.contains('none')) return true;
       }
     }
     return false;
@@ -236,7 +233,7 @@ class AppState extends ChangeNotifier {
       vts.add(Transaction(
         id: 'vt_${acc.id}_${year}_$month',
         date: dateStr,
-        accountId: acc.linkedBankAccountId ?? 'none',
+        accountId: acc.linkedBankAccountId ?? '',
         type: 'expense',
         amount: amountM,
         category: '카드대금 결제',
@@ -275,18 +272,15 @@ class AppState extends ChangeNotifier {
 
   // ---- Computed summaries ----
   Map<String, int> getMonthlySummary(int year, int month) {
-    int income = 0, bankExpense = 0, debitExpense = 0, card = 0, noneIncome = 0, noneExpense = 0;
+    int income = 0, bankExpense = 0, debitExpense = 0, card = 0;
     for (final t in getTransactionsForMonth(year, month, ignoreDrawerFilter: true)) {
       if (t.isSettlement) continue;
       final acc = accounts.firstWhereOrNull((a) => a.id == t.accountId);
       if (t.type == 'income') {
         income += t.amount;
-        if (t.accountId == 'none') noneIncome += t.amount;
+
       } else if (t.type == 'expense') {
-        if (t.accountId == 'none') {
-          noneExpense += t.amount;
-          bankExpense += t.amount; // Treat 'none' expense as bank expense (cash)
-        } else if (acc != null && acc.isCredit) {
+        if (acc != null && acc.isCredit) {
           card += t.amount;
         } else if (acc != null && acc.isDebit) {
           debitExpense += t.amount;
@@ -314,8 +308,6 @@ class AppState extends ChangeNotifier {
       'bankExpense': bankExpense,
       'debitExpense': debitExpense,
       'lastMonthCardBill': lastMonthCardBill,
-      'noneIncome': noneIncome,
-      'noneExpense': noneExpense,
     };
   }
 
@@ -378,7 +370,7 @@ class AppState extends ChangeNotifier {
             upExpense.add(FixedItemInfo(t, '${txDate.month}.${txDate.day}'));
           }
         } else {
-          // Cash or Debit (excluding 'none' ? user wants all non-credit to be cash/debit)
+          // Cash or Debit
           if (acc == null || acc.isBank || acc.isDebit) {
             if (isPastOrToday) {
               cashDebitPaid += t.amount;
@@ -528,6 +520,24 @@ class AppState extends ChangeNotifier {
     }).fold(0, (sum, t) => sum + t.amount);
   }
 
+  // ---- Clear Data ----
+  Future<void> clearAllData() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
+    
+    accounts = _sampleAccounts();
+    transactions = _sampleTransactions();
+    categories = [...kExpenseCategories, ...kIncomeCategories];
+    
+    _saveAccounts(prefs);
+    _saveTransactions(prefs);
+    _saveCategories(prefs);
+    
+    selectedAccountIds = ['all'];
+    
+    notifyListeners();
+  }
+
   // ---- CRUD ----
   void addAccount(Account acc) {
     accounts.add(acc);
@@ -619,7 +629,9 @@ class AppState extends ChangeNotifier {
   }
 
   // ---- Sample data ----
-  static List<Account> _sampleAccounts() => [];
+  static List<Account> _sampleAccounts() => [
+    Account(id: 'acc_main_bank', name: '주거래 통장', type: 'bank', color: '#3B82F6', initialBalance: 0, bank: '국민은행')
+  ];
 
   static List<Transaction> _sampleTransactions() => [];
 }
