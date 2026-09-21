@@ -505,7 +505,7 @@ class _AppDrawerState extends State<AppDrawer> {
                               child: Row(
                                 children: [
                                   Text('등록 계좌/카드', style: GoogleFonts.notoSansKr(fontSize: 14, color: const Color(0xFF0F172A), fontWeight: FontWeight.w700)),
-                                  const SizedBox(width: 8),
+                                  const SizedBox(width: 4),
                                   Text('(${state.accounts.length})', style: GoogleFonts.notoSansKr(fontSize: 14, color: const Color(0xFF64748B), fontWeight: FontWeight.w600)),
                                   const Spacer(),
                                   GestureDetector(
