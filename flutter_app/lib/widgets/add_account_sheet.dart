@@ -20,6 +20,10 @@ class _AddAccountSheetState extends State<AddAccountSheet> {
   final _nameCtrl = TextEditingController();
   final _balanceCtrl = TextEditingController();
   int _paymentDay = 25;
+  int _billingStartMonth = -1;
+  int _billingStartDay = 1;
+  int _billingEndMonth = -1;
+  int _billingEndDay = 31;
   String? _linkedBankId;
   String _color = '#6366f1';
 
@@ -62,6 +66,10 @@ class _AddAccountSheetState extends State<AddAccountSheet> {
       _nameCtrl.text = acc.name;
       _balanceCtrl.text = formatNumber(acc.initialBalance);
       _paymentDay = acc.paymentDay ?? 25;
+      _billingStartMonth = acc.billingStartMonth ?? -1;
+      _billingStartDay = acc.billingStartDay ?? 1;
+      _billingEndMonth = acc.billingEndMonth ?? -1;
+      _billingEndDay = acc.billingEndDay ?? 31;
       _linkedBankId = acc.linkedBankAccountId;
       _color = acc.color;
     }
@@ -195,6 +203,42 @@ class _AddAccountSheetState extends State<AddAccountSheet> {
                   ),
                   const SizedBox(width: 8),
                   Text('일', style: GoogleFonts.notoSansKr(color: const Color(0xFF0F172A))),
+                  const Spacer(),
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _autoCalculateBillingPeriod();
+                      });
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF4F46E5).withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text('합산일 자동입력', style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF4F46E5), fontWeight: FontWeight.w600)),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 14),
+              Text('합산 시작일', style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF64748B))),
+              const SizedBox(height: 6),
+              Row(
+                children: [
+                  _monthDropdown(_billingStartMonth, (v) => setState(() => _billingStartMonth = v!)),
+                  const SizedBox(width: 8),
+                  _dayDropdown(_billingStartDay, (v) => setState(() => _billingStartDay = v!)),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Text('합산 종료일', style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF64748B))),
+              const SizedBox(height: 6),
+              Row(
+                children: [
+                  _monthDropdown(_billingEndMonth, (v) => setState(() => _billingEndMonth = v!)),
+                  const SizedBox(width: 8),
+                  _dayDropdown(_billingEndDay, (v) => setState(() => _billingEndDay = v!)),
                 ],
               ),
             ],
@@ -262,6 +306,36 @@ class _AddAccountSheetState extends State<AddAccountSheet> {
     );
   }
 
+  Widget _monthDropdown(int val, ValueChanged<int?> onChanged) {
+    return Expanded(
+      child: DropdownButtonFormField<int>(
+        value: val,
+        dropdownColor: const Color(0xFFFFFFFF),
+        style: GoogleFonts.notoSansKr(color: const Color(0xFF0F172A), fontSize: 13),
+        decoration: _inputDec(''),
+        items: const [
+          DropdownMenuItem(value: -2, child: Text('전전월')),
+          DropdownMenuItem(value: -1, child: Text('전월')),
+          DropdownMenuItem(value: 0, child: Text('당월')),
+        ],
+        onChanged: onChanged,
+      ),
+    );
+  }
+
+  Widget _dayDropdown(int val, ValueChanged<int?> onChanged) {
+    return Expanded(
+      child: DropdownButtonFormField<int>(
+        value: val,
+        dropdownColor: const Color(0xFFFFFFFF),
+        style: GoogleFonts.notoSansKr(color: const Color(0xFF0F172A), fontSize: 13),
+        decoration: _inputDec(''),
+        items: List.generate(31, (i) => i + 1).map((d) => DropdownMenuItem(value: d, child: Text('$d일${d == 31 ? '(말일)' : ''}'))).toList(),
+        onChanged: onChanged,
+      ),
+    );
+  }
+
   Widget _typeTab(String type, String label, IconData iconData, Color iconColor) {
     final isActive = _type == type;
     return Expanded(
@@ -304,6 +378,51 @@ class _AddAccountSheetState extends State<AddAccountSheet> {
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       );
 
+  void _autoCalculateBillingPeriod() {
+    int gracePeriod = 14;
+    if (_bank.contains('삼성') || _bank.contains('하나') || _bank.contains('비씨') || _bank.contains('BC')) {
+      gracePeriod = 13;
+    } else if (_bank.contains('현대')) {
+      gracePeriod = 12;
+    } else if (_bank.contains('기업') || _bank.contains('IBK')) {
+      gracePeriod = 15;
+    }
+
+    int endDate = _paymentDay - gracePeriod;
+    int endMonthOffset = 0;
+    
+    if (endDate <= 0) {
+      endMonthOffset = -1;
+      if (endDate == 0) {
+        _billingEndDay = 31;
+      } else {
+        _billingEndDay = 31 + endDate; 
+      }
+    } else {
+      endMonthOffset = 0;
+      _billingEndDay = endDate;
+    }
+
+    _billingEndMonth = endMonthOffset;
+
+    if (_billingEndDay == 31) {
+      _billingStartDay = 1;
+      _billingStartMonth = _billingEndMonth; 
+    } else {
+      _billingStartDay = _billingEndDay + 1;
+      _billingStartMonth = _billingEndMonth - 1;
+    }
+    
+    // Show a snackbar feedback
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('$_bank 결제일($_paymentDay일) 기준 이용기간이 자동 설정되었습니다.', style: GoogleFonts.notoSansKr()),
+        backgroundColor: const Color(0xFF4F46E5),
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
   void _save() {
     final name = _nameCtrl.text.trim();
     if (name.isEmpty) {
@@ -319,6 +438,10 @@ class _AddAccountSheetState extends State<AddAccountSheet> {
       cardKind: _type == 'bank' ? null : _type,
       initialBalance: _type == 'bank' ? (int.tryParse(_balanceCtrl.text.replaceAll(',', '')) ?? 0) : 0,
       paymentDay: _type == 'credit' ? _paymentDay : null,
+      billingStartMonth: _type == 'credit' ? _billingStartMonth : null,
+      billingStartDay: _type == 'credit' ? _billingStartDay : null,
+      billingEndMonth: _type == 'credit' ? _billingEndMonth : null,
+      billingEndDay: _type == 'credit' ? _billingEndDay : null,
       linkedBankAccountId: _linkedBankId,
     );
 

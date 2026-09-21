@@ -12,6 +12,48 @@ const kStorageKeyAcc = 'smart_budget_accounts_v6.0';
 const kStorageKeyRec = 'smart_budget_recurring_v6.0';
 const kStorageKeyCat = 'smart_budget_categories_v6.0';
 
+class CardPaymentInfo {
+  final Account account;
+  final String startStr;
+  final String endStr;
+  final String paymentDateStr; // e.g., '9.25'
+  final int amount;
+
+  CardPaymentInfo({
+    required this.account, required this.startStr, required this.endStr, 
+    required this.paymentDateStr, required this.amount
+  });
+}
+
+class FixedExpenseInfo {
+  final Transaction tx;
+  final String dateStr;
+  FixedExpenseInfo(this.tx, this.dateStr);
+}
+
+class DashboardSummary {
+  final int thisMonthIncome;
+  final int alreadyPaidCashDebit;
+  final int alreadyPaidFixed;
+  final int alreadyPaidCard;
+  final List<FixedExpenseInfo> upcomingFixedList;
+  final List<CardPaymentInfo> upcomingCardPayments;
+  final List<CardPaymentInfo> ongoingCardAccumulations;
+
+  DashboardSummary({
+    required this.thisMonthIncome, required this.alreadyPaidCashDebit, required this.alreadyPaidFixed,
+    required this.alreadyPaidCard, required this.upcomingFixedList, required this.upcomingCardPayments,
+    required this.ongoingCardAccumulations,
+  });
+
+  int get totalAlreadyPaid => alreadyPaidCashDebit + alreadyPaidFixed + alreadyPaidCard;
+  int get totalUpcomingFixed => upcomingFixedList.fold(0, (s, e) => s + e.tx.amount);
+  int get totalUpcomingCard => upcomingCardPayments.fold(0, (s, e) => s + e.amount);
+  int get totalOngoingCard => ongoingCardAccumulations.fold(0, (s, e) => s + e.amount);
+  int get totalUpcoming => totalUpcomingFixed + totalUpcomingCard + totalOngoingCard;
+  int get remaining => thisMonthIncome - totalAlreadyPaid - totalUpcoming;
+}
+
 class AppState extends ChangeNotifier {
   List<Account> accounts = [];
   List<Transaction> transactions = [];
@@ -165,24 +207,61 @@ class AppState extends ChangeNotifier {
     return false;
   }
 
+  List<Transaction> _getVirtualSettlements(int year, int month) {
+    List<Transaction> vts = [];
+    for (final acc in accounts.where((a) => a.isCredit && a.paymentDay != null)) {
+      final paymentDateM = _clampDate(year, month, acc.paymentDay!);
+      final startM = _clampDate(year, month + (acc.billingStartMonth ?? -1), acc.billingStartDay ?? 1);
+      final endM = _clampDate(year, month + (acc.billingEndMonth ?? -1), acc.billingEndDay ?? 31);
+      
+      int amountM = _sumCardTransactions(acc.id, startM, endM);
+      
+      String dateStr = '${paymentDateM.year}-${paymentDateM.month.toString().padLeft(2, '0')}-${paymentDateM.day.toString().padLeft(2, '0')}';
+      vts.add(Transaction(
+        id: 'vt_${acc.id}_${year}_$month',
+        date: dateStr,
+        accountId: acc.linkedBankAccountId ?? 'none',
+        type: 'expense',
+        amount: amountM,
+        category: '카드대금 결제',
+        memo: '${acc.name} 대금',
+        isSettlement: true,
+      ));
+    }
+    return vts;
+  }
+
   List<Transaction> getTransactionsForDate(String dateStr) {
-    return transactions.where((t) => t.date == dateStr && isTransactionMatchingSelection(t)).toList();
+    final parts = dateStr.split('-');
+    if (parts.length < 3) return [];
+    final year = int.tryParse(parts[0]) ?? 0;
+    final month = int.tryParse(parts[1]) ?? 0;
+
+    List<Transaction> result = transactions.where((t) => t.date == dateStr && isTransactionMatchingSelection(t)).toList();
+    result.addAll(_getVirtualSettlements(year, month).where((t) => t.date == dateStr && isTransactionMatchingSelection(t)));
+
+    return result;
   }
 
   List<Transaction> getTransactionsForMonth(int year, int month, {bool ignoreDrawerFilter = false}) {
-    return transactions.where((t) {
+    List<Transaction> result = transactions.where((t) {
       final parts = t.date.split('-');
       if (parts.length < 3) return false;
       final y = int.tryParse(parts[0]) ?? 0;
       final m = int.tryParse(parts[1]) ?? 0;
       return y == year && m == month && isTransactionMatchingSelection(t, ignoreDrawerFilter: ignoreDrawerFilter);
     }).toList();
+
+    result.addAll(_getVirtualSettlements(year, month).where((t) => isTransactionMatchingSelection(t, ignoreDrawerFilter: ignoreDrawerFilter)));
+
+    return result;
   }
 
   // ---- Computed summaries ----
   Map<String, int> getMonthlySummary(int year, int month) {
     int income = 0, bankExpense = 0, debitExpense = 0, card = 0, noneIncome = 0, noneExpense = 0;
     for (final t in getTransactionsForMonth(year, month, ignoreDrawerFilter: true)) {
+      if (t.isSettlement) continue;
       final acc = accounts.firstWhereOrNull((a) => a.id == t.accountId);
       if (t.type == 'income') {
         income += t.amount;
@@ -222,6 +301,138 @@ class AppState extends ChangeNotifier {
       'noneIncome': noneIncome,
       'noneExpense': noneExpense,
     };
+  }
+
+  DateTime _clampDate(int y, int m, int d) {
+    int year = y;
+    int month = m;
+    while (month < 1) {
+      month += 12;
+      year -= 1;
+    }
+    while (month > 12) {
+      month -= 12;
+      year += 1;
+    }
+    int lastDay = DateTime(year, month + 1, 0).day;
+    return DateTime(year, month, d > lastDay ? lastDay : d);
+  }
+
+  DashboardSummary getDashboardSummary(int year, int month) {
+    int income = 0;
+    int cashDebitPaid = 0;
+    int fixedPaid = 0;
+    int cardPaid = 0;
+    List<FixedExpenseInfo> upFixed = [];
+    
+    final today = DateTime.now();
+    final todayOnly = DateTime(today.year, today.month, today.day);
+
+    // 1. Income, Cash/Debit, Fixed
+    for (final t in getTransactionsForMonth(year, month, ignoreDrawerFilter: true)) {
+      if (t.isSettlement) continue;
+      final parts = t.date.split('-');
+      if (parts.length < 3) continue;
+      final txDate = DateTime(int.parse(parts[0]), int.parse(parts[1]), int.parse(parts[2]));
+      final isPastOrToday = !txDate.isAfter(todayOnly);
+      
+      if (t.type == 'income') {
+        income += t.amount;
+      } else if (t.type == 'expense') {
+        final acc = accounts.firstWhereOrNull((a) => a.id == t.accountId);
+        if (t.isRecurring) {
+          if (isPastOrToday) {
+            fixedPaid += t.amount;
+          } else {
+            upFixed.add(FixedExpenseInfo(t, '${txDate.month}.${txDate.day}'));
+          }
+        } else {
+          // Cash or Debit (excluding 'none' ? user wants all non-credit to be cash/debit)
+          if (acc == null || acc.isBank || acc.isDebit) {
+            if (isPastOrToday) {
+              cashDebitPaid += t.amount;
+            } else {
+              // Cash/Debit scheduled for future
+              // The user didn't specifically ask for future cash/debit, but let's add it to fixedPaid for simplicity or ignore?
+              // Actually, we can just treat it as paid if they manually entered it, but logically it's not paid yet.
+              // Let's just add it to cashDebitPaid so it balances.
+              cashDebitPaid += t.amount;
+            }
+          }
+        }
+      }
+    }
+
+    // 2. Credit Cards
+    List<CardPaymentInfo> upCard = [];
+    List<CardPaymentInfo> ongoingCard = [];
+
+    for (final acc in accounts.where((a) => a.isCredit)) {
+      // Payment in month M
+      final paymentDateM = _clampDate(year, month, acc.paymentDay ?? 25);
+      final startM = _clampDate(year, month + (acc.billingStartMonth ?? -1), acc.billingStartDay ?? 1);
+      final endM = _clampDate(year, month + (acc.billingEndMonth ?? -1), acc.billingEndDay ?? 31);
+      
+      int amountM = _sumCardTransactions(acc.id, startM, endM);
+      
+      if (amountM > 0) {
+        if (!paymentDateM.isAfter(todayOnly)) {
+          cardPaid += amountM;
+        } else {
+          upCard.add(CardPaymentInfo(
+            account: acc, 
+            startStr: '${startM.month}.${startM.day}', 
+            endStr: '${endM.month}.${endM.day}', 
+            paymentDateStr: '${paymentDateM.month}.${paymentDateM.day}', 
+            amount: amountM
+          ));
+        }
+      }
+
+      // If viewing current real month, also calculate ongoing accumulation (Payment in month M+1)
+      if (year == today.year && month == today.month) {
+        final paymentDateNext = _clampDate(year, month + 1, acc.paymentDay ?? 25);
+        final startNext = _clampDate(year, month + 1 + (acc.billingStartMonth ?? -1), acc.billingStartDay ?? 1);
+        final endNext = _clampDate(year, month + 1 + (acc.billingEndMonth ?? -1), acc.billingEndDay ?? 31);
+        
+        // Sum up to today
+        int amountNext = _sumCardTransactions(acc.id, startNext, todayOnly.isBefore(endNext) ? todayOnly : endNext);
+        
+        if (amountNext > 0) {
+          ongoingCard.add(CardPaymentInfo(
+            account: acc, 
+            startStr: '${startNext.month}.${startNext.day}', 
+            endStr: '진행중', 
+            paymentDateStr: '${paymentDateNext.month}.${paymentDateNext.day}', 
+            amount: amountNext
+          ));
+        }
+      }
+    }
+
+    return DashboardSummary(
+      thisMonthIncome: income,
+      alreadyPaidCashDebit: cashDebitPaid,
+      alreadyPaidFixed: fixedPaid,
+      alreadyPaidCard: cardPaid,
+      upcomingFixedList: upFixed,
+      upcomingCardPayments: upCard,
+      ongoingCardAccumulations: ongoingCard,
+    );
+  }
+
+  int _sumCardTransactions(String cardId, DateTime start, DateTime end) {
+    int sum = 0;
+    for (final t in transactions) {
+      if (t.accountId != cardId || t.type != 'expense') continue;
+      final parts = t.date.split('-');
+      if (parts.length < 3) continue;
+      final txDate = DateTime(int.parse(parts[0]), int.parse(parts[1]), int.parse(parts[2]));
+      if (txDate.isAfter(start.subtract(const Duration(days: 1))) && txDate.isBefore(end.add(const Duration(days: 1)))) {
+        sum += t.amount;
+      }
+    }
+    return sum;
   }
 
   int getNetAssets() {

@@ -7,6 +7,10 @@ class Account {
   int initialBalance;
   String? cardKind; // 'credit', 'debit'
   int? paymentDay;
+  int? billingStartMonth; // 0 for current month, -1 for previous month
+  int? billingStartDay;
+  int? billingEndMonth;
+  int? billingEndDay;
   String? linkedBankAccountId;
   String color;
 
@@ -19,6 +23,10 @@ class Account {
     this.initialBalance = 0,
     this.cardKind,
     this.paymentDay,
+    this.billingStartMonth,
+    this.billingStartDay,
+    this.billingEndMonth,
+    this.billingEndDay,
     this.linkedBankAccountId,
     required this.color,
   });
@@ -36,11 +44,29 @@ class Account {
         'initialBalance': initialBalance,
         'cardKind': cardKind,
         'paymentDay': paymentDay,
+        'billingStartMonth': billingStartMonth,
+        'billingStartDay': billingStartDay,
+        'billingEndMonth': billingEndMonth,
+        'billingEndDay': billingEndDay,
         'linkedBankAccountId': linkedBankAccountId,
         'color': color,
       };
 
-  factory Account.fromJson(Map<String, dynamic> json) => Account(
+  factory Account.fromJson(Map<String, dynamic> json) {
+    // Legacy migration for credit cards: default to prev month 1 ~ prev month last day
+    int? bStartMonth = json['billingStartMonth'];
+    int? bStartDay = json['billingStartDay'];
+    int? bEndMonth = json['billingEndMonth'];
+    int? bEndDay = json['billingEndDay'];
+
+    if (json['type'] == 'card' && json['cardKind'] == 'credit') {
+      bStartMonth ??= -1;
+      bStartDay ??= 1;
+      bEndMonth ??= -1;
+      bEndDay ??= 31; // 31 represents last day
+    }
+
+    return Account(
         id: json['id'] ?? '',
         type: json['type'] ?? 'bank',
         name: json['name'] ?? '',
@@ -51,7 +77,12 @@ class Account {
             : int.tryParse(json['initialBalance'].toString()) ?? 0,
         cardKind: json['cardKind'],
         paymentDay: json['paymentDay'],
+        billingStartMonth: bStartMonth,
+        billingStartDay: bStartDay,
+        billingEndMonth: bEndMonth,
+        billingEndDay: bEndDay,
         linkedBankAccountId: json['linkedBankAccountId'],
         color: json['color'] ?? '#6366f1',
       );
+  }
 }

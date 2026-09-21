@@ -126,13 +126,14 @@ class _TxItem extends StatelessWidget {
               Text('${isExpense ? '-' : '+'}₩${formatNumber(tx.amount)}',
                   style: GoogleFonts.notoSansKr(fontSize: 13, fontWeight: FontWeight.w700, color: amountColor)),
               const SizedBox(height: 4),
-              GestureDetector(
-                onTap: () => _confirmDelete(context, tx, state),
-                child: const Padding(
-                  padding: EdgeInsets.only(top: 4),
-                  child: Icon(Icons.delete_outline, size: 16, color: Color(0xFF94A3B8)),
+              if (!tx.isSettlement)
+                GestureDetector(
+                  onTap: () => _confirmDelete(context, tx, state),
+                  child: const Padding(
+                    padding: EdgeInsets.only(top: 4),
+                    child: Icon(Icons.delete_outline, size: 16, color: Color(0xFF94A3B8)),
+                  ),
                 ),
-              ),
             ],
           ),
         ],
