@@ -393,7 +393,7 @@ class _AppDrawerState extends State<AppDrawer> {
                                       String subtitle = '매달 ${c.paymentDay}일';
                                       Widget? titleTag;
                                       if (cardInfo != null) {
-                                        subtitle = '${cardInfo.startStr.replaceAll('.', '/')}~${cardInfo.endStr.replaceAll('.', '/')} 이용분 | ${cardInfo.paymentDateStr.replaceAll('.', '/')} 결제';
+                                        subtitle = '${cardInfo.startStr.replaceAll('.', '/')}~${cardInfo.endStr.replaceAll('.', '/')} | ${cardInfo.paymentDateStr.replaceAll('.', '/')}';
                                         if (cardInfo.isFinalized) {
                                           titleTag = Container(
                                             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
@@ -597,20 +597,8 @@ class _AppDrawerState extends State<AppDrawer> {
                                     subLabel = '[통장] ${acc.bank}';
                                   } else if (acc.isCredit) {
                                     amount = null;
-                                    CardPaymentInfo? cardInfo;
-                                    for (final info in dash.alreadyPaidCardList) {
-                                      if (info.account.id == acc.id) cardInfo = info;
-                                    }
-                                    for (final info in dash.upcomingCardPayments) {
-                                      if (info.account.id == acc.id) cardInfo = info;
-                                    }
-                                    if (cardInfo != null) {
-                                      subLabel = '[신용] ${acc.bank} | ${cardInfo.startStr.replaceAll('.', '/')}~${cardInfo.endStr.replaceAll('.', '/')} 이용분 | ${cardInfo.paymentDateStr.replaceAll('.', '/')} 결제';
-                                    } else if (acc.paymentDay != null) {
-                                      subLabel = '[신용] ${acc.bank} | 매달 ${acc.paymentDay}일 결제';
-                                    } else {
-                                      subLabel = '[신용] ${acc.bank}';
-                                    }
+                                    final cardInfo = state.getCardPaymentInfo(acc, state.currentDate.year, state.currentDate.month);
+                                    subLabel = '[신용] ${acc.bank} | ${cardInfo.startStr.replaceAll('.', '/')}~${cardInfo.endStr.replaceAll('.', '/')} | ${cardInfo.paymentDateStr.replaceAll('.', '/')}';
                                   } else if (acc.isDebit) {
                                     amount = null;
                                     subLabel = '[체크] ${acc.bank}';

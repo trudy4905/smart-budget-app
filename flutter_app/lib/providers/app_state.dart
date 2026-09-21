@@ -394,33 +394,16 @@ class AppState extends ChangeNotifier {
 
     for (final acc in accounts.where((a) => a.isCredit)) {
       // Payment in month M
-      final paymentDateM = _clampDate(year, month, acc.paymentDay ?? 25);
-      final startM = _clampDate(year, month + (acc.billingStartMonth ?? -1), acc.billingStartDay ?? 1);
-      final endM = _clampDate(year, month + (acc.billingEndMonth ?? -1), acc.billingEndDay ?? 31);
-      
-      int amountM = _sumCardTransactions(acc.id, startM, endM);
+      final infoM = getCardPaymentInfo(acc, year, month);
+      int amountM = infoM.amount;
       
       if (amountM > 0) {
-        bool isFinalized = !todayOnly.isBefore(endM);
+        final paymentDateM = _clampDate(year, month, acc.paymentDay ?? 25);
         if (!paymentDateM.isAfter(todayOnly)) {
           cardPaid += amountM;
-          paidCardList.add(CardPaymentInfo(
-            account: acc, 
-            startStr: '${startM.month}.${startM.day}', 
-            endStr: '${endM.month}.${endM.day}', 
-            paymentDateStr: '${paymentDateM.month}.${paymentDateM.day}', 
-            amount: amountM,
-            isFinalized: isFinalized
-          ));
+          paidCardList.add(infoM);
         } else {
-          upCard.add(CardPaymentInfo(
-            account: acc, 
-            startStr: '${startM.month}.${startM.day}', 
-            endStr: '${endM.month}.${endM.day}', 
-            paymentDateStr: '${paymentDateM.month}.${paymentDateM.day}', 
-            amount: amountM,
-            isFinalized: isFinalized
-          ));
+          upCard.add(infoM);
         }
       }
 
@@ -459,6 +442,27 @@ class AppState extends ChangeNotifier {
       upcomingExpenseList: upExpense,
       upcomingCardPayments: upCard,
       ongoingCardAccumulations: ongoingCard,
+    );
+  }
+
+  CardPaymentInfo getCardPaymentInfo(Account acc, int year, int month) {
+    final paymentDateM = _clampDate(year, month, acc.paymentDay ?? 25);
+    final startM = _clampDate(year, month + (acc.billingStartMonth ?? -1), acc.billingStartDay ?? 1);
+    final endM = _clampDate(year, month + (acc.billingEndMonth ?? -1), acc.billingEndDay ?? 31);
+    
+    int amountM = _sumCardTransactions(acc.id, startM, endM);
+    
+    final today = DateTime.now();
+    final todayOnly = DateTime(today.year, today.month, today.day);
+    bool isFinalized = !todayOnly.isBefore(endM);
+
+    return CardPaymentInfo(
+      account: acc, 
+      startStr: '${startM.month}.${startM.day}', 
+      endStr: '${endM.month}.${endM.day}', 
+      paymentDateStr: '${paymentDateM.month}.${paymentDateM.day}', 
+      amount: amountM,
+      isFinalized: isFinalized
     );
   }
 
