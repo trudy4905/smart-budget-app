@@ -567,6 +567,7 @@ class _AppDrawerState extends State<AppDrawer> {
                               children: [
                                 ...state.accounts.map((acc) {
                                   int? amount;
+                                  String subLabel = '';
                                   if (acc.isBank) {
                                     int bal = acc.initialBalance;
                                     final now = DateTime.now();
@@ -578,15 +579,34 @@ class _AppDrawerState extends State<AppDrawer> {
                                       if (t.type == 'expense') bal -= t.amount;
                                     }
                                     amount = bal;
+                                    subLabel = '[통장] ${acc.bank}';
                                   } else if (acc.isCredit) {
-                                    amount = -state.getCardBillForMonth(acc.id, state.currentDate.year, state.currentDate.month);
+                                    amount = null;
+                                    CardPaymentInfo? cardInfo;
+                                    for (final info in dash.alreadyPaidCardList) {
+                                      if (info.account.id == acc.id) cardInfo = info;
+                                    }
+                                    for (final info in dash.upcomingCardPayments) {
+                                      if (info.account.id == acc.id) cardInfo = info;
+                                    }
+                                    if (cardInfo != null) {
+                                      subLabel = '[신용] ${acc.bank} | ${cardInfo.startStr.replaceAll('.', '/')}~${cardInfo.endStr.replaceAll('.', '/')} 이용분 | ${cardInfo.paymentDateStr.replaceAll('.', '/')} 결제';
+                                    } else if (acc.paymentDay != null) {
+                                      subLabel = '[신용] ${acc.bank} | 매달 ${acc.paymentDay}일 결제';
+                                    } else {
+                                      subLabel = '[신용] ${acc.bank}';
+                                    }
+                                  } else if (acc.isDebit) {
+                                    amount = null;
+                                    subLabel = '[체크] ${acc.bank}';
                                   }
+                                  
                                   return _accountCheckItem(
                                     context, state,
                                     id: acc.id,
                                     icon: acc.isCredit ? Icons.credit_card : acc.isDebit ? Icons.credit_card : Icons.account_balance,
                                     label: acc.name,
-                                    subLabel: acc.isCredit ? '[신용] ${acc.bank}' : acc.isDebit ? '[체크] ${acc.bank}' : '[통장] ${acc.bank}',
+                                    subLabel: subLabel,
                                     color: hexToColor(acc.color),
                                     amount: amount,
                                     isAll: false,
