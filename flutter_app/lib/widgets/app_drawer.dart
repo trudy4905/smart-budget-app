@@ -226,7 +226,7 @@ class _AppDrawerState extends State<AppDrawer> {
                                   padding: const EdgeInsets.fromLTRB(20, 20, 20, 12),
                                   child: Row(
                                     children: [
-                                      Text('이번 달 고정 내역', style: GoogleFonts.notoSansKr(fontSize: 14, color: const Color(0xFF0F172A), fontWeight: FontWeight.w700)),
+                                      Text('이번 달 고정 지출', style: GoogleFonts.notoSansKr(fontSize: 14, color: const Color(0xFF0F172A), fontWeight: FontWeight.w700)),
                                       const Spacer(),
                                       Icon(_isRecurringExpenseExpanded ? Icons.keyboard_arrow_down : Icons.keyboard_arrow_right, size: 16, color: const Color(0xFF94A3B8)),
                                     ],
@@ -324,7 +324,7 @@ class _AppDrawerState extends State<AppDrawer> {
                                   padding: const EdgeInsets.fromLTRB(20, 20, 20, 12),
                                   child: Row(
                                     children: [
-                                      Text('이번 달 고정 수입 내역', style: GoogleFonts.notoSansKr(fontSize: 14, color: const Color(0xFF0F172A), fontWeight: FontWeight.w700)),
+                                      Text('이번 달 고정 수입', style: GoogleFonts.notoSansKr(fontSize: 14, color: const Color(0xFF0F172A), fontWeight: FontWeight.w700)),
                                       const Spacer(),
                                       Icon(_isRecurringIncomeExpanded ? Icons.keyboard_arrow_down : Icons.keyboard_arrow_right, size: 16, color: const Color(0xFF94A3B8)),
                                     ],
