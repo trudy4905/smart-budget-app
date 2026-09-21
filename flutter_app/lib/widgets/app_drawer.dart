@@ -325,9 +325,9 @@ class _AppDrawerState extends State<AppDrawer> {
                                   child: Row(
                                     children: [
                                       Text('이번 달 고정 지출', style: GoogleFonts.notoSansKr(fontSize: 14, color: const Color(0xFF0F172A), fontWeight: FontWeight.w700)),
-                                      const SizedBox(width: 8),
-                                      Text(formatNumber(totalExpense), style: GoogleFonts.notoSansKr(fontSize: 14, color: const Color(0xFFE11D48), fontWeight: FontWeight.w700)),
                                       const Spacer(),
+                                      Text(formatNumber(totalExpense), style: GoogleFonts.notoSansKr(fontSize: 14, color: const Color(0xFFE11D48), fontWeight: FontWeight.w700)),
+                                      const SizedBox(width: 8),
                                       Icon(_isRecurringExpenseExpanded ? Icons.keyboard_arrow_down : Icons.keyboard_arrow_right, size: 16, color: const Color(0xFF94A3B8)),
                                     ],
                                   ),
@@ -447,9 +447,9 @@ class _AppDrawerState extends State<AppDrawer> {
                                   child: Row(
                                     children: [
                                       Text('이번 달 고정 수입', style: GoogleFonts.notoSansKr(fontSize: 14, color: const Color(0xFF0F172A), fontWeight: FontWeight.w700)),
-                                      const SizedBox(width: 8),
-                                      Text(formatNumber(totalIncome), style: GoogleFonts.notoSansKr(fontSize: 14, color: const Color(0xFF059669), fontWeight: FontWeight.w700)),
                                       const Spacer(),
+                                      Text(formatNumber(totalIncome), style: GoogleFonts.notoSansKr(fontSize: 14, color: const Color(0xFF059669), fontWeight: FontWeight.w700)),
+                                      const SizedBox(width: 8),
                                       Icon(_isRecurringIncomeExpanded ? Icons.keyboard_arrow_down : Icons.keyboard_arrow_right, size: 16, color: const Color(0xFF94A3B8)),
                                     ],
                                   ),
