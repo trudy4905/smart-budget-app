@@ -255,13 +255,6 @@ class _AppDrawerState extends State<AppDrawer> {
                                   Text('${formatNumber(c.amount)}원', style: GoogleFonts.notoSansKr(fontSize: 12, color: const Color(0xFF475569))),
                                 ]
                               )),
-                              ...dash.ongoingCardAccumulations.map((c) => Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Expanded(child: Text('${c.paymentDateStr.replaceAll('.', '/')} ${c.account.name} (진행중)', style: GoogleFonts.notoSansKr(fontSize: 12, color: const Color(0xFF475569)), overflow: TextOverflow.ellipsis)),
-                                  Text('${formatNumber(c.amount)}원', style: GoogleFonts.notoSansKr(fontSize: 12, color: const Color(0xFF475569))),
-                                ]
-                              )),
                             ]
                           ),
                           const SizedBox(height: 16),

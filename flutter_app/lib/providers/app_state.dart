@@ -60,7 +60,7 @@ class DashboardSummary {
   int get totalUpcomingFixedExpense => upcomingExpenseList.fold(0, (s, e) => s + e.tx.amount);
   int get totalUpcomingCard => upcomingCardPayments.fold(0, (s, e) => s + e.amount);
   int get totalOngoingCard => ongoingCardAccumulations.fold(0, (s, e) => s + e.amount);
-  int get totalUpcomingExpense => totalUpcomingFixedExpense + totalUpcomingCard + totalOngoingCard;
+  int get totalUpcomingExpense => totalUpcomingFixedExpense + totalUpcomingCard;
   
   int get remaining => (totalAlreadyReceived + totalUpcomingIncome) - (totalAlreadyPaid + totalUpcomingExpense);
 }
