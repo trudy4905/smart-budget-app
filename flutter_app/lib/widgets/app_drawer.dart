@@ -138,6 +138,7 @@ class _AppDrawerState extends State<AppDrawer> {
                             final now = state.assetReferenceDate;
                             final todayStr = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
                             for (final acc in state.accounts) {
+                              if (!state.selectedAccountIds.contains('all') && !state.selectedAccountIds.contains(acc.id)) continue;
                               if (acc.isBank) {
                                 int bal = acc.initialBalance;
                                 for (final t in state.transactions) {
@@ -286,11 +287,12 @@ class _AppDrawerState extends State<AppDrawer> {
                       final Map<String, Transaction> recurringMap = {};
                       for (final t in state.transactions) {
                         if (t.isRecurring && t.recurringId != null && t.type == 'expense') {
+                          if (!state.selectedAccountIds.contains('all') && !state.selectedAccountIds.contains(t.accountId)) continue;
                           recurringMap[t.recurringId!] = t;
                         }
                       }
                       final recurringTxs = recurringMap.values.toList();
-                      final cards = state.accounts.where((a) => a.isCredit && a.paymentDay != null).toList();
+                      final cards = state.accounts.where((a) => a.isCredit && a.paymentDay != null && (state.selectedAccountIds.contains('all') || state.selectedAccountIds.contains(a.id))).toList();
                       
                       if (recurringTxs.isEmpty && cards.isEmpty) return const SizedBox.shrink();
 
@@ -417,6 +419,7 @@ class _AppDrawerState extends State<AppDrawer> {
                       final Map<String, Transaction> recurringMap = {};
                       for (final t in state.transactions) {
                         if (t.isRecurring && t.recurringId != null && t.type == 'income') {
+                          if (!state.selectedAccountIds.contains('all') && !state.selectedAccountIds.contains(t.accountId)) continue;
                           recurringMap[t.recurringId!] = t;
                         }
                       }

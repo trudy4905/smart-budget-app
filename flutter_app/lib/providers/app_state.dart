@@ -393,6 +393,8 @@ class AppState extends ChangeNotifier {
     List<CardPaymentInfo> ongoingCard = [];
 
     for (final acc in accounts.where((a) => a.isCredit)) {
+      if (!selectedAccountIds.contains('all') && !selectedAccountIds.contains(acc.id)) continue;
+
       // Payment in month M
       final infoM = getCardPaymentInfo(acc, year, month);
       int amountM = infoM.amount;
@@ -467,6 +469,7 @@ class AppState extends ChangeNotifier {
   }
 
   int _sumCardTransactions(String cardId, DateTime start, DateTime end) {
+    if (!selectedAccountIds.contains('all') && !selectedAccountIds.contains(cardId)) return 0;
     int sum = 0;
     for (final t in transactions) {
       if (t.accountId != cardId || t.type != 'expense') continue;
