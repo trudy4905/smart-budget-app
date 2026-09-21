@@ -212,8 +212,13 @@ class AppState extends ChangeNotifier {
     if (selectedAccountIds.isEmpty) return false;
     if (selectedAccountIds.contains(t.accountId)) return true;
 
-    if (txAcc != null && txAcc.isDebit && txAcc.linkedBankAccountId != null) {
-      if (selectedAccountIds.contains(txAcc.linkedBankAccountId)) return true;
+    if (txAcc != null && txAcc.isDebit) {
+      if (txAcc.linkedBankAccountId != null) {
+        if (selectedAccountIds.contains(txAcc.linkedBankAccountId)) return true;
+      } else {
+        // Unlinked debit card treated as 'none'
+        if (selectedAccountIds.contains('none')) return true;
+      }
     }
     return false;
   }

@@ -153,6 +153,28 @@ class _AppDrawerState extends State<AppDrawer> {
                                 totalAssets += bal;
                               }
                             }
+                            
+                            // 2. Unassigned Cash / Unlinked Debit
+                            if (state.selectedAccountIds.contains('all') || state.selectedAccountIds.contains('none')) {
+                              int unassignedBal = 0;
+                              for (final t in state.transactions) {
+                                if (t.date.compareTo(todayStr) > 0) continue;
+                                bool isUnassigned = false;
+                                if (t.accountId == 'none') {
+                                  isUnassigned = true;
+                                } else {
+                                  final txAcc = state.accounts.firstWhereOrNull((a) => a.id == t.accountId);
+                                  if (txAcc != null && txAcc.isDebit && txAcc.linkedBankAccountId == null) {
+                                    isUnassigned = true;
+                                  }
+                                }
+                                if (isUnassigned) {
+                                  if (t.type == 'income') unassignedBal += t.amount;
+                                  if (t.type == 'expense') unassignedBal -= t.amount;
+                                }
+                              }
+                              totalAssets += unassignedBal;
+                            }
                             return ImageFiltered(
                               imageFilter: ImageFilter.blur(sigmaX: _isAssetVisible ? 0 : 8, sigmaY: _isAssetVisible ? 0 : 8),
                               child: Text('${formatNumber(totalAssets)}원', style: GoogleFonts.notoSansKr(fontSize: 28, fontWeight: FontWeight.w700, color: const Color(0xFF0F172A), letterSpacing: -0.5)),
@@ -607,6 +629,43 @@ class _AppDrawerState extends State<AppDrawer> {
                                         _showDeleteConfirmation(context, state, acc);
                                       }
                                     },
+                                  );
+                                }),
+                                Builder(builder: (context) {
+                                  int unassignedBal = 0;
+                                  bool hasUnassignedTxs = false;
+                                  final now = DateTime.now();
+                                  final todayStr = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+                                  for (final t in state.transactions) {
+                                    if (t.date.compareTo(todayStr) > 0) continue;
+                                    bool isUnassigned = false;
+                                    if (t.accountId == 'none') {
+                                      isUnassigned = true;
+                                    } else {
+                                      final txAcc = state.accounts.firstWhereOrNull((a) => a.id == t.accountId);
+                                      if (txAcc != null && txAcc.isDebit && txAcc.linkedBankAccountId == null) {
+                                        isUnassigned = true;
+                                      }
+                                    }
+                                    if (isUnassigned) {
+                                      hasUnassignedTxs = true;
+                                      if (t.type == 'income') unassignedBal += t.amount;
+                                      if (t.type == 'expense') unassignedBal -= t.amount;
+                                    }
+                                  }
+                                  
+                                  if (!hasUnassignedTxs && unassignedBal == 0) return const SizedBox.shrink();
+                                  
+                                  return _accountCheckItem(
+                                    context, state,
+                                    id: 'none',
+                                    icon: Icons.account_balance_wallet,
+                                    label: '연결 계좌 없음',
+                                    subLabel: '[미지정/현금 자산]',
+                                    color: const Color(0xFF94A3B8),
+                                    amount: unassignedBal,
+                                    isAll: false,
+                                    onAction: null,
                                   );
                                 }),
                                 const SizedBox(height: 8),
