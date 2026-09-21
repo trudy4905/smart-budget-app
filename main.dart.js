@@ -86012,7 +86012,7 @@ l=A.a0(new A.ar(r,new A.an2(),q),!0,q.i("w.E"))
 if(m.length===0&&l.length===0)return B.as
 r=A.bH(16)
 q=this.a
-n=A.a5("\uc774\ubc88 \ub2ec \uace0\uc815 \ub0b4\uc5ed",i,i,i,A.ac().$3$color$fontSize$fontWeight(B.K,14,B.I),i,i)
+n=A.a5("\uc774\ubc88 \ub2ec \uace0\uc815 \uc9c0\ucd9c",i,i,i,A.ac().$3$color$fontSize$fontWeight(B.K,14,B.I),i,i)
 k=t.p
 n=A.bO(i,new A.b8(B.lf,A.bD(A.a([n,B.bF,A.hM(q.e?B.ij:B.lu,B.ak,i,16)],k),B.x,B.n,B.y),i),B.z,!1,i,i,i,i,i,i,i,i,i,i,i,i,i,new A.an3(q),i,i,i,i,i,i)
 j=A.a0(new A.ab(m,new A.an4(q,a,s),A.V(m).i("ab<1,d>")),!0,t.l7)
@@ -86076,7 +86076,7 @@ m=A.a0(r,!0,A.i(r).i("w.E"))
 if(m.length===0)return B.as
 r=A.bH(16)
 q=this.a
-n=A.a5("\uc774\ubc88 \ub2ec \uace0\uc815 \uc218\uc785 \ub0b4\uc5ed",k,k,k,A.ac().$3$color$fontSize$fontWeight(B.K,14,B.I),k,k)
+n=A.a5("\uc774\ubc88 \ub2ec \uace0\uc815 \uc218\uc785",k,k,k,A.ac().$3$color$fontSize$fontWeight(B.K,14,B.I),k,k)
 l=t.p
 n=A.bO(k,new A.b8(B.lf,A.bD(A.a([n,B.bF,A.hM(q.f?B.ij:B.lu,B.ak,k,16)],l),B.x,B.n,B.y),k),B.z,!1,k,k,k,k,k,k,k,k,k,k,k,k,k,new A.an0(q),k,k,k,k,k,k)
 s=A.a0(new A.ab(m,new A.an1(q,a,s),A.V(m).i("ab<1,d>")),!0,t.l7)
