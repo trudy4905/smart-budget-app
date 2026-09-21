@@ -21,6 +21,11 @@ class _AppDrawerState extends State<AppDrawer> {
   bool _isRecurringExpenseExpanded = true;
   bool _isRecurringIncomeExpanded = true;
   bool _isAccountsExpanded = true;
+  
+  bool _isIncomeExpanded = false;
+  bool _isExpenseExpanded = false;
+  bool _isUpcomingIncomeExpanded = false;
+  bool _isUpcomingExpenseExpanded = false;
 
   @override
   void initState() {
@@ -35,6 +40,11 @@ class _AppDrawerState extends State<AppDrawer> {
       _isRecurringExpenseExpanded = prefs.getBool('isRecurringExpenseExpanded') ?? true;
       _isRecurringIncomeExpanded = prefs.getBool('isRecurringIncomeExpanded') ?? true;
       _isAccountsExpanded = prefs.getBool('isAccountsExpanded') ?? true;
+      
+      _isIncomeExpanded = prefs.getBool('isIncomeExpanded') ?? false;
+      _isExpenseExpanded = prefs.getBool('isExpenseExpanded') ?? false;
+      _isUpcomingIncomeExpanded = prefs.getBool('isUpcomingIncomeExpanded') ?? false;
+      _isUpcomingExpenseExpanded = prefs.getBool('isUpcomingExpenseExpanded') ?? false;
     });
   }
 
@@ -163,13 +173,97 @@ class _AppDrawerState extends State<AppDrawer> {
                         children: [
                           Text('${state.currentDate.month}월 현금 흐름', style: GoogleFonts.notoSansKr(fontSize: 15, fontWeight: FontWeight.w700, color: const Color(0xFF0F172A))),
                           const SizedBox(height: 16),
-                          _cashFlowRow(context, state, 'income', Icons.arrow_downward, const Color(0xFF059669), const Color(0xFFECFDF5), '수입', dash.totalAlreadyReceived),
+                          _cashFlowRow(context, state, 'income', Icons.arrow_downward, const Color(0xFF059669), const Color(0xFFECFDF5), '수입', dash.totalAlreadyReceived, 
+                            _isIncomeExpanded, 
+                            () {
+                              setState(() => _isIncomeExpanded = !_isIncomeExpanded);
+                              SharedPreferences.getInstance().then((prefs) => prefs.setBool('isIncomeExpanded', _isIncomeExpanded));
+                            },
+                            dash.alreadyReceivedIncomeList.map((tx) => Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(child: Text('${tx.date.substring(5).replaceAll('-', '/')} ${tx.memo.isNotEmpty ? '${tx.category} (${tx.memo})' : tx.category}', style: GoogleFonts.notoSansKr(fontSize: 12, color: const Color(0xFF475569)), overflow: TextOverflow.ellipsis)),
+                                Text('${formatNumber(tx.amount)}원', style: GoogleFonts.notoSansKr(fontSize: 12, color: const Color(0xFF475569))),
+                              ]
+                            )).toList(),
+                          ),
                           const SizedBox(height: 12),
-                          _cashFlowRow(context, state, 'expense', Icons.arrow_upward, const Color(0xFFE11D48), const Color(0xFFFFF1F2), '지출', dash.totalAlreadyPaid),
+                          _cashFlowRow(context, state, 'expense', Icons.arrow_upward, const Color(0xFFE11D48), const Color(0xFFFFF1F2), '지출', dash.totalAlreadyPaid,
+                            _isExpenseExpanded, 
+                            () {
+                              setState(() => _isExpenseExpanded = !_isExpenseExpanded);
+                              SharedPreferences.getInstance().then((prefs) => prefs.setBool('isExpenseExpanded', _isExpenseExpanded));
+                            },
+                            [
+                              ...dash.alreadyPaidFixedList.map((tx) => Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(child: Text('${tx.date.substring(5).replaceAll('-', '/')} ${tx.memo.isNotEmpty ? '${tx.category} (${tx.memo})' : tx.category}', style: GoogleFonts.notoSansKr(fontSize: 12, color: const Color(0xFF475569)), overflow: TextOverflow.ellipsis)),
+                                  Text('${formatNumber(tx.amount)}원', style: GoogleFonts.notoSansKr(fontSize: 12, color: const Color(0xFF475569))),
+                                ]
+                              )),
+                              ...dash.alreadyPaidCashDebitList.map((tx) => Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(child: Text('${tx.date.substring(5).replaceAll('-', '/')} ${tx.memo.isNotEmpty ? '${tx.category} (${tx.memo})' : tx.category}', style: GoogleFonts.notoSansKr(fontSize: 12, color: const Color(0xFF475569)), overflow: TextOverflow.ellipsis)),
+                                  Text('${formatNumber(tx.amount)}원', style: GoogleFonts.notoSansKr(fontSize: 12, color: const Color(0xFF475569))),
+                                ]
+                              )),
+                              ...dash.alreadyPaidCardList.map((c) => Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(child: Text('${c.paymentDateStr} ${c.account.name} 대금', style: GoogleFonts.notoSansKr(fontSize: 12, color: const Color(0xFF475569)), overflow: TextOverflow.ellipsis)),
+                                  Text('${formatNumber(c.amount)}원', style: GoogleFonts.notoSansKr(fontSize: 12, color: const Color(0xFF475569))),
+                                ]
+                              )),
+                            ]
+                          ),
                           const SizedBox(height: 12),
-                          _cashFlowRow(context, state, 'upcoming_income', Icons.schedule, const Color(0xFFD97706), const Color(0xFFFEF3C7), '예정수입', dash.totalUpcomingIncome),
+                          _cashFlowRow(context, state, 'upcoming_income', Icons.schedule, const Color(0xFFD97706), const Color(0xFFFEF3C7), '예정수입', dash.totalUpcomingIncome,
+                            _isUpcomingIncomeExpanded, 
+                            () {
+                              setState(() => _isUpcomingIncomeExpanded = !_isUpcomingIncomeExpanded);
+                              SharedPreferences.getInstance().then((prefs) => prefs.setBool('isUpcomingIncomeExpanded', _isUpcomingIncomeExpanded));
+                            },
+                            dash.upcomingIncomeList.map((e) => Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(child: Text('${e.dateStr.replaceAll('.', '/')} ${e.tx.memo.isNotEmpty ? '${e.tx.category} (${e.tx.memo})' : e.tx.category}', style: GoogleFonts.notoSansKr(fontSize: 12, color: const Color(0xFF475569)), overflow: TextOverflow.ellipsis)),
+                                Text('${formatNumber(e.tx.amount)}원', style: GoogleFonts.notoSansKr(fontSize: 12, color: const Color(0xFF475569))),
+                              ]
+                            )).toList(),
+                          ),
                           const SizedBox(height: 12),
-                          _cashFlowRow(context, state, 'upcoming_expense', Icons.calendar_today, const Color(0xFF7C3AED), const Color(0xFFF3E8FF), '예정지출', dash.totalUpcomingExpense),
+                          _cashFlowRow(context, state, 'upcoming_expense', Icons.calendar_today, const Color(0xFF7C3AED), const Color(0xFFF3E8FF), '예정지출', dash.totalUpcomingExpense,
+                            _isUpcomingExpenseExpanded, 
+                            () {
+                              setState(() => _isUpcomingExpenseExpanded = !_isUpcomingExpenseExpanded);
+                              SharedPreferences.getInstance().then((prefs) => prefs.setBool('isUpcomingExpenseExpanded', _isUpcomingExpenseExpanded));
+                            },
+                            [
+                              ...dash.upcomingExpenseList.map((e) => Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(child: Text('${e.dateStr.replaceAll('.', '/')} ${e.tx.memo.isNotEmpty ? '${e.tx.category} (${e.tx.memo})' : e.tx.category}', style: GoogleFonts.notoSansKr(fontSize: 12, color: const Color(0xFF475569)), overflow: TextOverflow.ellipsis)),
+                                  Text('${formatNumber(e.tx.amount)}원', style: GoogleFonts.notoSansKr(fontSize: 12, color: const Color(0xFF475569))),
+                                ]
+                              )),
+                              ...dash.upcomingCardPayments.map((c) => Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(child: Text('${c.paymentDateStr.replaceAll('.', '/')} ${c.account.name}', style: GoogleFonts.notoSansKr(fontSize: 12, color: const Color(0xFF475569)), overflow: TextOverflow.ellipsis)),
+                                  Text('${formatNumber(c.amount)}원', style: GoogleFonts.notoSansKr(fontSize: 12, color: const Color(0xFF475569))),
+                                ]
+                              )),
+                              ...dash.ongoingCardAccumulations.map((c) => Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(child: Text('${c.paymentDateStr.replaceAll('.', '/')} ${c.account.name} (진행중)', style: GoogleFonts.notoSansKr(fontSize: 12, color: const Color(0xFF475569)), overflow: TextOverflow.ellipsis)),
+                                  Text('${formatNumber(c.amount)}원', style: GoogleFonts.notoSansKr(fontSize: 12, color: const Color(0xFF475569))),
+                                ]
+                              )),
+                            ]
+                          ),
                           const SizedBox(height: 16),
                           // 이번 달 예상 잔액
                           Container(
@@ -486,31 +580,46 @@ class _AppDrawerState extends State<AppDrawer> {
     );
   }
 
-  Widget _cashFlowRow(BuildContext context, AppState state, String filterKey, IconData icon, Color color, Color bgColor, String title, int amount) {
-    return GestureDetector(
-      onTap: () {
-        if (filterKey == 'income' || filterKey == 'expense') {
-          final isSelected = state.drawerFilter == filterKey;
-          state.setDrawerFilter(isSelected ? 'none' : filterKey);
-          Navigator.pop(context);
-        }
-      },
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(6),
-            decoration: BoxDecoration(
-              color: bgColor,
-              shape: BoxShape.circle,
-            ),
-            child: Icon(icon, size: 14, color: color),
+  Widget _cashFlowRow(
+    BuildContext context, AppState state, String filterKey, IconData icon, Color color, Color bgColor, String title, int amount,
+    bool isExpanded, VoidCallback onTap, List<Widget> children
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        GestureDetector(
+          onTap: onTap,
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: bgColor,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(icon, size: 14, color: color),
+              ),
+              const SizedBox(width: 12),
+              Text(title, style: GoogleFonts.notoSansKr(fontSize: 13, color: const Color(0xFF334155), fontWeight: FontWeight.w600)),
+              const Spacer(),
+              Text('${formatNumber(amount)}원', style: GoogleFonts.notoSansKr(fontSize: 13, fontWeight: FontWeight.w700, color: const Color(0xFF0F172A))),
+              const SizedBox(width: 8),
+              Icon(isExpanded ? Icons.keyboard_arrow_down : Icons.keyboard_arrow_right, size: 16, color: const Color(0xFF94A3B8)),
+            ],
           ),
-          const SizedBox(width: 12),
-          Text(title, style: GoogleFonts.notoSansKr(fontSize: 13, color: const Color(0xFF334155), fontWeight: FontWeight.w600)),
-          const Spacer(),
-          Text('${formatNumber(amount)}원', style: GoogleFonts.notoSansKr(fontSize: 13, fontWeight: FontWeight.w700, color: const Color(0xFF0F172A))),
-        ],
-      ),
+        ),
+        AnimatedCrossFade(
+          firstChild: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: children.isNotEmpty 
+              ? children.map((w) => Padding(padding: const EdgeInsets.only(top: 8, left: 36), child: w)).toList()
+              : [Padding(padding: const EdgeInsets.only(top: 8, left: 36), child: Text('내역 없음', style: GoogleFonts.notoSansKr(fontSize: 12, color: const Color(0xFF94A3B8))))],
+          ),
+          secondChild: const SizedBox(width: double.infinity),
+          crossFadeState: isExpanded ? CrossFadeState.showFirst : CrossFadeState.showSecond,
+          duration: const Duration(milliseconds: 200),
+        ),
+      ],
     );
   }
 

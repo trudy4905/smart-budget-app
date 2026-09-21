@@ -33,18 +33,22 @@ class FixedItemInfo {
 
 class DashboardSummary {
   final int alreadyReceivedIncome;
+  final List<Transaction> alreadyReceivedIncomeList;
   final List<FixedItemInfo> upcomingIncomeList;
   final int alreadyPaidCashDebit;
+  final List<Transaction> alreadyPaidCashDebitList;
   final int alreadyPaidFixed;
+  final List<Transaction> alreadyPaidFixedList;
   final int alreadyPaidCard;
+  final List<CardPaymentInfo> alreadyPaidCardList;
   final List<FixedItemInfo> upcomingExpenseList;
   final List<CardPaymentInfo> upcomingCardPayments;
   final List<CardPaymentInfo> ongoingCardAccumulations;
 
   DashboardSummary({
-    required this.alreadyReceivedIncome, required this.upcomingIncomeList,
-    required this.alreadyPaidCashDebit, required this.alreadyPaidFixed,
-    required this.alreadyPaidCard, required this.upcomingExpenseList, required this.upcomingCardPayments,
+    required this.alreadyReceivedIncome, required this.alreadyReceivedIncomeList, required this.upcomingIncomeList,
+    required this.alreadyPaidCashDebit, required this.alreadyPaidCashDebitList, required this.alreadyPaidFixed, required this.alreadyPaidFixedList,
+    required this.alreadyPaidCard, required this.alreadyPaidCardList, required this.upcomingExpenseList, required this.upcomingCardPayments,
     required this.ongoingCardAccumulations,
   });
 
@@ -326,9 +330,12 @@ class AppState extends ChangeNotifier {
 
   DashboardSummary getDashboardSummary(int year, int month) {
     int receivedIncome = 0;
+    List<Transaction> receivedIncomeList = [];
     List<FixedItemInfo> upIncome = [];
     int cashDebitPaid = 0;
+    List<Transaction> cashDebitPaidList = [];
     int fixedPaid = 0;
+    List<Transaction> fixedPaidList = [];
     int cardPaid = 0;
     List<FixedItemInfo> upExpense = [];
     
@@ -347,17 +354,20 @@ class AppState extends ChangeNotifier {
         if (t.isRecurring) {
           if (isPastOrToday) {
             receivedIncome += t.amount;
+            receivedIncomeList.add(t);
           } else {
             upIncome.add(FixedItemInfo(t, '${txDate.month}.${txDate.day}'));
           }
         } else {
           receivedIncome += t.amount;
+          receivedIncomeList.add(t);
         }
       } else if (t.type == 'expense') {
         final acc = accounts.firstWhereOrNull((a) => a.id == t.accountId);
         if (t.isRecurring) {
           if (isPastOrToday) {
             fixedPaid += t.amount;
+            fixedPaidList.add(t);
           } else {
             upExpense.add(FixedItemInfo(t, '${txDate.month}.${txDate.day}'));
           }
@@ -366,12 +376,10 @@ class AppState extends ChangeNotifier {
           if (acc == null || acc.isBank || acc.isDebit) {
             if (isPastOrToday) {
               cashDebitPaid += t.amount;
+              cashDebitPaidList.add(t);
             } else {
-              // Cash/Debit scheduled for future
-              // The user didn't specifically ask for future cash/debit, but let's add it to fixedPaid for simplicity or ignore?
-              // Actually, we can just treat it as paid if they manually entered it, but logically it's not paid yet.
-              // Let's just add it to cashDebitPaid so it balances.
               cashDebitPaid += t.amount;
+              cashDebitPaidList.add(t);
             }
           }
         }
@@ -379,6 +387,7 @@ class AppState extends ChangeNotifier {
     }
 
     // 2. Credit Cards
+    List<CardPaymentInfo> paidCardList = [];
     List<CardPaymentInfo> upCard = [];
     List<CardPaymentInfo> ongoingCard = [];
 
@@ -393,6 +402,13 @@ class AppState extends ChangeNotifier {
       if (amountM > 0) {
         if (!paymentDateM.isAfter(todayOnly)) {
           cardPaid += amountM;
+          paidCardList.add(CardPaymentInfo(
+            account: acc, 
+            startStr: '${startM.month}.${startM.day}', 
+            endStr: '${endM.month}.${endM.day}', 
+            paymentDateStr: '${paymentDateM.month}.${paymentDateM.day}', 
+            amount: amountM
+          ));
         } else {
           upCard.add(CardPaymentInfo(
             account: acc, 
@@ -427,10 +443,14 @@ class AppState extends ChangeNotifier {
 
     return DashboardSummary(
       alreadyReceivedIncome: receivedIncome,
+      alreadyReceivedIncomeList: receivedIncomeList,
       upcomingIncomeList: upIncome,
       alreadyPaidCashDebit: cashDebitPaid,
+      alreadyPaidCashDebitList: cashDebitPaidList,
       alreadyPaidFixed: fixedPaid,
+      alreadyPaidFixedList: fixedPaidList,
       alreadyPaidCard: cardPaid,
+      alreadyPaidCardList: paidCardList,
       upcomingExpenseList: upExpense,
       upcomingCardPayments: upCard,
       ongoingCardAccumulations: ongoingCard,
