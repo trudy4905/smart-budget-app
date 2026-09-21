@@ -376,18 +376,31 @@ class _AppDrawerState extends State<AppDrawer> {
                                     }),
                                     ...cards.map((c) {
                                       int cardPaymentAmount = 0;
+                                      CardPaymentInfo? cardInfo;
                                       for (final info in dash.alreadyPaidCardList) {
-                                        if (info.account.id == c.id) cardPaymentAmount += info.amount;
+                                        if (info.account.id == c.id) {
+                                          cardPaymentAmount += info.amount;
+                                          cardInfo = info;
+                                        }
                                       }
                                       for (final info in dash.upcomingCardPayments) {
-                                        if (info.account.id == c.id) cardPaymentAmount += info.amount;
+                                        if (info.account.id == c.id) {
+                                          cardPaymentAmount += info.amount;
+                                          cardInfo = info;
+                                        }
                                       }
+                                      
+                                      String subtitle = '매달 ${c.paymentDay}일';
+                                      if (cardInfo != null) {
+                                        subtitle = '${cardInfo.startStr.replaceAll('.', '/')}~${cardInfo.endStr.replaceAll('.', '/')} 이용분 | ${cardInfo.paymentDateStr.replaceAll('.', '/')} 결제';
+                                      }
+                                      
                                       return _recurringItem(
                                         context, state,
                                         iconBgColor: const Color(0xFFFFF1F2),
                                         iconColor: const Color(0xFFE11D48),
                                         title: '${c.name} 대금 결제',
-                                        subtitle: '매달 ${c.paymentDay}일',
+                                        subtitle: subtitle,
                                         amount: cardPaymentAmount,
                                       );
                                     }),
