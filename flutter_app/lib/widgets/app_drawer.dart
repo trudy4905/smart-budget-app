@@ -862,6 +862,24 @@ class _AppDrawerState extends State<AppDrawer> {
   }
 
   void _showDeleteConfirmation(BuildContext context, AppState state, Account acc) {
+    if (acc.isBank) {
+      final bankCount = state.accounts.where((a) => a.isBank).length;
+      if (bankCount <= 1) {
+        showDialog(
+          context: context,
+          builder: (_) => AlertDialog(
+            backgroundColor: const Color(0xFFFFFFFF),
+            title: Text('삭제 불가', style: GoogleFonts.notoSansKr(color: const Color(0xFFE11D48), fontWeight: FontWeight.w700)),
+            content: Text('최소 한 개의 은행 통장이 필요합니다. 카드를 연결하거나 현금 흐름을 관리하기 위해 삭제할 수 없습니다.', style: GoogleFonts.notoSansKr(color: const Color(0xFF0F172A))),
+            actions: [
+              TextButton(onPressed: () => Navigator.pop(context), child: Text('확인', style: GoogleFonts.notoSansKr(color: const Color(0xFF4F46E5)))),
+            ],
+          ),
+        );
+        return;
+      }
+    }
+
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
