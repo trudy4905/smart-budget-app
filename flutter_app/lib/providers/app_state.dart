@@ -18,10 +18,11 @@ class CardPaymentInfo {
   final String endStr;
   final String paymentDateStr; // e.g., '9.25'
   final int amount;
+  final bool isFinalized;
 
   CardPaymentInfo({
     required this.account, required this.startStr, required this.endStr, 
-    required this.paymentDateStr, required this.amount
+    required this.paymentDateStr, required this.amount, required this.isFinalized
   });
 }
 
@@ -400,6 +401,7 @@ class AppState extends ChangeNotifier {
       int amountM = _sumCardTransactions(acc.id, startM, endM);
       
       if (amountM > 0) {
+        bool isFinalized = !todayOnly.isBefore(endM);
         if (!paymentDateM.isAfter(todayOnly)) {
           cardPaid += amountM;
           paidCardList.add(CardPaymentInfo(
@@ -407,7 +409,8 @@ class AppState extends ChangeNotifier {
             startStr: '${startM.month}.${startM.day}', 
             endStr: '${endM.month}.${endM.day}', 
             paymentDateStr: '${paymentDateM.month}.${paymentDateM.day}', 
-            amount: amountM
+            amount: amountM,
+            isFinalized: isFinalized
           ));
         } else {
           upCard.add(CardPaymentInfo(
@@ -415,7 +418,8 @@ class AppState extends ChangeNotifier {
             startStr: '${startM.month}.${startM.day}', 
             endStr: '${endM.month}.${endM.day}', 
             paymentDateStr: '${paymentDateM.month}.${paymentDateM.day}', 
-            amount: amountM
+            amount: amountM,
+            isFinalized: isFinalized
           ));
         }
       }
@@ -435,7 +439,8 @@ class AppState extends ChangeNotifier {
             startStr: '${startNext.month}.${startNext.day}', 
             endStr: '진행중', 
             paymentDateStr: '${paymentDateNext.month}.${paymentDateNext.day}', 
-            amount: amountNext
+            amount: amountNext,
+            isFinalized: false
           ));
         }
       }

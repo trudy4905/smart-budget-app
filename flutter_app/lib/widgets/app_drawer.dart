@@ -391,8 +391,22 @@ class _AppDrawerState extends State<AppDrawer> {
                                       }
                                       
                                       String subtitle = '매달 ${c.paymentDay}일';
+                                      Widget? titleTag;
                                       if (cardInfo != null) {
                                         subtitle = '${cardInfo.startStr.replaceAll('.', '/')}~${cardInfo.endStr.replaceAll('.', '/')} 이용분 | ${cardInfo.paymentDateStr.replaceAll('.', '/')} 결제';
+                                        if (cardInfo.isFinalized) {
+                                          titleTag = Container(
+                                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                            decoration: BoxDecoration(color: const Color(0xFFEFF6FF), borderRadius: BorderRadius.circular(4)),
+                                            child: Text('확정', style: GoogleFonts.notoSansKr(fontSize: 10, fontWeight: FontWeight.w600, color: const Color(0xFF2563EB))),
+                                          );
+                                        } else {
+                                          titleTag = Container(
+                                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                            decoration: BoxDecoration(color: const Color(0xFFF1F5F9), borderRadius: BorderRadius.circular(4)),
+                                            child: Text('누적중', style: GoogleFonts.notoSansKr(fontSize: 10, fontWeight: FontWeight.w600, color: const Color(0xFF64748B))),
+                                          );
+                                        }
                                       }
                                       
                                       return _recurringItem(
@@ -400,6 +414,7 @@ class _AppDrawerState extends State<AppDrawer> {
                                         iconBgColor: const Color(0xFFFFF1F2),
                                         iconColor: const Color(0xFFE11D48),
                                         title: '${c.name} 대금 결제',
+                                        titleTag: titleTag,
                                         subtitle: subtitle,
                                         amount: cardPaymentAmount,
                                       );
@@ -685,7 +700,7 @@ class _AppDrawerState extends State<AppDrawer> {
   }
 
   Widget _recurringItem(BuildContext context, AppState state, {
-    required Color iconBgColor, required Color iconColor, required String title, required String subtitle, required int? amount, Widget? rightWidget, VoidCallback? onDelete
+    required Color iconBgColor, required Color iconColor, required String title, Widget? titleTag, required String subtitle, required int? amount, Widget? rightWidget, VoidCallback? onDelete
   }) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
@@ -704,7 +719,15 @@ class _AppDrawerState extends State<AppDrawer> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: GoogleFonts.notoSansKr(fontSize: 13, fontWeight: FontWeight.w600, color: const Color(0xFF0F172A))),
+                Row(
+                  children: [
+                    Text(title, style: GoogleFonts.notoSansKr(fontSize: 13, fontWeight: FontWeight.w600, color: const Color(0xFF0F172A))),
+                    if (titleTag != null) ...[
+                      const SizedBox(width: 6),
+                      titleTag,
+                    ],
+                  ],
+                ),
                 Text(subtitle, style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF94A3B8))),
               ],
             ),
