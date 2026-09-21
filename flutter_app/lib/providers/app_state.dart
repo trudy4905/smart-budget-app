@@ -25,33 +25,39 @@ class CardPaymentInfo {
   });
 }
 
-class FixedExpenseInfo {
+class FixedItemInfo {
   final Transaction tx;
   final String dateStr;
-  FixedExpenseInfo(this.tx, this.dateStr);
+  FixedItemInfo(this.tx, this.dateStr);
 }
 
 class DashboardSummary {
-  final int thisMonthIncome;
+  final int alreadyReceivedIncome;
+  final List<FixedItemInfo> upcomingIncomeList;
   final int alreadyPaidCashDebit;
   final int alreadyPaidFixed;
   final int alreadyPaidCard;
-  final List<FixedExpenseInfo> upcomingFixedList;
+  final List<FixedItemInfo> upcomingExpenseList;
   final List<CardPaymentInfo> upcomingCardPayments;
   final List<CardPaymentInfo> ongoingCardAccumulations;
 
   DashboardSummary({
-    required this.thisMonthIncome, required this.alreadyPaidCashDebit, required this.alreadyPaidFixed,
-    required this.alreadyPaidCard, required this.upcomingFixedList, required this.upcomingCardPayments,
+    required this.alreadyReceivedIncome, required this.upcomingIncomeList,
+    required this.alreadyPaidCashDebit, required this.alreadyPaidFixed,
+    required this.alreadyPaidCard, required this.upcomingExpenseList, required this.upcomingCardPayments,
     required this.ongoingCardAccumulations,
   });
 
+  int get totalAlreadyReceived => alreadyReceivedIncome;
+  int get totalUpcomingIncome => upcomingIncomeList.fold(0, (s, e) => s + e.tx.amount);
+  
   int get totalAlreadyPaid => alreadyPaidCashDebit + alreadyPaidFixed + alreadyPaidCard;
-  int get totalUpcomingFixed => upcomingFixedList.fold(0, (s, e) => s + e.tx.amount);
+  int get totalUpcomingFixedExpense => upcomingExpenseList.fold(0, (s, e) => s + e.tx.amount);
   int get totalUpcomingCard => upcomingCardPayments.fold(0, (s, e) => s + e.amount);
   int get totalOngoingCard => ongoingCardAccumulations.fold(0, (s, e) => s + e.amount);
-  int get totalUpcoming => totalUpcomingFixed + totalUpcomingCard + totalOngoingCard;
-  int get remaining => thisMonthIncome - totalAlreadyPaid - totalUpcoming;
+  int get totalUpcomingExpense => totalUpcomingFixedExpense + totalUpcomingCard + totalOngoingCard;
+  
+  int get remaining => (totalAlreadyReceived + totalUpcomingIncome) - (totalAlreadyPaid + totalUpcomingExpense);
 }
 
 class AppState extends ChangeNotifier {
@@ -319,11 +325,12 @@ class AppState extends ChangeNotifier {
   }
 
   DashboardSummary getDashboardSummary(int year, int month) {
-    int income = 0;
+    int receivedIncome = 0;
+    List<FixedItemInfo> upIncome = [];
     int cashDebitPaid = 0;
     int fixedPaid = 0;
     int cardPaid = 0;
-    List<FixedExpenseInfo> upFixed = [];
+    List<FixedItemInfo> upExpense = [];
     
     final today = DateTime.now();
     final todayOnly = DateTime(today.year, today.month, today.day);
@@ -337,14 +344,22 @@ class AppState extends ChangeNotifier {
       final isPastOrToday = !txDate.isAfter(todayOnly);
       
       if (t.type == 'income') {
-        income += t.amount;
+        if (t.isRecurring) {
+          if (isPastOrToday) {
+            receivedIncome += t.amount;
+          } else {
+            upIncome.add(FixedItemInfo(t, '${txDate.month}.${txDate.day}'));
+          }
+        } else {
+          receivedIncome += t.amount;
+        }
       } else if (t.type == 'expense') {
         final acc = accounts.firstWhereOrNull((a) => a.id == t.accountId);
         if (t.isRecurring) {
           if (isPastOrToday) {
             fixedPaid += t.amount;
           } else {
-            upFixed.add(FixedExpenseInfo(t, '${txDate.month}.${txDate.day}'));
+            upExpense.add(FixedItemInfo(t, '${txDate.month}.${txDate.day}'));
           }
         } else {
           // Cash or Debit (excluding 'none' ? user wants all non-credit to be cash/debit)
@@ -411,11 +426,12 @@ class AppState extends ChangeNotifier {
     }
 
     return DashboardSummary(
-      thisMonthIncome: income,
+      alreadyReceivedIncome: receivedIncome,
+      upcomingIncomeList: upIncome,
       alreadyPaidCashDebit: cashDebitPaid,
       alreadyPaidFixed: fixedPaid,
       alreadyPaidCard: cardPaid,
-      upcomingFixedList: upFixed,
+      upcomingExpenseList: upExpense,
       upcomingCardPayments: upCard,
       ongoingCardAccumulations: ongoingCard,
     );
