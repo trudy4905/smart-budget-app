@@ -302,6 +302,14 @@ class _AppDrawerState extends State<AppDrawer> {
                       if (recurringTxs.isEmpty && cards.isEmpty) return const SizedBox.shrink();
 
                       int totalExpense = recurringTxs.fold(0, (sum, tx) => sum + (tx.amount ?? 0));
+                      for (final c in cards) {
+                        for (final info in dash.alreadyPaidCardList) {
+                          if (info.account.id == c.id) totalExpense += info.amount;
+                        }
+                        for (final info in dash.upcomingCardPayments) {
+                          if (info.account.id == c.id) totalExpense += info.amount;
+                        }
+                      }
 
                       return Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -367,14 +375,20 @@ class _AppDrawerState extends State<AppDrawer> {
                                       );
                                     }),
                                     ...cards.map((c) {
+                                      int cardPaymentAmount = 0;
+                                      for (final info in dash.alreadyPaidCardList) {
+                                        if (info.account.id == c.id) cardPaymentAmount += info.amount;
+                                      }
+                                      for (final info in dash.upcomingCardPayments) {
+                                        if (info.account.id == c.id) cardPaymentAmount += info.amount;
+                                      }
                                       return _recurringItem(
                                         context, state,
                                         iconBgColor: const Color(0xFFFFF1F2),
                                         iconColor: const Color(0xFFE11D48),
                                         title: '${c.name} 대금 결제',
                                         subtitle: '매달 ${c.paymentDay}일',
-                                        amount: null,
-                                        rightWidget: Text('자동 계산', style: GoogleFonts.notoSansKr(fontSize: 13, fontWeight: FontWeight.w600, color: const Color(0xFF0F172A))),
+                                        amount: cardPaymentAmount,
                                       );
                                     }),
                                     const SizedBox(height: 8),
