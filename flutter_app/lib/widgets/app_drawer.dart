@@ -312,6 +312,7 @@ class _AppDrawerState extends State<AppDrawer> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               GestureDetector(
+                                behavior: HitTestBehavior.opaque,
                                 onTap: () {
                                   setState(() => _isRecurringExpenseExpanded = !_isRecurringExpenseExpanded);
                                   SharedPreferences.getInstance().then((prefs) => prefs.setBool('isRecurringExpenseExpanded', _isRecurringExpenseExpanded));
@@ -410,6 +411,7 @@ class _AppDrawerState extends State<AppDrawer> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               GestureDetector(
+                                behavior: HitTestBehavior.opaque,
                                 onTap: () {
                                   setState(() => _isRecurringIncomeExpanded = !_isRecurringIncomeExpanded);
                                   SharedPreferences.getInstance().then((prefs) => prefs.setBool('isRecurringIncomeExpanded', _isRecurringIncomeExpanded));
@@ -485,6 +487,7 @@ class _AppDrawerState extends State<AppDrawer> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           GestureDetector(
+                            behavior: HitTestBehavior.opaque,
                             onTap: () {
                               setState(() => _isAccountsExpanded = !_isAccountsExpanded);
                               SharedPreferences.getInstance().then((prefs) => prefs.setBool('isAccountsExpanded', _isAccountsExpanded));
@@ -588,6 +591,7 @@ class _AppDrawerState extends State<AppDrawer> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         GestureDetector(
+          behavior: HitTestBehavior.opaque,
           onTap: onTap,
           child: Row(
             children: [
