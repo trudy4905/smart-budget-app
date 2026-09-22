@@ -22,15 +22,31 @@ class _AppDrawerState extends State<AppDrawer> {
   bool _isRecurringIncomeExpanded = true;
   bool _isAccountsExpanded = true;
   
-  bool _isIncomeExpanded = false;
-  bool _isExpenseExpanded = false;
-  bool _isUpcomingIncomeExpanded = false;
-  bool _isUpcomingExpenseExpanded = false;
+  DateTime _drawerCashFlowDate = DateTime.now();
+  
+  String _openPanel = 'none'; // 'none', 'income', 'expense', 'upcoming_income', 'upcoming_expense'
 
   @override
   void initState() {
     super.initState();
+    _drawerCashFlowDate = DateTime.now();
     _loadPrefs();
+  }
+
+  void _changeDrawerMonth(int offset) {
+    setState(() {
+      int newYear = _drawerCashFlowDate.year;
+      int newMonth = _drawerCashFlowDate.month + offset;
+      while (newMonth < 1) {
+        newMonth += 12;
+        newYear -= 1;
+      }
+      while (newMonth > 12) {
+        newMonth -= 12;
+        newYear += 1;
+      }
+      _drawerCashFlowDate = DateTime(newYear, newMonth, 1);
+    });
   }
 
   Future<void> _loadPrefs() async {
@@ -40,11 +56,6 @@ class _AppDrawerState extends State<AppDrawer> {
       _isRecurringExpenseExpanded = prefs.getBool('isRecurringExpenseExpanded') ?? true;
       _isRecurringIncomeExpanded = prefs.getBool('isRecurringIncomeExpanded') ?? true;
       _isAccountsExpanded = prefs.getBool('isAccountsExpanded') ?? true;
-      
-      _isIncomeExpanded = prefs.getBool('isIncomeExpanded') ?? false;
-      _isExpenseExpanded = prefs.getBool('isExpenseExpanded') ?? false;
-      _isUpcomingIncomeExpanded = prefs.getBool('isUpcomingIncomeExpanded') ?? false;
-      _isUpcomingExpenseExpanded = prefs.getBool('isUpcomingExpenseExpanded') ?? false;
     });
   }
 
@@ -52,16 +63,25 @@ class _AppDrawerState extends State<AppDrawer> {
   Widget build(BuildContext context) {
     return Consumer<AppState>(
       builder: (context, state, _) {
-        final dash = state.getDashboardSummary(state.currentDate.year, state.currentDate.month);
+        final dash = state.getDashboardSummary(_drawerCashFlowDate.year, _drawerCashFlowDate.month);
+        bool isSideListOpen = _openPanel != 'none';
 
         return Drawer(
           width: MediaQuery.of(context).size.width * 0.85,
           backgroundColor: const Color(0xFFF9FAFB),
           child: SafeArea(
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+            child: Stack(
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    if (isSideListOpen) setState(() => _openPanel = 'none');
+                  },
+                  child: SizedBox(
+                    width: MediaQuery.of(context).size.width * 0.85,
+                    child: SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
                   // ---- Header ----
                   Container(
                     padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
@@ -89,177 +109,151 @@ class _AppDrawerState extends State<AppDrawer> {
 
                   // ---- 내 자산 현황 ----
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Row(
-                              children: [
-                                Text('내 자산 현황', style: GoogleFonts.notoSansKr(fontSize: 14, color: const Color(0xFF0F172A), fontWeight: FontWeight.w700)),
-                                const SizedBox(width: 6),
-                                GestureDetector(
-                                  onTap: () {
-                                    setState(() => _isAssetVisible = !_isAssetVisible);
-                                    SharedPreferences.getInstance().then((prefs) => prefs.setBool('isAssetVisible', _isAssetVisible));
-                                  },
-                                  child: Icon(_isAssetVisible ? Icons.visibility : Icons.visibility_off, size: 16, color: const Color(0xFF94A3B8)),
-                                ),
-                              ],
-                            ),
-                            GestureDetector(
-                              onTap: () async {
-                                final picked = await showDatePicker(
-                                  context: context,
-                                  initialDate: state.assetReferenceDate,
-                                  firstDate: DateTime(2000),
-                                  lastDate: DateTime(2100),
-                                );
-                                if (picked != null) {
-                                  state.setAssetReferenceDate(picked);
-                                }
-                              },
-                              child: Row(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    child: Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFFFFFF),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: const Color(0xFFE2E8F0)),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
                                 children: [
-                                  Text('${state.assetReferenceDate.year.toString().substring(2)}년 ${state.assetReferenceDate.month}월 ${state.assetReferenceDate.day}일 기준', style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF64748B))),
-                                  const SizedBox(width: 4),
-                                  const Icon(Icons.keyboard_arrow_down, size: 14, color: Color(0xFF64748B)),
+                                  Text('내 자산 현황', style: GoogleFonts.notoSansKr(fontSize: 14, color: const Color(0xFF0F172A), fontWeight: FontWeight.w700)),
+                                  const SizedBox(width: 6),
+                                  GestureDetector(
+                                    onTap: () {
+                                      setState(() => _isAssetVisible = !_isAssetVisible);
+                                      SharedPreferences.getInstance().then((prefs) => prefs.setBool('isAssetVisible', _isAssetVisible));
+                                    },
+                                    child: Icon(_isAssetVisible ? Icons.visibility : Icons.visibility_off, size: 16, color: const Color(0xFF94A3B8)),
+                                  ),
                                 ],
                               ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        Builder(
-                          builder: (context) {
-                            int totalAssets = 0;
-                            final now = state.assetReferenceDate;
-                            final todayStr = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
-                            for (final acc in state.accounts) {
-                              if (!state.selectedAccountIds.contains('all') && !state.selectedAccountIds.contains(acc.id)) continue;
-                              if (acc.isBank) {
-                                int bal = acc.initialBalance;
-                                for (final t in state.transactions) {
-                                  if (t.accountId != acc.id) {
-                                    final txAcc = state.accounts.firstWhereOrNull((a) => a.id == t.accountId);
-                                    if (txAcc == null || !txAcc.isDebit || txAcc.linkedBankAccountId != acc.id) continue;
+                              GestureDetector(
+                                onTap: () async {
+                                  final picked = await showDatePicker(
+                                    context: context,
+                                    initialDate: state.assetReferenceDate,
+                                    firstDate: DateTime(2000),
+                                    lastDate: DateTime(2100),
+                                  );
+                                  if (picked != null) {
+                                    state.setAssetReferenceDate(picked);
                                   }
-                                  if (t.date.compareTo(todayStr) > 0) continue;
-                                  if (t.type == 'income') bal += t.amount;
-                                  if (t.type == 'expense') bal -= t.amount;
+                                },
+                                child: Row(
+                                  children: [
+                                    Text('${state.assetReferenceDate.year.toString().substring(2)}년 ${state.assetReferenceDate.month}월 ${state.assetReferenceDate.day}일 기준', style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF64748B))),
+                                    const SizedBox(width: 4),
+                                    const Icon(Icons.keyboard_arrow_down, size: 14, color: Color(0xFF64748B)),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          Builder(
+                            builder: (context) {
+                              int totalAssets = 0;
+                              final now = state.assetReferenceDate;
+                              final todayStr = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+                              for (final acc in state.accounts) {
+                                if (!state.selectedAccountIds.contains('all') && !state.selectedAccountIds.contains(acc.id)) continue;
+                                if (acc.isBank) {
+                                  int bal = acc.initialBalance;
+                                  for (final t in state.transactions) {
+                                    if (t.accountId != acc.id) {
+                                      final txAcc = state.accounts.firstWhereOrNull((a) => a.id == t.accountId);
+                                      if (txAcc == null || !txAcc.isDebit || txAcc.linkedBankAccountId != acc.id) continue;
+                                    }
+                                    if (t.date.compareTo(todayStr) > 0) continue;
+                                    if (t.type == 'income') bal += t.amount;
+                                    if (t.type == 'expense') bal -= t.amount;
+                                  }
+                                  totalAssets += bal;
                                 }
-                                totalAssets += bal;
                               }
+                              return ImageFiltered(
+                                imageFilter: ImageFilter.blur(sigmaX: _isAssetVisible ? 0 : 8, sigmaY: _isAssetVisible ? 0 : 8),
+                                child: Text('${formatNumber(totalAssets)}원', style: GoogleFonts.notoSansKr(fontSize: 28, fontWeight: FontWeight.w700, color: const Color(0xFF0F172A), letterSpacing: -0.5)),
+                              );
                             }
-                            return ImageFiltered(
-                              imageFilter: ImageFilter.blur(sigmaX: _isAssetVisible ? 0 : 8, sigmaY: _isAssetVisible ? 0 : 8),
-                              child: Text('${formatNumber(totalAssets)}원', style: GoogleFonts.notoSansKr(fontSize: 28, fontWeight: FontWeight.w700, color: const Color(0xFF0F172A), letterSpacing: -0.5)),
-                            );
-                          }
-                        ),
-                      ],
+                          ),
+                        ],
+                      ),
                     ),
                   ),
 
-                  // ---- 9월 현금 흐름 Card ----
+                  // ---- 월 현금 흐름 & 고정 내역 통합 Card ----
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     child: Container(
                       decoration: BoxDecoration(
                         color: const Color(0xFFFFFFFF),
                         borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: const Color(0xFFE2E8F0)),
                       ),
-                      padding: const EdgeInsets.all(20),
                       child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          Text('${state.currentDate.month}월 현금 흐름', style: GoogleFonts.notoSansKr(fontSize: 15, fontWeight: FontWeight.w700, color: const Color(0xFF0F172A))),
-                          const SizedBox(height: 16),
-                          _cashFlowRow(context, state, 'income', Icons.arrow_downward, const Color(0xFF059669), const Color(0xFFECFDF5), '수입', dash.totalAlreadyReceived, 
-                            _isIncomeExpanded, 
-                            () {
-                              setState(() => _isIncomeExpanded = !_isIncomeExpanded);
-                              SharedPreferences.getInstance().then((prefs) => prefs.setBool('isIncomeExpanded', _isIncomeExpanded));
-                            },
-                            dash.alreadyReceivedIncomeList.map((tx) => Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          // ---- 월 현금 흐름 ----
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Expanded(child: Text('${tx.date.substring(5).replaceAll('-', '/')} ${tx.memo.isNotEmpty ? '${tx.category} (${tx.memo})' : tx.category}', style: GoogleFonts.notoSansKr(fontSize: 12, color: const Color(0xFF475569)), overflow: TextOverflow.ellipsis)),
-                                Text('${formatNumber(tx.amount)}원', style: GoogleFonts.notoSansKr(fontSize: 12, color: const Color(0xFF475569))),
-                              ]
-                            )).toList(),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              IconButton(
+                                icon: const Icon(Icons.chevron_left, color: Color(0xFF64748B)),
+                                onPressed: () => _changeDrawerMonth(-1),
+                                padding: EdgeInsets.zero,
+                                constraints: const BoxConstraints(),
+                              ),
+                              Text('${_drawerCashFlowDate.month}월 현금 흐름', style: GoogleFonts.notoSansKr(fontSize: 15, fontWeight: FontWeight.w700, color: const Color(0xFF0F172A))),
+                              IconButton(
+                                icon: const Icon(Icons.chevron_right, color: Color(0xFF64748B)),
+                                onPressed: () => _changeDrawerMonth(1),
+                                padding: EdgeInsets.zero,
+                                constraints: const BoxConstraints(),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          _cashFlowRow(context, state, 'income', Icons.arrow_downward, const Color(0xFF059669), const Color(0xFFECFDF5), '수입', dash.totalAlreadyReceived, 
+                            _openPanel == 'income', 
+                            () {
+                              setState(() => _openPanel = _openPanel == 'income' ? 'none' : 'income');
+                            },
                           ),
                           const SizedBox(height: 12),
                           _cashFlowRow(context, state, 'expense', Icons.arrow_upward, const Color(0xFFE11D48), const Color(0xFFFFF1F2), '지출', dash.totalAlreadyPaid,
-                            _isExpenseExpanded, 
+                            _openPanel == 'expense', 
                             () {
-                              setState(() => _isExpenseExpanded = !_isExpenseExpanded);
-                              SharedPreferences.getInstance().then((prefs) => prefs.setBool('isExpenseExpanded', _isExpenseExpanded));
+                              setState(() => _openPanel = _openPanel == 'expense' ? 'none' : 'expense');
                             },
-                            [
-                              ...dash.alreadyPaidFixedList.map((tx) => Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Expanded(child: Text('${tx.date.substring(5).replaceAll('-', '/')} ${tx.memo.isNotEmpty ? '${tx.category} (${tx.memo})' : tx.category}', style: GoogleFonts.notoSansKr(fontSize: 12, color: const Color(0xFF475569)), overflow: TextOverflow.ellipsis)),
-                                  Text('${formatNumber(tx.amount)}원', style: GoogleFonts.notoSansKr(fontSize: 12, color: const Color(0xFF475569))),
-                                ]
-                              )),
-                              ...dash.alreadyPaidCashDebitList.map((tx) => Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Expanded(child: Text('${tx.date.substring(5).replaceAll('-', '/')} ${tx.memo.isNotEmpty ? '${tx.category} (${tx.memo})' : tx.category}', style: GoogleFonts.notoSansKr(fontSize: 12, color: const Color(0xFF475569)), overflow: TextOverflow.ellipsis)),
-                                  Text('${formatNumber(tx.amount)}원', style: GoogleFonts.notoSansKr(fontSize: 12, color: const Color(0xFF475569))),
-                                ]
-                              )),
-                              ...dash.alreadyPaidCardList.map((c) => Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Expanded(child: Text('${c.paymentDateStr} ${c.account.name} 대금', style: GoogleFonts.notoSansKr(fontSize: 12, color: const Color(0xFF475569)), overflow: TextOverflow.ellipsis)),
-                                  Text('${formatNumber(c.amount)}원', style: GoogleFonts.notoSansKr(fontSize: 12, color: const Color(0xFF475569))),
-                                ]
-                              )),
-                            ]
                           ),
                           const SizedBox(height: 12),
                           _cashFlowRow(context, state, 'upcoming_income', Icons.schedule, const Color(0xFFD97706), const Color(0xFFFEF3C7), '예정수입', dash.totalUpcomingIncome,
-                            _isUpcomingIncomeExpanded, 
+                            _openPanel == 'upcoming_income', 
                             () {
-                              setState(() => _isUpcomingIncomeExpanded = !_isUpcomingIncomeExpanded);
-                              SharedPreferences.getInstance().then((prefs) => prefs.setBool('isUpcomingIncomeExpanded', _isUpcomingIncomeExpanded));
+                              setState(() => _openPanel = _openPanel == 'upcoming_income' ? 'none' : 'upcoming_income');
                             },
-                            dash.upcomingIncomeList.map((e) => Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Expanded(child: Text('${e.dateStr.replaceAll('.', '/')} ${e.tx.memo.isNotEmpty ? '${e.tx.category} (${e.tx.memo})' : e.tx.category}', style: GoogleFonts.notoSansKr(fontSize: 12, color: const Color(0xFF475569)), overflow: TextOverflow.ellipsis)),
-                                Text('${formatNumber(e.tx.amount)}원', style: GoogleFonts.notoSansKr(fontSize: 12, color: const Color(0xFF475569))),
-                              ]
-                            )).toList(),
                           ),
                           const SizedBox(height: 12),
                           _cashFlowRow(context, state, 'upcoming_expense', Icons.calendar_today, const Color(0xFF7C3AED), const Color(0xFFF3E8FF), '예정지출', dash.totalUpcomingExpense,
-                            _isUpcomingExpenseExpanded, 
+                            _openPanel == 'upcoming_expense', 
                             () {
-                              setState(() => _isUpcomingExpenseExpanded = !_isUpcomingExpenseExpanded);
-                              SharedPreferences.getInstance().then((prefs) => prefs.setBool('isUpcomingExpenseExpanded', _isUpcomingExpenseExpanded));
+                              setState(() => _openPanel = _openPanel == 'upcoming_expense' ? 'none' : 'upcoming_expense');
                             },
-                            [
-                              ...dash.upcomingExpenseList.map((e) => Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Expanded(child: Text('${e.dateStr.replaceAll('.', '/')} ${e.tx.memo.isNotEmpty ? '${e.tx.category} (${e.tx.memo})' : e.tx.category}', style: GoogleFonts.notoSansKr(fontSize: 12, color: const Color(0xFF475569)), overflow: TextOverflow.ellipsis)),
-                                  Text('${formatNumber(e.tx.amount)}원', style: GoogleFonts.notoSansKr(fontSize: 12, color: const Color(0xFF475569))),
-                                ]
-                              )),
-                              ...dash.upcomingCardPayments.map((c) => Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Expanded(child: Text('${c.paymentDateStr.replaceAll('.', '/')} ${c.account.name}', style: GoogleFonts.notoSansKr(fontSize: 12, color: const Color(0xFF475569)), overflow: TextOverflow.ellipsis)),
-                                  Text('${formatNumber(c.amount)}원', style: GoogleFonts.notoSansKr(fontSize: 12, color: const Color(0xFF475569))),
-                                ]
-                              )),
-                            ]
                           ),
                           const SizedBox(height: 16),
                           // 이번 달 예상 잔액
@@ -282,41 +276,32 @@ class _AppDrawerState extends State<AppDrawer> {
                         ],
                       ),
                     ),
-                  ),
+                    const Divider(color: Color(0xFFF1F5F9), height: 1),
 
-                  // ---- 이번 달 고정 내역 (지출) ----
-                  Builder(
-                    builder: (context) {
-                      final Map<String, Transaction> recurringMap = {};
-                      for (final t in state.transactions) {
-                        if (t.isRecurring && t.recurringId != null && t.type == 'expense') {
-                          if (!state.selectedAccountIds.contains('all') && !state.selectedAccountIds.contains(t.accountId)) continue;
-                          recurringMap[t.recurringId!] = t;
+                    // ---- 이번 달 고정 내역 (지출) ----
+                    Builder(
+                      builder: (context) {
+                        final Map<String, Transaction> recurringMap = {};
+                        for (final t in state.transactions) {
+                          if (t.isRecurring && t.recurringId != null && t.type == 'expense') {
+                            if (!state.selectedAccountIds.contains('all') && !state.selectedAccountIds.contains(t.accountId)) continue;
+                            recurringMap[t.recurringId!] = t;
+                          }
                         }
-                      }
-                      final recurringTxs = recurringMap.values.toList();
-                      final cards = state.accounts.where((a) => a.isCredit && a.paymentDay != null && (state.selectedAccountIds.contains('all') || state.selectedAccountIds.contains(a.id))).toList();
-                      
-                      if (recurringTxs.isEmpty && cards.isEmpty) return const SizedBox.shrink();
+                        final recurringTxs = recurringMap.values.toList();
+                        final cards = state.accounts.where((a) => a.isCredit && a.paymentDay != null && (state.selectedAccountIds.contains('all') || state.selectedAccountIds.contains(a.id))).toList();
+                        
+                        int totalExpense = recurringTxs.fold(0, (sum, tx) => sum + (tx.amount ?? 0));
+                        for (final c in cards) {
+                          for (final info in dash.alreadyPaidCardList) {
+                            if (info.account.id == c.id) totalExpense += info.amount;
+                          }
+                          for (final info in dash.upcomingCardPayments) {
+                            if (info.account.id == c.id) totalExpense += info.amount;
+                          }
+                        }
 
-                      int totalExpense = recurringTxs.fold(0, (sum, tx) => sum + (tx.amount ?? 0));
-                      for (final c in cards) {
-                        for (final info in dash.alreadyPaidCardList) {
-                          if (info.account.id == c.id) totalExpense += info.amount;
-                        }
-                        for (final info in dash.upcomingCardPayments) {
-                          if (info.account.id == c.id) totalExpense += info.amount;
-                        }
-                      }
-
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFFFFFFF),
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: Column(
+                        return Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               GestureDetector(
@@ -326,10 +311,10 @@ class _AppDrawerState extends State<AppDrawer> {
                                   SharedPreferences.getInstance().then((prefs) => prefs.setBool('isRecurringExpenseExpanded', _isRecurringExpenseExpanded));
                                 },
                                 child: Padding(
-                                  padding: const EdgeInsets.fromLTRB(20, 20, 20, 12),
+                                  padding: const EdgeInsets.fromLTRB(20, 12, 20, 8),
                                   child: Row(
                                     children: [
-                                      Text('이번 달 고정 지출', style: GoogleFonts.notoSansKr(fontSize: 14, color: const Color(0xFF0F172A), fontWeight: FontWeight.w700)),
+                                      Text('고정 지출 (${recurringTxs.length + cards.length})', style: GoogleFonts.notoSansKr(fontSize: 14, color: const Color(0xFF0F172A), fontWeight: FontWeight.w700)),
                                       const Spacer(),
                                       Text(formatNumber(totalExpense), style: GoogleFonts.notoSansKr(fontSize: 14, color: const Color(0xFFE11D48), fontWeight: FontWeight.w700)),
                                       const SizedBox(width: 8),
@@ -340,14 +325,27 @@ class _AppDrawerState extends State<AppDrawer> {
                               ),
                               AnimatedCrossFade(
                                 firstChild: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
+                                    if (recurringTxs.isEmpty && cards.isEmpty)
+                                      Padding(
+                                        padding: const EdgeInsets.only(left: 36, top: 4, bottom: 12),
+                                        child: Text('내역 없음', style: GoogleFonts.notoSansKr(fontSize: 12, color: const Color(0xFF94A3B8))),
+                                      ),
                                     ...recurringTxs.map((tx) {
                                       return _recurringItem(
                                         context, state,
                                         iconBgColor: const Color(0xFFFFF1F2),
                                         iconColor: const Color(0xFFE11D48),
                                         title: tx.memo.isNotEmpty ? '${tx.category} (${tx.memo})' : tx.category,
-                                        subtitle: '${state.currentDate.month}/${int.tryParse(tx.date.split('-').last) ?? 0}',
+                                        titleTag: (state.accounts.firstWhereOrNull((a) => a.id == tx.accountId)?.isCredit ?? false)
+                                            ? Container(
+                                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                                decoration: BoxDecoration(color: const Color(0xFFF1F5F9), borderRadius: BorderRadius.circular(4)),
+                                                child: Text('신용', style: GoogleFonts.notoSansKr(fontSize: 10, fontWeight: FontWeight.w600, color: const Color(0xFF64748B))),
+                                              )
+                                            : null,
+                                        subtitle: '${_drawerCashFlowDate.month}/${int.tryParse(tx.date.split('-').last) ?? 0}',
                                         amount: tx.amount,
                                         onDelete: () {
                                           showDialog(
@@ -373,10 +371,10 @@ class _AppDrawerState extends State<AppDrawer> {
                                       );
                                     }),
                                     ...cards.map((c) {
-                                      final cardInfo = state.getCardPaymentInfo(c, state.currentDate.year, state.currentDate.month);
+                                      final cardInfo = state.getCardPaymentInfo(c, _drawerCashFlowDate.year, _drawerCashFlowDate.month);
                                       int cardPaymentAmount = cardInfo.amount;
                                       
-                                      String subtitle = '${cardInfo.startStr.replaceAll('.', '/')}~${cardInfo.endStr.replaceAll('.', '/')} | ${cardInfo.paymentDateStr.replaceAll('.', '/')}';
+                                      String subtitle = '${cardInfo.startStr}~${cardInfo.endStr} | ${cardInfo.paymentDateStr}';
                                       Widget titleTag;
                                       if (cardInfo.isFinalized) {
                                         titleTag = Container(
@@ -410,36 +408,26 @@ class _AppDrawerState extends State<AppDrawer> {
                                 duration: const Duration(milliseconds: 200),
                               ),
                             ],
-                          ),
-                        ),
-                      );
-                    }
-                  ),
-
-                  // ---- 이번 달 고정 수입 내역 ----
-                  Builder(
-                    builder: (context) {
-                      final Map<String, Transaction> recurringMap = {};
-                      for (final t in state.transactions) {
-                        if (t.isRecurring && t.recurringId != null && t.type == 'income') {
-                          if (!state.selectedAccountIds.contains('all') && !state.selectedAccountIds.contains(t.accountId)) continue;
-                          recurringMap[t.recurringId!] = t;
+                          );
                         }
-                      }
-                      final recurringTxs = recurringMap.values.toList();
-                      
-                      if (recurringTxs.isEmpty) return const SizedBox.shrink();
+                      ),
+                      const Divider(color: Color(0xFFF1F5F9), height: 1),
 
-                      int totalIncome = recurringTxs.fold(0, (sum, tx) => sum + (tx.amount ?? 0));
+                      // ---- 이번 달 고정 수입 내역 ----
+                      Builder(
+                        builder: (context) {
+                          final Map<String, Transaction> recurringMap = {};
+                          for (final t in state.transactions) {
+                            if (t.isRecurring && t.recurringId != null && t.type == 'income') {
+                              if (!state.selectedAccountIds.contains('all') && !state.selectedAccountIds.contains(t.accountId)) continue;
+                              recurringMap[t.recurringId!] = t;
+                            }
+                          }
+                          final recurringTxs = recurringMap.values.toList();
+                          
+                          int totalIncome = recurringTxs.fold(0, (sum, tx) => sum + (tx.amount ?? 0));
 
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFFFFFFF),
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: Column(
+                          return Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               GestureDetector(
@@ -449,10 +437,10 @@ class _AppDrawerState extends State<AppDrawer> {
                                   SharedPreferences.getInstance().then((prefs) => prefs.setBool('isRecurringIncomeExpanded', _isRecurringIncomeExpanded));
                                 },
                                 child: Padding(
-                                  padding: const EdgeInsets.fromLTRB(20, 20, 20, 12),
+                                  padding: const EdgeInsets.fromLTRB(20, 12, 20, 8),
                                   child: Row(
                                     children: [
-                                      Text('이번 달 고정 수입', style: GoogleFonts.notoSansKr(fontSize: 14, color: const Color(0xFF0F172A), fontWeight: FontWeight.w700)),
+                                      Text('고정 수입 (${recurringTxs.length})', style: GoogleFonts.notoSansKr(fontSize: 14, color: const Color(0xFF0F172A), fontWeight: FontWeight.w700)),
                                       const Spacer(),
                                       Text(formatNumber(totalIncome), style: GoogleFonts.notoSansKr(fontSize: 14, color: const Color(0xFF059669), fontWeight: FontWeight.w700)),
                                       const SizedBox(width: 8),
@@ -463,14 +451,20 @@ class _AppDrawerState extends State<AppDrawer> {
                               ),
                               AnimatedCrossFade(
                                 firstChild: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
+                                    if (recurringTxs.isEmpty)
+                                      Padding(
+                                        padding: const EdgeInsets.only(left: 36, top: 4, bottom: 12),
+                                        child: Text('내역 없음', style: GoogleFonts.notoSansKr(fontSize: 12, color: const Color(0xFF94A3B8))),
+                                      ),
                                     ...recurringTxs.map((tx) {
                                       return _recurringItem(
                                         context, state,
                                         iconBgColor: const Color(0xFFECFDF5),
                                         iconColor: const Color(0xFF059669),
                                         title: tx.memo.isNotEmpty ? '${tx.category} (${tx.memo})' : tx.category,
-                                        subtitle: '${state.currentDate.month}/${int.tryParse(tx.date.split('-').last) ?? 0}',
+                                        subtitle: '${_drawerCashFlowDate.month}/${int.tryParse(tx.date.split('-').last) ?? 0}',
                                         amount: tx.amount,
                                         onDelete: () {
                                           showDialog(
@@ -503,10 +497,12 @@ class _AppDrawerState extends State<AppDrawer> {
                                 duration: const Duration(milliseconds: 200),
                               ),
                             ],
-                          ),
-                        ),
-                      );
-                    }
+                          );
+                        }
+                      ),
+                        ],
+                      ),
+                    ),
                   ),
 
                   // ---- 등록 계좌/카드 ----
@@ -516,6 +512,7 @@ class _AppDrawerState extends State<AppDrawer> {
                       decoration: BoxDecoration(
                         color: const Color(0xFFFFFFFF),
                         borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: const Color(0xFFE2E8F0)),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -527,7 +524,7 @@ class _AppDrawerState extends State<AppDrawer> {
                               SharedPreferences.getInstance().then((prefs) => prefs.setBool('isAccountsExpanded', _isAccountsExpanded));
                             },
                             child: Padding(
-                              padding: const EdgeInsets.fromLTRB(20, 20, 20, 12),
+                              padding: const EdgeInsets.fromLTRB(20, 12, 20, 8),
                               child: Row(
                                 children: [
                                   Text('등록 계좌/카드', style: GoogleFonts.notoSansKr(fontSize: 14, color: const Color(0xFF0F172A), fontWeight: FontWeight.w700)),
@@ -564,51 +561,115 @@ class _AppDrawerState extends State<AppDrawer> {
                           AnimatedCrossFade(
                             firstChild: Column(
                               children: [
-                                ...state.accounts.map((acc) {
-                                  int? amount;
-                                  String subLabel = '';
-                                  if (acc.isBank) {
-                                    int bal = acc.initialBalance;
-                                    final now = DateTime.now();
-                                    final todayStr = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
-                                    for (final t in state.transactions) {
-                                      if (t.accountId != acc.id) {
-                                        final txAcc = state.accounts.firstWhereOrNull((a) => a.id == t.accountId);
-                                        if (txAcc == null || !txAcc.isDebit || txAcc.linkedBankAccountId != acc.id) continue;
+                                Builder(
+                                  builder: (context) {
+                                    final banks = state.accounts.where((a) => a.isBank).toList();
+                                    final cards = state.accounts.where((a) => !a.isBank).toList();
+                                    
+                                    Widget buildAccNode(Account acc, {bool isSubItem = false}) {
+                                      int? amount;
+                                      String subLabel = '';
+                                      String? rightTopText;
+                                      String? rightBottomText;
+
+                                      String? linkedBankName;
+                                      if (acc.linkedBankAccountId != null) {
+                                        final linkedAcc = state.accounts.firstWhereOrNull((a) => a.id == acc.linkedBankAccountId);
+                                        if (linkedAcc != null) linkedBankName = linkedAcc.name;
                                       }
-                                      if (t.date.compareTo(todayStr) > 0) continue;
-                                      if (t.type == 'income') bal += t.amount;
-                                      if (t.type == 'expense') bal -= t.amount;
+
+                                      String? thirdLineText;
+                                      if (linkedBankName != null && !acc.isBank && !isSubItem) {
+                                        thirdLineText = '[$linkedBankName] 출금';
+                                      }
+
+                                      if (acc.isBank) {
+                                        int bal = acc.initialBalance;
+                                        final now = DateTime.now();
+                                        final todayStr = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+                                        for (final t in state.transactions) {
+                                          if (t.accountId != acc.id) {
+                                            final txAcc = state.accounts.firstWhereOrNull((a) => a.id == t.accountId);
+                                            if (txAcc == null || !txAcc.isDebit || txAcc.linkedBankAccountId != acc.id) continue;
+                                          }
+                                          if (t.date.compareTo(todayStr) > 0) continue;
+                                          if (t.type == 'income') bal += t.amount;
+                                          if (t.type == 'expense') bal -= t.amount;
+                                        }
+                                        amount = bal;
+                                        subLabel = '[통장] ${acc.bank}';
+                                      } else if (acc.isCredit) {
+                                        amount = null;
+                                        final cardInfo = state.getCardPaymentInfo(acc, state.currentDate.year, state.currentDate.month);
+                                        subLabel = '[신용] ${acc.bank}';
+                                        rightTopText = '${cardInfo.startStr.replaceAll('.', '/')}~${cardInfo.endStr.replaceAll('.', '/')}';
+                                        rightBottomText = '${cardInfo.paymentDateStr.replaceAll('.', '/')} 결제';
+                                      } else if (acc.isDebit) {
+                                        amount = null;
+                                        subLabel = '[체크] ${acc.bank}';
+                                      }
+                                      
+                                      return _accountCheckItem(
+                                        context, state,
+                                        id: acc.id,
+                                        icon: acc.isCredit ? Icons.credit_card : acc.isDebit ? Icons.credit_card : Icons.account_balance,
+                                        label: acc.name,
+                                        subLabel: subLabel,
+                                        thirdLineText: thirdLineText,
+                                        rightTopText: rightTopText,
+                                        rightBottomText: rightBottomText,
+                                        color: hexToColor(acc.color),
+                                        amount: amount,
+                                        isAll: false,
+                                        isSubItem: isSubItem,
+                                        onAction: (action) {
+                                          if (action == 'edit') {
+                                            _showAddAccountDialog(context, state, editAccount: acc);
+                                          } else if (action == 'delete') {
+                                            _showDeleteConfirmation(context, state, acc);
+                                          }
+                                        },
+                                      );
                                     }
-                                    amount = bal;
-                                    subLabel = '[통장] ${acc.bank}';
-                                  } else if (acc.isCredit) {
-                                    amount = null;
-                                    final cardInfo = state.getCardPaymentInfo(acc, state.currentDate.year, state.currentDate.month);
-                                    subLabel = '[신용] ${acc.bank} | ${cardInfo.startStr.replaceAll('.', '/')}~${cardInfo.endStr.replaceAll('.', '/')} | ${cardInfo.paymentDateStr.replaceAll('.', '/')}';
-                                  } else if (acc.isDebit) {
-                                    amount = null;
-                                    subLabel = '[체크] ${acc.bank}';
-                                  }
-                                  
-                                  return _accountCheckItem(
-                                    context, state,
-                                    id: acc.id,
-                                    icon: acc.isCredit ? Icons.credit_card : acc.isDebit ? Icons.credit_card : Icons.account_balance,
-                                    label: acc.name,
-                                    subLabel: subLabel,
-                                    color: hexToColor(acc.color),
-                                    amount: amount,
-                                    isAll: false,
-                                    onAction: (action) {
-                                      if (action == 'edit') {
-                                        _showAddAccountDialog(context, state, editAccount: acc);
-                                      } else if (action == 'delete') {
-                                        _showDeleteConfirmation(context, state, acc);
+
+                                    List<Widget> children = [];
+
+                                    Widget buildDivider(String text) {
+                                      return Padding(
+                                        padding: const EdgeInsets.fromLTRB(20, 10, 20, 4),
+                                        child: Row(
+                                          children: [
+                                            const SizedBox(width: 16, child: Divider(color: Color(0xFFE2E8F0))),
+                                            Padding(
+                                              padding: const EdgeInsets.symmetric(horizontal: 8),
+                                              child: Text(text, style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF94A3B8))),
+                                            ),
+                                            const Expanded(child: Divider(color: Color(0xFFE2E8F0))),
+                                          ],
+                                        ),
+                                      );
+                                    }
+
+                                    if (banks.isNotEmpty) {
+                                      for (final bank in banks) {
+                                        children.add(buildAccNode(bank, isSubItem: false));
+                                        final linkedCards = cards.where((c) => c.linkedBankAccountId == bank.id).toList();
+                                        for (final card in linkedCards) {
+                                          children.add(buildAccNode(card, isSubItem: true));
+                                        }
                                       }
-                                    },
-                                  );
-                                }),
+                                    }
+                                    
+                                    final unlinkedCards = cards.where((c) => c.linkedBankAccountId == null || !banks.any((b) => b.id == c.linkedBankAccountId)).toList();
+                                    if (unlinkedCards.isNotEmpty) {
+                                      children.add(buildDivider('연결된 계좌 없음 (${unlinkedCards.length})'));
+                                      for (final card in unlinkedCards) {
+                                        children.add(buildAccNode(card, isSubItem: false));
+                                      }
+                                    }
+                                    return Column(children: children);
+                                  }
+                                ),
                                 const SizedBox(height: 8),
                               ],
                             ),
@@ -666,7 +727,28 @@ class _AppDrawerState extends State<AppDrawer> {
                   ),
                   const SizedBox(height: 24),
                 ],
-              ),
+                      ),
+                    ),
+                  ),
+                ),
+                if (isSideListOpen)
+                  Positioned(
+                    right: 0,
+                    top: 0,
+                    bottom: 0,
+                    width: MediaQuery.of(context).size.width * 0.85 * 0.5,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF8FAFC),
+                        boxShadow: [
+                          BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(-2, 0)),
+                        ],
+                        border: const Border(left: BorderSide(color: Color(0xFFE2E8F0))),
+                      ),
+                      child: _buildRightPanelList(dash),
+                    ),
+                  ),
+              ],
             ),
           ),
         );
@@ -674,9 +756,91 @@ class _AppDrawerState extends State<AppDrawer> {
     );
   }
 
+  Widget _buildRightPanelList(DashboardSummary dash) {
+    String title = '';
+    List<Widget> children = [];
+
+    if (_openPanel == 'income') {
+      title = '수입 내역';
+      children = dash.alreadyReceivedIncomeList.map((tx) => _buildListItem(tx.date, tx.category, tx.memo, tx.amount, const Color(0xFF059669))).toList();
+    } else if (_openPanel == 'expense') {
+      title = '지출 내역';
+      children = [
+        ...dash.alreadyPaidFixedList.map((tx) => _buildListItem(tx.date, tx.category, tx.memo, tx.amount, const Color(0xFFE11D48))),
+        ...dash.alreadyPaidCashDebitList.map((tx) => _buildListItem(tx.date, tx.category, tx.memo, tx.amount, const Color(0xFFE11D48))),
+        ...dash.alreadyPaidCardList.map((c) => _buildListItem(c.paymentDateStr, '${c.account.name} 대금', '', c.amount, const Color(0xFFE11D48))),
+      ];
+    } else if (_openPanel == 'upcoming_income') {
+      title = '예정 수입 내역';
+      children = dash.upcomingIncomeList.map((e) => _buildListItem(e.dateStr, e.tx.category, e.tx.memo, e.tx.amount, const Color(0xFFD97706))).toList();
+    } else if (_openPanel == 'upcoming_expense') {
+      title = '예정 지출 내역';
+      children = [
+        ...dash.upcomingExpenseList.map((e) => _buildListItem(e.dateStr, e.tx.category, e.tx.memo, e.tx.amount, const Color(0xFF7C3AED))),
+        ...dash.upcomingCardPayments.map((c) => _buildListItem(c.paymentDateStr, '${c.account.name} 예정대금', '', c.amount, const Color(0xFF7C3AED))),
+      ];
+    }
+
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(16),
+          width: double.infinity,
+          decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: Color(0xFFE2E8F0)))),
+          child: Text(title, style: GoogleFonts.notoSansKr(fontSize: 14, fontWeight: FontWeight.w700, color: const Color(0xFF0F172A))),
+        ),
+        Expanded(
+          child: children.isEmpty
+              ? Center(child: Text('내역 없음', style: GoogleFonts.notoSansKr(color: const Color(0xFF94A3B8))))
+              : ListView(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  children: children,
+                ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildListItem(String date, String title, String memo, int? amount, Color amountColor) {
+    String formattedDate = date;
+    if (date.contains('-')) {
+      final parts = date.split('-');
+      if (parts.length >= 3) {
+        formattedDate = '${parts[1]}/${parts[2]}';
+      }
+    }
+    
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Text(
+                  memo.isNotEmpty ? '$title ($memo)' : title,
+                  style: GoogleFonts.notoSansKr(fontSize: 13, color: const Color(0xFF334155), fontWeight: FontWeight.w500),
+                ),
+              ),
+              if (amount != null)
+                Text(
+                  '${formatNumber(amount)}원',
+                  style: GoogleFonts.notoSansKr(fontSize: 13, fontWeight: FontWeight.w600, color: amountColor),
+                ),
+            ],
+          ),
+          const SizedBox(height: 2),
+          Text(formattedDate, style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF94A3B8))),
+        ],
+      ),
+    );
+  }
+
   Widget _cashFlowRow(
     BuildContext context, AppState state, String filterKey, IconData icon, Color color, Color bgColor, String title, int amount,
-    bool isExpanded, VoidCallback onTap, List<Widget> children
+    bool isExpanded, VoidCallback onTap,
   ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -684,35 +848,31 @@ class _AppDrawerState extends State<AppDrawer> {
         GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTap: onTap,
-          child: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(6),
-                decoration: BoxDecoration(
-                  color: bgColor,
-                  shape: BoxShape.circle,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+            decoration: BoxDecoration(
+              color: isExpanded ? const Color(0xFFF1F5F9) : Colors.transparent,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: bgColor,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(icon, size: 14, color: color),
                 ),
-                child: Icon(icon, size: 14, color: color),
-              ),
-              const SizedBox(width: 12),
-              Text(title, style: GoogleFonts.notoSansKr(fontSize: 13, color: const Color(0xFF334155), fontWeight: FontWeight.w600)),
-              const Spacer(),
-              Text('${formatNumber(amount)}원', style: GoogleFonts.notoSansKr(fontSize: 13, fontWeight: FontWeight.w700, color: const Color(0xFF0F172A))),
-              const SizedBox(width: 8),
-              Icon(isExpanded ? Icons.keyboard_arrow_down : Icons.keyboard_arrow_right, size: 16, color: const Color(0xFF94A3B8)),
-            ],
+                const SizedBox(width: 12),
+                Text(title, style: GoogleFonts.notoSansKr(fontSize: 13, color: const Color(0xFF334155), fontWeight: FontWeight.w600)),
+                const Spacer(),
+                Text('${formatNumber(amount)}원', style: GoogleFonts.notoSansKr(fontSize: 13, fontWeight: FontWeight.w700, color: const Color(0xFF0F172A))),
+                const SizedBox(width: 8),
+                Icon(Icons.keyboard_arrow_right, size: 16, color: isExpanded ? const Color(0xFF0F172A) : const Color(0xFF94A3B8)),
+              ],
+            ),
           ),
-        ),
-        AnimatedCrossFade(
-          firstChild: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: children.isNotEmpty 
-              ? children.map((w) => Padding(padding: const EdgeInsets.only(top: 8, left: 36), child: w)).toList()
-              : [Padding(padding: const EdgeInsets.only(top: 8, left: 36), child: Text('내역 없음', style: GoogleFonts.notoSansKr(fontSize: 12, color: const Color(0xFF94A3B8))))],
-          ),
-          secondChild: const SizedBox(width: double.infinity),
-          crossFadeState: isExpanded ? CrossFadeState.showFirst : CrossFadeState.showSecond,
-          duration: const Duration(milliseconds: 200),
         ),
       ],
     );
@@ -722,8 +882,9 @@ class _AppDrawerState extends State<AppDrawer> {
     required Color iconBgColor, required Color iconColor, required String title, Widget? titleTag, required String subtitle, required int? amount, Widget? rightWidget, VoidCallback? onDelete
   }) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Container(
             padding: const EdgeInsets.all(8),
@@ -769,15 +930,19 @@ class _AppDrawerState extends State<AppDrawer> {
   }
 
   Widget _accountCheckItem(
-    BuildContext context,
-    AppState state, {
+    BuildContext context, AppState state, {
     required String id,
     required IconData icon,
     required String label,
     required String subLabel,
     required Color color,
-    required int? amount,
-    required bool isAll,
+    int? amount,
+    String? thirdLineText,
+    String? rightTopText,
+    String? rightBottomText,
+    bool isAll = false,
+    bool isSubItem = false,
+    List<PopupMenuEntry<String>>? popupMenuItems,
     Function(String)? onAction,
   }) {
     final isAllActive = state.selectedAccountIds.contains('all');
@@ -807,9 +972,14 @@ class _AppDrawerState extends State<AppDrawer> {
         }
       },
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+        padding: EdgeInsets.symmetric(horizontal: 20, vertical: isSubItem ? 0 : 2),
         child: Row(
           children: [
+            if (isSubItem)
+              const Padding(
+                padding: EdgeInsets.only(left: 8, right: 8),
+                child: Icon(Icons.subdirectory_arrow_right, size: 16, color: Color(0xFFCBD5E1)),
+              ),
             AnimatedContainer(
               duration: const Duration(milliseconds: 150),
               width: 20, height: 20,
@@ -827,13 +997,48 @@ class _AppDrawerState extends State<AppDrawer> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(label,
-                      style: GoogleFonts.notoSansKr(
-                        fontSize: 13,
-                        color: isChecked ? const Color(0xFF0F172A) : const Color(0xFF64748B),
-                        fontWeight: isChecked ? FontWeight.w600 : FontWeight.w400,
-                      )),
-                  Text(subLabel, style: GoogleFonts.notoSansKr(fontSize: 10, color: const Color(0xFF94A3B8))),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(label,
+                            style: GoogleFonts.notoSansKr(
+                              fontSize: 13,
+                              color: isChecked ? const Color(0xFF0F172A) : const Color(0xFF64748B),
+                              fontWeight: isChecked ? FontWeight.w600 : FontWeight.w400,
+                            ), overflow: TextOverflow.ellipsis),
+                      ),
+                      if (rightTopText != null)
+                        Text(rightTopText, style: GoogleFonts.notoSansKr(fontSize: 10, color: const Color(0xFF64748B))),
+                    ],
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(subLabel, style: GoogleFonts.notoSansKr(fontSize: 10, color: const Color(0xFF94A3B8)), overflow: TextOverflow.ellipsis),
+                      ),
+                      if (rightBottomText != null)
+                        Text(rightBottomText, style: GoogleFonts.notoSansKr(fontSize: 10, color: const Color(0xFF0F172A), fontWeight: FontWeight.w600)),
+                    ],
+                  ),
+                  if (thirdLineText != null)
+                    Container(
+                      margin: const EdgeInsets.only(top: 4),
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF1F5F9),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.link, size: 10, color: Color(0xFF64748B)),
+                          const SizedBox(width: 4),
+                          Text(thirdLineText, style: GoogleFonts.notoSansKr(fontSize: 9, color: const Color(0xFF64748B))),
+                        ],
+                      ),
+                    ),
                 ],
               ),
             ),
@@ -850,7 +1055,7 @@ class _AppDrawerState extends State<AppDrawer> {
                 icon: const Icon(Icons.more_vert, size: 16, color: Color(0xFF94A3B8)),
                 color: const Color(0xFFFFFFFF),
                 onSelected: onAction,
-                itemBuilder: (ctx) => [
+                itemBuilder: (ctx) => popupMenuItems ?? [
                   PopupMenuItem(value: 'edit', child: Text('수정', style: GoogleFonts.notoSansKr(fontSize: 13, color: const Color(0xFF0F172A)))),
                   PopupMenuItem(value: 'delete', child: Text('삭제', style: GoogleFonts.notoSansKr(fontSize: 13, color: const Color(0xFFE11D48)))),
                 ],

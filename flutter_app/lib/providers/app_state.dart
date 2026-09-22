@@ -354,7 +354,7 @@ class AppState extends ChangeNotifier {
             receivedIncome += t.amount;
             receivedIncomeList.add(t);
           } else {
-            upIncome.add(FixedItemInfo(t, '${txDate.month}.${txDate.day}'));
+            upIncome.add(FixedItemInfo(t, '${txDate.month.toString().padLeft(2, '0')}/${txDate.day.toString().padLeft(2, '0')}'));
           }
         } else {
           receivedIncome += t.amount;
@@ -367,7 +367,7 @@ class AppState extends ChangeNotifier {
             fixedPaid += t.amount;
             fixedPaidList.add(t);
           } else {
-            upExpense.add(FixedItemInfo(t, '${txDate.month}.${txDate.day}'));
+            upExpense.add(FixedItemInfo(t, '${txDate.month.toString().padLeft(2, '0')}/${txDate.day.toString().padLeft(2, '0')}'));
           }
         } else {
           // Cash or Debit
@@ -396,7 +396,7 @@ class AppState extends ChangeNotifier {
       final infoM = getCardPaymentInfo(acc, year, month);
       int amountM = infoM.amount;
       
-      if (amountM > 0) {
+      if (amountM >= 0) { // changed from > 0 to >= 0 so cards with 0 bill are shown
         final paymentDateM = _clampDate(year, month, acc.paymentDay ?? 25);
         if (!paymentDateM.isAfter(todayOnly)) {
           cardPaid += amountM;
@@ -415,12 +415,12 @@ class AppState extends ChangeNotifier {
         // Sum up to today
         int amountNext = _sumCardTransactions(acc.id, startNext, todayOnly.isBefore(endNext) ? todayOnly : endNext);
         
-        if (amountNext > 0) {
+        if (amountNext >= 0) {
           ongoingCard.add(CardPaymentInfo(
             account: acc, 
-            startStr: '${startNext.month}.${startNext.day}', 
+            startStr: '${startNext.month.toString().padLeft(2, '0')}/${startNext.day.toString().padLeft(2, '0')}', 
             endStr: '진행중', 
-            paymentDateStr: '${paymentDateNext.month}.${paymentDateNext.day}', 
+            paymentDateStr: '${paymentDateNext.month.toString().padLeft(2, '0')}/${paymentDateNext.day.toString().padLeft(2, '0')}', 
             amount: amountNext,
             isFinalized: false
           ));
@@ -457,9 +457,9 @@ class AppState extends ChangeNotifier {
 
     return CardPaymentInfo(
       account: acc, 
-      startStr: '${startM.month}.${startM.day}', 
-      endStr: '${endM.month}.${endM.day}', 
-      paymentDateStr: '${paymentDateM.month}.${paymentDateM.day}', 
+      startStr: '${startM.month.toString().padLeft(2, '0')}/${startM.day.toString().padLeft(2, '0')}', 
+      endStr: '${endM.month.toString().padLeft(2, '0')}/${endM.day.toString().padLeft(2, '0')}', 
+      paymentDateStr: '${paymentDateM.month.toString().padLeft(2, '0')}/${paymentDateM.day.toString().padLeft(2, '0')}', 
       amount: amountM,
       isFinalized: isFinalized
     );
@@ -630,7 +630,7 @@ class AppState extends ChangeNotifier {
 
   // ---- Sample data ----
   static List<Account> _sampleAccounts() => [
-    Account(id: 'acc_main_bank', name: '주거래 통장', type: 'bank', color: '#3B82F6', initialBalance: 0, bank: '국민은행')
+    Account(id: 'acc_main_bank', name: '주거래 통장', type: 'bank', color: '#3B82F6', initialBalance: 0, bank: 'KB국민은행')
   ];
 
   static List<Transaction> _sampleTransactions() => [];
