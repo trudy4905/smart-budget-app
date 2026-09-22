@@ -357,8 +357,12 @@ class AppState extends ChangeNotifier {
             upIncome.add(FixedItemInfo(t, '${txDate.month.toString().padLeft(2, '0')}/${txDate.day.toString().padLeft(2, '0')}'));
           }
         } else {
-          receivedIncome += t.amount;
-          receivedIncomeList.add(t);
+          if (isPastOrToday) {
+            receivedIncome += t.amount;
+            receivedIncomeList.add(t);
+          } else {
+            upIncome.add(FixedItemInfo(t, '${txDate.month.toString().padLeft(2, '0')}/${txDate.day.toString().padLeft(2, '0')}'));
+          }
         }
       } else if (t.type == 'expense') {
         final acc = accounts.firstWhereOrNull((a) => a.id == t.accountId);
@@ -480,31 +484,128 @@ class AppState extends ChangeNotifier {
     return sum;
   }
 
+  int getExpectedNetAssetAtEnd(int year, int month) {
+    int bankInitial = 0;
+    int totalIncome = 0;
+    int totalExpense = 0;
+    
+    for (final a in accounts.where((a) => a.isBank)) {
+      bankInitial += a.initialBalance;
+    }
+    
+    // Calculate the last day of the given month
+    final endOfMonth = DateTime(year, month + 1, 0);
+    final endStr = '${endOfMonth.year}-${endOfMonth.month.toString().padLeft(2, '0')}-${endOfMonth.day.toString().padLeft(2, '0')}';
+
+    for (final t in transactions) {
+      if (t.date.compareTo(endStr) > 0) continue; // skip transactions after the end of this month
+      
+      if (t.type == 'income') {
+        totalIncome += t.amount;
+      } else if (t.type == 'expense') {
+        totalExpense += t.amount;
+      }
+    }
+
+    return bankInitial + totalIncome - totalExpense;
+  }
+
   int getNetAssets() {
     int bankInitial = 0;
-    int bankIncome = 0;
-    int bankExpense = 0;
+    int totalIncome = 0;
+    int totalExpense = 0;
+    
     final now = assetReferenceDate;
     final todayStr = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
 
     for (final a in accounts.where((a) => a.isBank)) {
       bankInitial += a.initialBalance;
     }
+    
     for (final t in transactions) {
-      if (t.date.compareTo(todayStr) > 0) continue;
-      final acc = accounts.firstWhereOrNull((a) => a.id == t.accountId);
-      if (acc != null && (acc.isBank || acc.isDebit)) {
-        if (t.type == 'income') bankIncome += t.amount;
-        if (t.type == 'expense') bankExpense += t.amount;
+      if (t.date.compareTo(todayStr) > 0) continue; // skip future transactions
+      
+      if (t.type == 'income') {
+        totalIncome += t.amount;
+      } else if (t.type == 'expense') {
+        totalExpense += t.amount;
       }
     }
 
-    int cardBills = 0;
-    for (final card in accounts.where((a) => a.isCredit)) {
-      cardBills += getCardBillForMonth(card.id, currentDate.year, currentDate.month);
-    }
+    return bankInitial + totalIncome - totalExpense;
+  }
 
-    return bankInitial + bankIncome - bankExpense - cardBills;
+  bool _isCardTransactionSettled(Account card, DateTime txDate, DateTime upToDate) {
+    for (int offset = -1; offset <= 3; offset++) {
+      int y = txDate.year;
+      int m = txDate.month + offset;
+      while (m < 1) { m += 12; y--; }
+      while (m > 12) { m -= 12; y++; }
+      
+      final startM = _clampDate(y, m + (card.billingStartMonth ?? -1), card.billingStartDay ?? 1);
+      final endM = _clampDate(y, m + (card.billingEndMonth ?? -1), card.billingEndDay ?? 31);
+      
+      if (!txDate.isBefore(startM) && !txDate.isAfter(endM)) {
+        final paymentDate = _clampDate(y, m, card.paymentDay ?? 25);
+        return !paymentDate.isAfter(upToDate);
+      }
+    }
+    return false;
+  }
+
+  int getBankAccountBalance(String bankAccountId, {DateTime? upToDate}) {
+    final now = upToDate ?? assetReferenceDate;
+    final todayStr = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+    final nowOnly = DateTime(now.year, now.month, now.day);
+    
+    final bank = accounts.firstWhereOrNull((a) => a.id == bankAccountId);
+    if (bank == null) return 0;
+    
+    int bal = bank.initialBalance;
+    for (final t in transactions) {
+      if (t.date.compareTo(todayStr) > 0) continue;
+      
+      bool appliesToBank = false;
+      if (t.accountId == bankAccountId) {
+        appliesToBank = true;
+      } else {
+        final txAcc = accounts.firstWhereOrNull((a) => a.id == t.accountId);
+        if (txAcc != null && txAcc.linkedBankAccountId == bankAccountId) {
+          if (txAcc.isDebit) {
+            appliesToBank = true;
+          } else if (txAcc.isCredit) {
+            final parts = t.date.split('-');
+            if (parts.length >= 3) {
+              final txDate = DateTime(int.parse(parts[0]), int.parse(parts[1]), int.parse(parts[2]));
+              if (_isCardTransactionSettled(txAcc, txDate, nowOnly)) {
+                appliesToBank = true;
+              }
+            }
+          }
+        }
+      }
+      
+      if (appliesToBank) {
+        if (t.type == 'income') bal += t.amount;
+        if (t.type == 'expense') bal -= t.amount;
+      }
+    }
+    return bal;
+  }
+
+  int getCreditCardDebt(String cardId, {DateTime? upToDate}) {
+    final now = upToDate ?? assetReferenceDate;
+    final todayStr = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+    
+    int debt = 0;
+    for (final t in transactions) {
+      if (t.accountId == cardId) {
+        if (t.date.compareTo(todayStr) > 0) continue;
+        if (t.type == 'expense') debt -= t.amount;
+        if (t.type == 'income') debt += t.amount;
+      }
+    }
+    return debt;
   }
 
   int getCardBillForMonth(String cardId, int year, int month) {

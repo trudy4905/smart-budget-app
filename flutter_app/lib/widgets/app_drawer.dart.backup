@@ -161,16 +161,32 @@ class _AppDrawerState extends State<AppDrawer> {
                           Builder(
                             builder: (context) {
                               int totalAssets = 0;
-                              if (state.selectedAccountIds.contains('all')) {
-                                totalAssets = state.getNetAssets();
-                              } else {
-                                for (final acc in state.accounts) {
-                                  if (!state.selectedAccountIds.contains(acc.id)) continue;
-                                  if (acc.isBank) {
-                                    totalAssets += state.getBankAccountBalance(acc.id);
-                                  } else if (acc.isCredit) {
-                                    totalAssets += state.getCreditCardDebt(acc.id);
+                              final now = state.assetReferenceDate;
+                              final todayStr = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+                              for (final acc in state.accounts) {
+                                if (!state.selectedAccountIds.contains('all') && !state.selectedAccountIds.contains(acc.id)) continue;
+                                if (acc.isBank) {
+                                  int bal = acc.initialBalance;
+                                  for (final t in state.transactions) {
+                                    if (t.accountId != acc.id) {
+                                      final txAcc = state.accounts.firstWhereOrNull((a) => a.id == t.accountId);
+                                      if (txAcc == null || !txAcc.isDebit || txAcc.linkedBankAccountId != acc.id) continue;
+                                    }
+                                    if (t.date.compareTo(todayStr) > 0) continue;
+                                    if (t.type == 'income') bal += t.amount;
+                                    if (t.type == 'expense') bal -= t.amount;
                                   }
+                                  totalAssets += bal;
+                                } else if (acc.isCredit) {
+                                  int debt = 0;
+                                  for (final t in state.transactions) {
+                                    if (t.accountId == acc.id) {
+                                      if (t.date.compareTo(todayStr) > 0) continue;
+                                      if (t.type == 'expense') debt -= t.amount;
+                                      if (t.type == 'income') debt += t.amount;
+                                    }
+                                  }
+                                  totalAssets += debt;
                                 }
                               }
                               return ImageFiltered(
@@ -600,14 +616,13 @@ class _AppDrawerState extends State<AppDrawer> {
                                     Widget buildAccNode(Account acc, {bool isSubItem = false}) {
                                       int? amount;
                                       String subLabel = '';
-                                      String badgeText = '';
                                       String? rightTopText;
                                       String? rightBottomText;
 
                                       String? linkedBankName;
                                       if (acc.linkedBankAccountId != null) {
-                                        final matches = state.accounts.where((a) => a.id == acc.linkedBankAccountId);
-                                        if (matches.isNotEmpty) linkedBankName = matches.first.name;
+                                        final linkedAcc = state.accounts.firstWhereOrNull((a) => a.id == acc.linkedBankAccountId);
+                                        if (linkedAcc != null) linkedBankName = linkedAcc.name;
                                       }
 
                                       String? thirdLineText;
@@ -616,33 +631,39 @@ class _AppDrawerState extends State<AppDrawer> {
                                       }
 
                                       if (acc.isBank) {
-                                        amount = state.getBankAccountBalance(acc.id, upToDate: DateTime.now());
-                                        badgeText = '통장';
-                                        subLabel = acc.bank;
-                                      } else if (acc.isCredit) {
-                                        amount = null;
-                                        badgeText = '신용';
-                                        subLabel = acc.bank;
-                                        
+                                        int bal = acc.initialBalance;
                                         final now = DateTime.now();
-                                        int bStartM = acc.billingStartMonth ?? -1;
-                                        int bStartD = acc.billingStartDay ?? 1;
-                                        int bEndM = acc.billingEndMonth ?? -1;
-                                        int bEndD = acc.billingEndDay ?? 31;
-                                        int pDay = acc.paymentDay ?? 1;
-                                        
-                                        String formatMonthDay(int mOffset, int day) {
-                                          DateTime d = DateTime(now.year, now.month + mOffset, 1);
-                                          int actualDay = day == 31 ? DateTime(d.year, d.month + 1, 0).day : day;
-                                          return '${d.month.toString().padLeft(2, '0')}/${actualDay.toString().padLeft(2, '0')}';
+                                        final todayStr = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+                                        for (final t in state.transactions) {
+                                          if (t.accountId != acc.id) {
+                                            final txAcc = state.accounts.firstWhereOrNull((a) => a.id == t.accountId);
+                                            if (txAcc == null || !txAcc.isDebit || txAcc.linkedBankAccountId != acc.id) continue;
+                                          }
+                                          if (t.date.compareTo(todayStr) > 0) continue;
+                                          if (t.type == 'income') bal += t.amount;
+                                          if (t.type == 'expense') bal -= t.amount;
                                         }
-                                        
-                                        rightTopText = '${formatMonthDay(bStartM, bStartD)} ~ ${formatMonthDay(bEndM, bEndD)}';
-                                        rightBottomText = '매월 ${pDay}일 결제';
+                                        amount = bal;
+                                        subLabel = '[통장] ${acc.bank}';
+                                      } else if (acc.isCredit) {
+                                        int debt = 0;
+                                        final now = DateTime.now();
+                                        final todayStr = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+                                        for (final t in state.transactions) {
+                                          if (t.accountId == acc.id) {
+                                            if (t.date.compareTo(todayStr) > 0) continue;
+                                            if (t.type == 'expense') debt -= t.amount;
+                                            if (t.type == 'income') debt += t.amount;
+                                          }
+                                        }
+                                        amount = debt;
+                                        final cardInfo = state.getCardPaymentInfo(acc, state.currentDate.year, state.currentDate.month);
+                                        subLabel = '[신용] ${acc.bank}';
+                                        rightTopText = '${cardInfo.startStr.replaceAll('.', '/')}~${cardInfo.endStr.replaceAll('.', '/')}';
+                                        rightBottomText = '${cardInfo.paymentDateStr.replaceAll('.', '/')} 결제';
                                       } else if (acc.isDebit) {
                                         amount = null;
-                                        badgeText = '체크';
-                                        subLabel = acc.bank;
+                                        subLabel = '[체크] ${acc.bank}';
                                       }
                                       
                                       return _accountCheckItem(
@@ -650,7 +671,6 @@ class _AppDrawerState extends State<AppDrawer> {
                                         id: acc.id,
                                         icon: acc.isCredit ? Icons.credit_card : acc.isDebit ? Icons.credit_card : Icons.account_balance,
                                         label: acc.name,
-                                        badgeText: badgeText,
                                         subLabel: subLabel,
                                         thirdLineText: thirdLineText,
                                         rightTopText: rightTopText,
@@ -971,7 +991,6 @@ class _AppDrawerState extends State<AppDrawer> {
     required String id,
     required IconData icon,
     required String label,
-    String? badgeText,
     required String subLabel,
     required Color color,
     int? amount,
@@ -986,12 +1005,8 @@ class _AppDrawerState extends State<AppDrawer> {
     final isAllActive = state.selectedAccountIds.contains('all');
     final isChecked = isAll ? isAllActive : (isAllActive || state.selectedAccountIds.contains(id));
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: () {
+    return GestureDetector(
+      onTap: () {
         if (isAll) {
           if (isAllActive) {
             state.setSelectedAccountIds([]);
@@ -1014,12 +1029,12 @@ class _AppDrawerState extends State<AppDrawer> {
         }
       },
       child: Padding(
-        padding: const EdgeInsets.only(left: 16, right: 8, top: 0, bottom: 0),
+        padding: EdgeInsets.symmetric(horizontal: 20, vertical: isSubItem ? 0 : 2),
         child: Row(
           children: [
             if (isSubItem)
               const Padding(
-                padding: EdgeInsets.only(left: 0, right: 4),
+                padding: EdgeInsets.only(left: 8, right: 8),
                 child: Icon(Icons.subdirectory_arrow_right, size: 16, color: Color(0xFFCBD5E1)),
               ),
             AnimatedContainer(
@@ -1027,20 +1042,13 @@ class _AppDrawerState extends State<AppDrawer> {
               width: 20, height: 20,
               decoration: BoxDecoration(
                 color: isChecked ? color : Colors.transparent,
-                shape: BoxShape.circle,
-                border: Border.all(color: isChecked ? color : const Color(0xFFE2E8F0), width: 1.5),
+                borderRadius: BorderRadius.circular(6),
+                border: Border.all(color: isChecked ? color : const Color(0xFFE2E8F0), width: 2),
               ),
               child: isChecked ? const Icon(Icons.check, size: 12, color: Color(0xFFFFFFFF)) : null,
             ),
             const SizedBox(width: 12),
-            Container(
-              width: 32, height: 32,
-              decoration: const BoxDecoration(
-                color: Color(0xFFF1F5F9),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(icon, size: 16, color: const Color(0xFF64748B)),
-            ),
+            Icon(icon, size: 18, color: const Color(0xFF64748B)),
             const SizedBox(width: 10),
             Expanded(
               child: Column(
@@ -1061,23 +1069,11 @@ class _AppDrawerState extends State<AppDrawer> {
                         Text(rightTopText, style: GoogleFonts.notoSansKr(fontSize: 10, color: const Color(0xFF64748B))),
                     ],
                   ),
-                  const SizedBox(height: 2),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Expanded(
-                        child: Row(
-                          children: [
-                            if (badgeText != null)
-                              Padding(
-                                padding: const EdgeInsets.only(right: 4),
-                                child: Text('[$badgeText]', style: GoogleFonts.notoSansKr(fontSize: 10, color: const Color(0xFF94A3B8))),
-                              ),
-                            Expanded(
-                              child: Text(subLabel, style: GoogleFonts.notoSansKr(fontSize: 10, color: const Color(0xFF94A3B8)), overflow: TextOverflow.ellipsis),
-                            ),
-                          ],
-                        ),
+                        child: Text(subLabel, style: GoogleFonts.notoSansKr(fontSize: 10, color: const Color(0xFF94A3B8)), overflow: TextOverflow.ellipsis),
                       ),
                       if (rightBottomText != null)
                         Text(rightBottomText, style: GoogleFonts.notoSansKr(fontSize: 10, color: const Color(0xFF0F172A), fontWeight: FontWeight.w600)),
@@ -1104,19 +1100,15 @@ class _AppDrawerState extends State<AppDrawer> {
               ),
             ),
             if (amount != null)
-              Padding(
-                padding: const EdgeInsets.only(left: 8),
-                child: Text(
-                  amount >= 0 ? '₩${formatNumber(amount)}' : '-₩${formatNumber(amount.abs())}',
-                  style: GoogleFonts.notoSansKr(
-                    fontSize: 11, fontWeight: FontWeight.w600,
-                    color: amount >= 0 ? const Color(0xFF059669) : const Color(0xFFE11D48),
-                  ),
+              Text(
+                amount >= 0 ? '₩${formatNumber(amount)}' : '-₩${formatNumber(amount.abs())}',
+                style: GoogleFonts.notoSansKr(
+                  fontSize: 11, fontWeight: FontWeight.w600,
+                  color: amount >= 0 ? const Color(0xFF059669) : const Color(0xFFE11D48),
                 ),
               ),
             if (onAction != null)
               PopupMenuButton<String>(
-                padding: EdgeInsets.zero,
                 icon: const Icon(Icons.more_vert, size: 16, color: Color(0xFF94A3B8)),
                 color: const Color(0xFFFFFFFF),
                 onSelected: onAction,
@@ -1128,14 +1120,8 @@ class _AppDrawerState extends State<AppDrawer> {
           ],
         ),
       ),
-    ),
-    const Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16),
-      child: Divider(color: Color(0xFFF1F5F9), height: 1),
-    ),
-    ],
-  );
-}
+    );
+  }
 
   void _showDeleteConfirmation(BuildContext context, AppState state, Account acc) {
     if (acc.isBank) {
