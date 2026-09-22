@@ -570,7 +570,7 @@ class _AppDrawerState extends State<AppDrawer> {
                                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                                       decoration: BoxDecoration(
                                         color: const Color(0xFF4F46E5).withOpacity(0.15),
-                                        borderRadius: BorderRadius.circular(8),
+                                        borderRadius: BorderRadius.circular(12),
                                         border: Border.all(color: const Color(0xFF4F46E5).withOpacity(0.3)),
                                       ),
                                       child: Row(
