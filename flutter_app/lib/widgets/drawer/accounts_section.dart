@@ -127,7 +127,7 @@ class _AccountsSectionState extends State<AccountsSection> {
             }
           },
           child: Padding(
-            padding: const EdgeInsets.only(left: 16, right: 8, top: 8, bottom: 8),
+            padding: const EdgeInsets.only(left: 16, right: 8, top: 4, bottom: 4),
             child: Row(
               children: [
                 if (isSubItem)
