@@ -88,6 +88,14 @@ class _AppDrawerState extends State<AppDrawer> {
                                         ReorderableListView(
                                           shrinkWrap: true,
                                           physics: const NeverScrollableScrollPhysics(),
+                                          proxyDecorator: (Widget child, int index, Animation<double> animation) {
+                                            return Material(
+                                              elevation: 6,
+                                              color: const Color(0xFFFFFFFF),
+                                              borderRadius: BorderRadius.circular(16),
+                                              child: child,
+                                            );
+                                          },
                                           onReorder: (oldIndex, newIndex) {
                                             state.reorderDashboardItems(oldIndex, newIndex);
                                           },
