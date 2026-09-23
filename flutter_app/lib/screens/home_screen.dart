@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../providers/app_state.dart';
-import '../widgets/custom_speed_dial.dart';
-import '../widgets/app_drawer.dart';
-import '../widgets/month_carousel.dart';
-import '../widgets/calendar_grid.dart';
-import '../widgets/daily_detail.dart';
-import '../widgets/add_transaction_screen.dart';
+import '../widgets/home/custom_speed_dial.dart';
+import '../widgets/drawer/app_drawer.dart';
+import '../widgets/home/month_carousel.dart';
+import '../widgets/home/calendar_grid.dart';
+import '../widgets/home/daily_detail.dart';
+import 'add_transaction_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
