@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../../../providers/app_state.dart';
@@ -17,6 +17,7 @@ class ExpectedAssetCard extends StatelessWidget {
         final expectedBalance = state.getExpectedNetAssetAtEnd(drawerCashFlowDate.year, drawerCashFlowDate.month);
         
         return Container(
+          margin: const EdgeInsets.only(bottom: 4),
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
           decoration: BoxDecoration(
             color: const Color(0xFFF0FDF4), // Lighter green

@@ -145,21 +145,33 @@ class _AppDrawerState extends State<AppDrawer> {
                                                 );
                                                 break;
                                               case 'recurring_expense':
-                                                childWidget = Column(
-                                                  children: [
-                                                    const Padding(padding: EdgeInsets.symmetric(horizontal: 4, vertical: 6), child: Divider(color: Color(0xFFF1F5F9), height: 1)),
-                                                    RecurringExpenseSection(drawerCashFlowDate: _drawerCashFlowDate),
-                                                    const Padding(padding: EdgeInsets.symmetric(horizontal: 4, vertical: 6), child: Divider(color: Color(0xFFF1F5F9), height: 1)),
-                                                  ],
+                                                childWidget = Container(
+                                                  margin: const EdgeInsets.only(bottom: 4),
+                                                  child: Column(
+                                                    children: [
+                                                      const Padding(padding: EdgeInsets.symmetric(horizontal: 4), child: Divider(color: Color(0xFFF1F5F9), height: 1)),
+                                                      Padding(
+                                                        padding: const EdgeInsets.symmetric(vertical: 4),
+                                                        child: RecurringExpenseSection(drawerCashFlowDate: _drawerCashFlowDate),
+                                                      ),
+                                                      const Padding(padding: EdgeInsets.symmetric(horizontal: 4), child: Divider(color: Color(0xFFF1F5F9), height: 1)),
+                                                    ],
+                                                  ),
                                                 );
                                                 break;
                                               case 'recurring_income':
-                                                childWidget = Column(
-                                                  children: [
-                                                    const Padding(padding: EdgeInsets.symmetric(horizontal: 4, vertical: 6), child: Divider(color: Color(0xFFF1F5F9), height: 1)),
-                                                    RecurringIncomeSection(drawerCashFlowDate: _drawerCashFlowDate),
-                                                    const Padding(padding: EdgeInsets.symmetric(horizontal: 4, vertical: 6), child: Divider(color: Color(0xFFF1F5F9), height: 1)),
-                                                  ],
+                                                childWidget = Container(
+                                                  margin: const EdgeInsets.only(bottom: 4),
+                                                  child: Column(
+                                                    children: [
+                                                      const Padding(padding: EdgeInsets.symmetric(horizontal: 4), child: Divider(color: Color(0xFFF1F5F9), height: 1)),
+                                                      Padding(
+                                                        padding: const EdgeInsets.symmetric(vertical: 4),
+                                                        child: RecurringIncomeSection(drawerCashFlowDate: _drawerCashFlowDate),
+                                                      ),
+                                                      const Padding(padding: EdgeInsets.symmetric(horizontal: 4), child: Divider(color: Color(0xFFF1F5F9), height: 1)),
+                                                    ],
+                                                  ),
                                                 );
                                                 break;
                                               default:
