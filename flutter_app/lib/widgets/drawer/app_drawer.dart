@@ -64,7 +64,7 @@ class _AppDrawerState extends State<AppDrawer> {
                                 const AssetSummaryCard(),
                                 // Cash flow section
                                 Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                  padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
                                   child: Container(
                                     decoration: BoxDecoration(
                                       color: const Color(0xFFFFFFFF),

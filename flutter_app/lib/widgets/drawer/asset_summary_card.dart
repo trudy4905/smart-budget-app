@@ -34,7 +34,7 @@ class _AssetSummaryCardState extends State<AssetSummaryCard> {
     return Consumer<AppState>(
       builder: (context, state, _) {
         return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             decoration: BoxDecoration(
