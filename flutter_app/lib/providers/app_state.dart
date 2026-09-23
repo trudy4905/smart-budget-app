@@ -145,6 +145,17 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> resetAllData() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(kStorageKeyAcc);
+    await prefs.remove(kStorageKeyTx);
+    accounts = _sampleAccounts();
+    transactions = [];
+    _saveAccounts(prefs);
+    _saveTransactions(prefs);
+    notifyListeners();
+  }
+
   Future<void> _saveAccounts([SharedPreferences? prefs]) async {
     prefs ??= await SharedPreferences.getInstance();
     await prefs.setString(kStorageKeyAcc, jsonEncode(accounts.map((e) => e.toJson()).toList()));

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../providers/app_state.dart';
-import '../models/transaction.dart';
-import '../utils/helpers.dart';
+import '../../providers/app_state.dart';
+import '../../models/transaction.dart';
+import '../../utils/helpers.dart';
 
 class DailyDetail extends StatelessWidget {
   final AppState state;

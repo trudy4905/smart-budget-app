@@ -6,8 +6,6 @@ import '../../providers/app_state.dart';
 import '../../models/transaction.dart';
 import '../../utils/helpers.dart';
 import 'shared_drawer_components.dart';
-// Note: We'll use firstWhereOrNull if it's imported via collection or manually filter.
-import 'package:collection/collection.dart';
 
 class RecurringExpenseSection extends StatefulWidget {
   final DateTime drawerCashFlowDate;

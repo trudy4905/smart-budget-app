@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../providers/app_state.dart';
+import '../../providers/app_state.dart';
 
 class MonthCarousel extends StatefulWidget {
   final AppState state;
