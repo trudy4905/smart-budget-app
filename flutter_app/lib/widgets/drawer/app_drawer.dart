@@ -89,6 +89,7 @@ class _AppDrawerState extends State<AppDrawer> {
                                           shrinkWrap: true,
                                           physics: const NeverScrollableScrollPhysics(),
                                           padding: const EdgeInsets.symmetric(horizontal: 12),
+                                          buildDefaultDragHandles: false,
                                           proxyDecorator: (Widget child, int index, Animation<double> animation) {
                                             return Material(
                                               elevation: 6,
@@ -100,66 +101,76 @@ class _AppDrawerState extends State<AppDrawer> {
                                           onReorder: (oldIndex, newIndex) {
                                             state.reorderDashboardItems(oldIndex, newIndex);
                                           },
-                                          children: state.dashboardItemOrder.map((itemId) {
+                                          children: state.dashboardItemOrder.asMap().entries.map((entry) {
+                                            final index = entry.key;
+                                            final itemId = entry.value;
+                                            
+                                            Widget childWidget;
                                             switch (itemId) {
                                               case 'income':
-                                                return CashFlowRowWidget(
-                                                  key: const ValueKey('income'),
+                                                childWidget = CashFlowRowWidget(
                                                   type: 'income',
                                                   icon: Icons.download, iconBgColor: const Color(0xFFECFDF5), iconColor: const Color(0xFF059669),
                                                   title: '수입', amount: dash.alreadyReceivedIncome, isExpanded: _openPanel == 'income',
                                                   onTap: () => _toggleSidePanel('income'),
                                                 );
+                                                break;
                                               case 'expense':
-                                                return CashFlowRowWidget(
-                                                  key: const ValueKey('expense'),
+                                                childWidget = CashFlowRowWidget(
                                                   type: 'expense',
                                                   icon: Icons.upload, iconBgColor: const Color(0xFFFFF1F2), iconColor: const Color(0xFFE11D48),
                                                   title: '지출', amount: dash.totalAlreadyPaid, isExpanded: _openPanel == 'expense',
                                                   onTap: () => _toggleSidePanel('expense'),
                                                 );
+                                                break;
                                               case 'upcoming_income':
-                                                return CashFlowRowWidget(
-                                                  key: const ValueKey('upcoming_income'),
+                                                childWidget = CashFlowRowWidget(
                                                   type: 'upcoming_income',
                                                   icon: Icons.next_plan, iconBgColor: const Color(0xFFFEF3C7), iconColor: const Color(0xFFD97706),
                                                   title: '예정 수입', amount: dash.totalUpcomingIncome, isExpanded: _openPanel == 'upcoming_income',
                                                   onTap: () => _toggleSidePanel('upcoming_income'),
                                                 );
+                                                break;
                                               case 'upcoming_expense':
-                                                return CashFlowRowWidget(
-                                                  key: const ValueKey('upcoming_expense'),
+                                                childWidget = CashFlowRowWidget(
                                                   type: 'upcoming_expense',
                                                   icon: Icons.event_busy, iconBgColor: const Color(0xFFF3E8FF), iconColor: const Color(0xFF7C3AED),
                                                   title: '예정 지출', amount: dash.totalUpcomingExpense, isExpanded: _openPanel == 'upcoming_expense',
                                                   onTap: () => _toggleSidePanel('upcoming_expense'),
                                                 );
+                                                break;
                                               case 'expected_asset':
-                                                return ExpectedAssetCard(
-                                                  key: const ValueKey('expected_asset'),
+                                                childWidget = ExpectedAssetCard(
                                                   drawerCashFlowDate: _drawerCashFlowDate,
                                                 );
+                                                break;
                                               case 'recurring_expense':
-                                                return Column(
-                                                  key: const ValueKey('recurring_expense'),
+                                                childWidget = Column(
                                                   children: [
                                                     const Padding(padding: EdgeInsets.symmetric(horizontal: 4, vertical: 6), child: Divider(color: Color(0xFFF1F5F9), height: 1)),
                                                     RecurringExpenseSection(drawerCashFlowDate: _drawerCashFlowDate),
                                                     const Padding(padding: EdgeInsets.symmetric(horizontal: 4, vertical: 6), child: Divider(color: Color(0xFFF1F5F9), height: 1)),
                                                   ],
                                                 );
+                                                break;
                                               case 'recurring_income':
-                                                return Column(
-                                                  key: const ValueKey('recurring_income'),
+                                                childWidget = Column(
                                                   children: [
                                                     const Padding(padding: EdgeInsets.symmetric(horizontal: 4, vertical: 6), child: Divider(color: Color(0xFFF1F5F9), height: 1)),
                                                     RecurringIncomeSection(drawerCashFlowDate: _drawerCashFlowDate),
                                                     const Padding(padding: EdgeInsets.symmetric(horizontal: 4, vertical: 6), child: Divider(color: Color(0xFFF1F5F9), height: 1)),
                                                   ],
                                                 );
+                                                break;
                                               default:
-                                                return SizedBox.shrink(key: ValueKey('unknown_$itemId'));
+                                                childWidget = const SizedBox.shrink();
                                             }
+
+                                            return ReorderableDelayedDragStartListener(
+                                              key: ValueKey(itemId),
+                                              index: index,
+                                              child: childWidget,
+                                            );
                                           }).toList(),
                                         ),
                                       ],
