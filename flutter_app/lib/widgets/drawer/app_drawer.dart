@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../providers/app_state.dart';
@@ -116,18 +116,12 @@ class _AppDrawerState extends State<AppDrawer> {
                                             ],
                                           ),
                                         ),
-                                        const Padding(
-                                          padding: EdgeInsets.symmetric(horizontal: 16),
-                                          child: Divider(color: Color(0xFFF1F5F9), height: 1),
-                                        ),
+
                                         Padding(
                                           padding: const EdgeInsets.symmetric(horizontal: 12),
                                           child: ExpectedAssetCard(drawerCashFlowDate: _drawerCashFlowDate),
                                         ),
-                                        const Padding(
-                                          padding: EdgeInsets.symmetric(horizontal: 16),
-                                          child: Divider(color: Color(0xFFF1F5F9), height: 1),
-                                        ),
+
                                         RecurringExpenseSection(drawerCashFlowDate: _drawerCashFlowDate),
                                         const Padding(
                                           padding: EdgeInsets.symmetric(horizontal: 16),
