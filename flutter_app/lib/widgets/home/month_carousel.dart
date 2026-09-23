@@ -61,26 +61,30 @@ class MonthCarouselState extends State<MonthCarousel> {
 
     if (_shouldScrollToLeft) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (_scrollCtrl.hasClients) {
-          int prevYear = state.currentDate.year;
-          int prevMonth = state.currentDate.month - 1;
-          if (prevMonth == 0) { prevMonth = 12; prevYear--; }
-          
-          final prevKeyStr = '$prevYear-$prevMonth';
-          final activeKeyStr = '${state.currentDate.year}-${state.currentDate.month}';
-          final keyToScroll = _monthKeys[prevKeyStr] ?? _monthKeys[activeKeyStr];
-          
-          if (keyToScroll?.currentContext != null) {
-            Scrollable.ensureVisible(
-              keyToScroll!.currentContext!,
-              alignment: 0.0,
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.easeOut,
-            );
+        // Add a small delay for web font loading & layout settling
+        Future.delayed(const Duration(milliseconds: 300), () {
+          if (!mounted) return;
+          if (_scrollCtrl.hasClients) {
+            int prevYear = state.currentDate.year;
+            int prevMonth = state.currentDate.month - 1;
+            if (prevMonth == 0) { prevMonth = 12; prevYear--; }
+            
+            final prevKeyStr = '$prevYear-$prevMonth';
+            final activeKeyStr = '${state.currentDate.year}-${state.currentDate.month}';
+            final keyToScroll = _monthKeys[prevKeyStr] ?? _monthKeys[activeKeyStr];
+            
+            if (keyToScroll?.currentContext != null) {
+              Scrollable.ensureVisible(
+                keyToScroll!.currentContext!,
+                alignment: 0.0,
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeOut,
+              );
+            }
           }
-        }
-        _shouldScrollToLeft = false;
+        });
       });
+      _shouldScrollToLeft = false;
     }
 
     return SizedBox(
