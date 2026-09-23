@@ -496,54 +496,26 @@ class AppState extends ChangeNotifier {
   }
 
   int getExpectedNetAssetAtEnd(int year, int month) {
-    int bankInitial = 0;
-    int totalIncome = 0;
-    int totalExpense = 0;
-    
-    for (final a in accounts.where((a) => a.isBank)) {
-      bankInitial += a.initialBalance;
-    }
-    
+    int total = 0;
     // Calculate the last day of the given month
     final endOfMonth = DateTime(year, month + 1, 0);
-    final endStr = '${endOfMonth.year}-${endOfMonth.month.toString().padLeft(2, '0')}-${endOfMonth.day.toString().padLeft(2, '0')}';
 
-    for (final t in transactions) {
-      if (t.date.compareTo(endStr) > 0) continue; // skip transactions after the end of this month
-      
-      if (t.type == 'income') {
-        totalIncome += t.amount;
-      } else if (t.type == 'expense') {
-        totalExpense += t.amount;
-      }
+    for (final a in accounts.where((a) => a.isBank)) {
+      total += getBankAccountBalance(a.id, upToDate: endOfMonth);
     }
 
-    return bankInitial + totalIncome - totalExpense;
+    return total;
   }
 
   int getNetAssets() {
-    int bankInitial = 0;
-    int totalIncome = 0;
-    int totalExpense = 0;
-    
+    int total = 0;
     final now = assetReferenceDate;
-    final todayStr = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
 
     for (final a in accounts.where((a) => a.isBank)) {
-      bankInitial += a.initialBalance;
-    }
-    
-    for (final t in transactions) {
-      if (t.date.compareTo(todayStr) > 0) continue; // skip future transactions
-      
-      if (t.type == 'income') {
-        totalIncome += t.amount;
-      } else if (t.type == 'expense') {
-        totalExpense += t.amount;
-      }
+      total += getBankAccountBalance(a.id, upToDate: now);
     }
 
-    return bankInitial + totalIncome - totalExpense;
+    return total;
   }
 
   bool _isCardTransactionSettled(Account card, DateTime txDate, DateTime upToDate) {
