@@ -69,7 +69,7 @@ class _RecurringExpenseSectionState extends State<RecurringExpenseSection> {
               },
               child: Container(
                 height: 36,
-                padding: const EdgeInsets.symmetric(horizontal: 20),
+                padding: const EdgeInsets.symmetric(horizontal: 8),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
@@ -88,7 +88,7 @@ class _RecurringExpenseSectionState extends State<RecurringExpenseSection> {
                 children: [
                   if (recurringTxs.isEmpty && cards.isEmpty)
                     Padding(
-                      padding: const EdgeInsets.only(left: 36, top: 4, bottom: 12),
+                      padding: const EdgeInsets.only(left: 24, top: 4, bottom: 12),
                       child: Text('내역 없음', style: GoogleFonts.notoSansKr(fontSize: 12, color: const Color(0xFF94A3B8))),
                     ),
                   ...recurringTxs.asMap().entries.map((e) {
@@ -96,7 +96,7 @@ class _RecurringExpenseSectionState extends State<RecurringExpenseSection> {
                     final txAccount = state.accounts.firstWhereOrNull((a) => a.id == tx.accountId);
                     return Column(
                       children: [
-                        const Padding(padding: EdgeInsets.only(left: 20, right: 20), child: Divider(color: Color(0xFFF1F5F9), height: 1)),
+                        const Padding(padding: EdgeInsets.only(left: 8, right: 8), child: Divider(color: Color(0xFFF1F5F9), height: 1)),
                         RecurringItemWidget(
                           iconBgColor: const Color(0xFFFFF1F2),
                           iconColor: const Color(0xFFE11D48),
@@ -158,7 +158,7 @@ class _RecurringExpenseSectionState extends State<RecurringExpenseSection> {
                     
                     return Column(
                       children: [
-                        const Padding(padding: EdgeInsets.only(left: 20, right: 20), child: Divider(color: Color(0xFFF1F5F9), height: 1)),
+                        const Padding(padding: EdgeInsets.only(left: 8, right: 8), child: Divider(color: Color(0xFFF1F5F9), height: 1)),
                         RecurringItemWidget(
                           iconBgColor: const Color(0xFFFFF1F2),
                           iconColor: const Color(0xFFE11D48),
