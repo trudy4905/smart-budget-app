@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../providers/app_state.dart';
 import 'summary/cash_flow_widgets.dart';
-import 'expected_asset_card.dart';
+import 'expected_asset/expected_asset_card.dart';
 import 'recurring/recurring_expense_section.dart';
 import 'recurring/recurring_income_section.dart';
 import 'summary/drawer_side_panel.dart';
