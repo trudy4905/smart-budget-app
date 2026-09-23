@@ -75,6 +75,16 @@ class AppState extends ChangeNotifier {
   String drawerFilter = 'all'; // 'all', 'income', 'cash', 'card', 'total_expense', 'next_all', 'next_card'
   DateTime assetReferenceDate = DateTime.now();
 
+  List<String> dashboardItemOrder = [
+    'income',
+    'expense',
+    'upcoming_income',
+    'upcoming_expense',
+    'expected_asset',
+    'recurring_expense',
+    'recurring_income'
+  ];
+
   void setAssetReferenceDate(DateTime date) {
     assetReferenceDate = date;
     notifyListeners();
@@ -141,6 +151,14 @@ class AppState extends ChangeNotifier {
       _saveCategories(prefs);
     }
 
+    final orderStr = prefs.getString('dashboardItemOrder');
+    if (orderStr != null) {
+      try {
+        final List dec = jsonDecode(orderStr);
+        dashboardItemOrder = List<String>.from(dec);
+      } catch (_) {}
+    }
+
     _loaded = true;
     notifyListeners();
   }
@@ -169,6 +187,18 @@ class AppState extends ChangeNotifier {
   Future<void> _saveCategories([SharedPreferences? prefs]) async {
     prefs ??= await SharedPreferences.getInstance();
     await prefs.setString(kStorageKeyCat, jsonEncode(categories.map((e) => e.toJson()).toList()));
+  }
+
+  Future<void> reorderDashboardItems(int oldIndex, int newIndex) async {
+    if (oldIndex < newIndex) {
+      newIndex -= 1;
+    }
+    final item = dashboardItemOrder.removeAt(oldIndex);
+    dashboardItemOrder.insert(newIndex, item);
+    notifyListeners();
+    
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('dashboardItemOrder', jsonEncode(dashboardItemOrder));
   }
 
   // ---- Navigation ----
