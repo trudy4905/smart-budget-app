@@ -346,15 +346,7 @@ class _AccountsSectionState extends State<AccountsSection> {
                       padding: EdgeInsets.symmetric(horizontal: 16),
                       child: Divider(color: Color(0xFFF1F5F9), height: 1),
                     ),
-                    _accountCheckItem(
-                      context, state,
-                      id: 'all',
-                      icon: Icons.all_inclusive,
-                      label: '전체 계좌/카드',
-                      subLabel: '모든 내역 보기',
-                      color: const Color(0xFF0F172A),
-                      isAll: true,
-                    ),
+
                     ...banks.map((b) {
                       final linkedCards = cards.where((c) => c.linkedBankAccountId == b.id).toList();
                       return Column(

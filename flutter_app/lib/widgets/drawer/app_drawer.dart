@@ -85,13 +85,8 @@ class _AppDrawerState extends State<AppDrawer> {
                                             },
                                           ),
                                         ),
-                                        Container(
-                                          margin: const EdgeInsets.symmetric(horizontal: 12),
-                                          padding: const EdgeInsets.symmetric(vertical: 4),
-                                          decoration: BoxDecoration(
-                                            color: const Color(0xFFF8FAFC),
-                                            borderRadius: BorderRadius.circular(12),
-                                          ),
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(horizontal: 12),
                                           child: Column(
                                             children: [
                                               CashFlowRowWidget(
