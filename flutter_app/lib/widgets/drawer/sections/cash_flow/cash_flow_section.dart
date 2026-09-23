@@ -3,8 +3,8 @@ import 'package:provider/provider.dart';
 import '../../../../providers/app_state.dart';
 import 'cash_flow_widgets.dart';
 import '../assets/expected_asset_card.dart';
-import '../recurring/recurring_expense_section.dart';
-import '../recurring/recurring_income_section.dart';
+import 'recurring/recurring_expense_section.dart';
+import 'recurring/recurring_income_section.dart';
 import '../../components/drawer_side_panel.dart';
 
 class CashFlowSection extends StatefulWidget {
