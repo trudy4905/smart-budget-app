@@ -57,7 +57,7 @@ class _RecurringIncomeSectionState extends State<RecurringIncomeSection> {
                 SharedPreferences.getInstance().then((prefs) => prefs.setBool('isRecurringIncomeExpanded', _isRecurringIncomeExpanded));
               },
               child: Container(
-                height: 32,
+                height: 36,
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,

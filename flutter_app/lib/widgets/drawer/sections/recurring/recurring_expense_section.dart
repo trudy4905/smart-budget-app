@@ -68,7 +68,7 @@ class _RecurringExpenseSectionState extends State<RecurringExpenseSection> {
                 SharedPreferences.getInstance().then((prefs) => prefs.setBool('isRecurringExpenseExpanded', _isRecurringExpenseExpanded));
               },
               child: Container(
-                height: 32,
+                height: 36,
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
