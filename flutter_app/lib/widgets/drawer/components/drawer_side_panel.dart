@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../providers/app_state.dart';
-import '../../utils/helpers.dart';
+import '../../../providers/app_state.dart';
+import '../../../utils/helpers.dart';
 
 class DrawerSidePanel extends StatelessWidget {
   final DashboardSummary dash;

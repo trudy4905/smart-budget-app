@@ -1,15 +1,15 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../providers/app_state.dart';
-import 'drawer_header.dart';
-import 'asset_summary_card.dart';
-import 'cash_flow_widgets.dart';
-import 'expected_asset_card.dart';
-import 'recurring_expense_section.dart';
-import 'recurring_income_section.dart';
-import 'accounts_section.dart';
-import 'drawer_side_panel.dart';
+import 'components/drawer_header.dart';
+import 'sections/assets/asset_summary_card.dart';
+import 'sections/cash_flow/cash_flow_widgets.dart';
+import 'sections/assets/expected_asset_card.dart';
+import 'sections/recurring/recurring_expense_section.dart';
+import 'sections/recurring/recurring_income_section.dart';
+import 'sections/accounts/accounts_section.dart';
+import 'components/drawer_side_panel.dart';
 
 class AppDrawer extends StatefulWidget {
   const AppDrawer({super.key});
