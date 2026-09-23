@@ -86520,7 +86520,7 @@ l.push(A.dh(A.bz(A.a([s,B.a5y,A.bo(r,B.q,B.d6,B.r)],m),B.aG,B.l,B.r),1))
 if(c!=null){s=c>=0
 r=s?"\u20a9"+A.eJ(c):"-\u20a9"+A.eJ(Math.abs(c))
 l.push(new A.aU(B.Nl,A.U(r,p,p,p,A.a_().$3$color$fontSize$fontWeight(s?B.bJ:B.at,11,B.aP),p,p),p))}l.push(new A.tB(new A.am_(p),j,B.ap,B.Ol,B.j,p,t.iX))
-return A.bz(A.a([A.bP(B.a9,new A.aU(B.N7,A.bo(l,B.q,B.l,B.r),p),B.z,!1,p,p,p,p,p,p,p,p,p,p,p,p,p,new A.am0(!1,o,b,g),p,p,p,p,p,p),B.h3],m),B.q,B.l,B.aq)},
+return A.bz(A.a([A.bP(B.a9,new A.aU(B.N5,A.bo(l,B.q,B.l,B.r),p),B.z,!1,p,p,p,p,p,p,p,p,p,p,p,p,p,new A.am0(!1,o,b,g),p,p,p,p,p,p),B.h3],m),B.q,B.l,B.aq)},
 J(a){return A.rp(new A.amm(this),t.V)}}
 A.am1.prototype={
 $0(){var s=A.im(this.b.a.i(0,"isAccountsExpanded"))
@@ -86867,7 +86867,7 @@ o=A.a([A.U(b,m,m,m,A.a_().$3$color$fontSize$fontWeight(B.oz,12,B.aP),m,m)],p)
 if(c.length!==0)o.push(A.U(c,m,m,m,A.a_().$2$color$fontSize(B.Z,10),m,m))
 o=A.dh(A.bz(o,B.aG,B.l,B.r),1)
 n=A.eJ(d)
-return new A.aU(B.N5,A.bo(A.a([q,B.bw,o,A.U(n,m,m,m,A.a_().$3$color$fontSize$fontWeight(e,12,B.C),m,m)],p),B.aG,B.l,B.r),m)}}
+return new A.aU(B.N6,A.bo(A.a([q,B.bw,o,A.U(n,m,m,m,A.a_().$3$color$fontSize$fontWeight(e,12,B.C),m,m)],p),B.aG,B.l,B.r),m)}}
 A.a6w.prototype={
 $1(a){return this.a.nC(a.b,a.f,a.r,a.e,B.bJ)},
 $S:99}
@@ -97847,8 +97847,8 @@ B.N3=new A.aa(16,18,16,18)
 B.pe=new A.aa(16,24,16,24)
 B.pf=new A.aa(16,4,16,4)
 B.N4=new A.aa(16,4,16,8)
-B.N5=new A.aa(16,6,16,6)
-B.N7=new A.aa(16,8,8,8)
+B.N5=new A.aa(16,4,8,4)
+B.N6=new A.aa(16,6,16,6)
 B.li=new A.aa(20,0,20,0)
 B.N8=new A.aa(20,0,20,3)
 B.N9=new A.aa(20,12,20,8)
@@ -100342,9 +100342,9 @@ B.pM=new A.co(B.NY,16,B.Z,null,null)
 B.a2j=new A.aU(B.MP,B.pM,null)
 B.MT=new A.aa(12,0,0,0)
 B.a2i=new A.aU(B.MT,B.pM,null)
-B.N6=new A.aa(16,8,16,8)
+B.N7=new A.aa(16,8,16,8)
 B.HD=new A.wk(null)
-B.a2k=new A.aU(B.N6,B.HD,null)
+B.a2k=new A.aU(B.N7,B.HD,null)
 B.a2l=new A.Ab(null)
 B.dL=new A.Ph(0,"fill")
 B.bD=new A.Ph(1,"stroke")
