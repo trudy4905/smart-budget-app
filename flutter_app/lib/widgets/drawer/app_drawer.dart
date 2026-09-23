@@ -43,7 +43,7 @@ class _AppDrawerState extends State<AppDrawer> {
               child: ClipRRect(
                 borderRadius: const BorderRadius.only(topLeft: Radius.circular(16), bottomLeft: Radius.circular(16)),
                 child: SizedBox(
-                  width: 280,
+                  width: MediaQuery.of(context).size.width * 0.5,
                   child: DrawerSidePanel(dash: dash, openPanelType: type),
                 ),
               ),
