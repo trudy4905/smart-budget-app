@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../../providers/app_state.dart';
-import '../../../utils/helpers.dart';
+import '../../../../../providers/app_state.dart';
+import '../../../../../utils/helpers.dart';
 
 class DrawerSidePanel extends StatelessWidget {
   final DashboardSummary dash;
@@ -17,23 +17,23 @@ class DrawerSidePanel extends StatelessWidget {
     List<_SortItem> sortItems = [];
 
     if (openPanelType == 'income') {
-      title = '수입 내역';
+      title = '?�입 ?�역';
       sortItems = dash.alreadyReceivedIncomeList.map((tx) => _SortItem(day: tx.date.day, date: tx.date, category: tx.category, memo: tx.memo, amount: tx.amount, color: const Color(0xFF059669))).toList();
     } else if (openPanelType == 'expense') {
-      title = '지출 내역';
+      title = '지�??�역';
       sortItems = [
         ...dash.alreadyPaidFixedList.map((tx) => _SortItem(day: tx.date.day, date: tx.date, category: tx.category, memo: tx.memo, amount: tx.amount, color: const Color(0xFFE11D48))),
         ...dash.alreadyPaidCashDebitList.map((tx) => _SortItem(day: tx.date.day, date: tx.date, category: tx.category, memo: tx.memo, amount: tx.amount, color: const Color(0xFFE11D48))),
-        ...dash.alreadyPaidCardList.map((c) => _SortItem(day: int.parse(c.paymentDateStr.split('/')[1]), date: c.paymentDateStr, category: '${c.account.name} 대금', memo: '', amount: c.amount, color: const Color(0xFFE11D48))),
+        ...dash.alreadyPaidCardList.map((c) => _SortItem(day: int.parse(c.paymentDateStr.split('/')[1]), date: c.paymentDateStr, category: '${c.account.name} ?��?, memo: '', amount: c.amount, color: const Color(0xFFE11D48))),
       ];
     } else if (openPanelType == 'upcoming_income') {
-      title = '예정 수입 내역';
+      title = '?�정 ?�입 ?�역';
       sortItems = dash.upcomingIncomeList.map((e) => _SortItem(day: int.parse(e.dateStr.split('/')[1]), date: e.dateStr, category: e.tx.category, memo: e.tx.memo, amount: e.tx.amount, color: const Color(0xFFD97706))).toList();
     } else if (openPanelType == 'upcoming_expense') {
-      title = '예정 지출 내역';
+      title = '?�정 지�??�역';
       sortItems = [
         ...dash.upcomingExpenseList.map((e) => _SortItem(day: int.parse(e.dateStr.split('/')[1]), date: e.dateStr, category: e.tx.category, memo: e.tx.memo, amount: e.tx.amount, color: const Color(0xFF7C3AED))),
-        ...dash.upcomingCardPayments.map((c) => _SortItem(day: int.parse(c.paymentDateStr.split('/')[1]), date: c.paymentDateStr, category: '${c.account.name} 예정대금', memo: '', amount: c.amount, color: const Color(0xFF7C3AED))),
+        ...dash.upcomingCardPayments.map((c) => _SortItem(day: int.parse(c.paymentDateStr.split('/')[1]), date: c.paymentDateStr, category: '${c.account.name} ?�정?��?, memo: '', amount: c.amount, color: const Color(0xFF7C3AED))),
       ];
     }
 
@@ -58,7 +58,7 @@ class DrawerSidePanel extends StatelessWidget {
           ),
           Expanded(
             child: children.isEmpty
-                ? Center(child: Text('내역 없음', style: GoogleFonts.notoSansKr(color: const Color(0xFF94A3B8))))
+                ? Center(child: Text('?�역 ?�음', style: GoogleFonts.notoSansKr(color: const Color(0xFF94A3B8))))
                 : ListView(
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     children: children,
