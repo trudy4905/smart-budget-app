@@ -37,13 +37,43 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Column(
                   children: [
                     _buildHeader(state),
-                    MonthCarousel(key: _carouselKey, state: state),
+                    MonthCarousel(
+                      key: _carouselKey,
+                      currentDate: state.currentDate,
+                      onMonthSelected: (month) {
+                        state.setCurrentDate(month);
+                        state.setSelectedDate('${month.year}-${month.month.toString().padLeft(2, '0')}-01');
+                      },
+                    ),
                     Expanded(
                       child: Column(
                         children: [
-                          CalendarGrid(state: state),
+                          CalendarGrid(
+                            currentDate: state.currentDate,
+                            selectedDateStr: state.selectedDateStr,
+                            accounts: state.accounts,
+                            getTransactionsForDate: state.getTransactionsForDate,
+                            onDateSelected: (dateStr, isOtherMonth) {
+                              state.setSelectedDate(dateStr);
+                              if (isOtherMonth) {
+                                final parts = dateStr.split('-');
+                                if (parts.length == 3) {
+                                  state.setCurrentDate(DateTime(int.parse(parts[0]), int.parse(parts[1]), 1));
+                                }
+                              }
+                            },
+                          ),
                           const Divider(color: Color(0xFFFFFFFF), height: 1),
-                          Expanded(child: DailyDetail(state: state)),
+                          Expanded(
+                            child: DailyDetail(
+                              selectedDateStr: state.selectedDateStr,
+                              transactions: state.getTransactionsForDate(state.selectedDateStr),
+                              accounts: state.accounts,
+                              getCategoryInfo: state.getCategoryInfo,
+                              onDeleteTransaction: state.deleteTransaction,
+                              onDeleteRecurringTransactions: state.deleteRecurringTransactions,
+                            ),
+                          ),
                         ],
                       ),
                     ),

@@ -1,19 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../providers/app_state.dart';
 import '../../models/transaction.dart';
 import '../../models/account.dart';
 import '../../utils/helpers.dart';
 
 /// Calendar grid widget
 class CalendarGrid extends StatelessWidget {
-  final AppState state;
-  const CalendarGrid({super.key, required this.state});
+  final DateTime currentDate;
+  final String selectedDateStr;
+  final List<Account> accounts;
+  final List<Transaction> Function(String dateStr) getTransactionsForDate;
+  final void Function(String dateStr, bool isOtherMonth) onDateSelected;
+
+  const CalendarGrid({
+    super.key,
+    required this.currentDate,
+    required this.selectedDateStr,
+    required this.accounts,
+    required this.getTransactionsForDate,
+    required this.onDateSelected,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final year = state.currentDate.year;
-    final month = state.currentDate.month;
+    final year = currentDate.year;
+    final month = currentDate.month;
     final firstDay = DateTime(year, month, 1);
     final startDow = firstDay.weekday % 7;
     final totalDays = DateTime(year, month + 1, 0).day;
@@ -71,23 +82,17 @@ class CalendarGrid extends StatelessWidget {
                 }
 
                 final isToday = dateStr == todayStr;
-                final isSelected = dateStr == state.selectedDateStr;
-                final txs = state.getTransactionsForDate(dateStr);
+                final isSelected = dateStr == selectedDateStr;
+                final txs = getTransactionsForDate(dateStr);
 
                 return Expanded(
                   child: _CalendarCell(
                     dayNum: dayNum, dateStr: dateStr,
                     isOtherMonth: isOtherMonth, isToday: isToday,
                     isSelected: isSelected, txs: txs,
-                    accounts: state.accounts,
+                    accounts: accounts,
                     onTap: () {
-                      state.setSelectedDate(dateStr);
-                      if (isOtherMonth) {
-                        final parts = dateStr.split('-');
-                        if (parts.length == 3) {
-                          state.setCurrentDate(DateTime(int.parse(parts[0]), int.parse(parts[1]), 1));
-                        }
-                      }
+                      onDateSelected(dateStr, isOtherMonth);
                     },
                   ),
                 );

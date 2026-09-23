@@ -1,23 +1,38 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../providers/app_state.dart';
 import '../../models/transaction.dart';
+import '../../models/account.dart';
+import '../../models/category_info.dart';
 import '../../utils/helpers.dart';
 
 class DailyDetail extends StatelessWidget {
-  final AppState state;
-  const DailyDetail({super.key, required this.state});
+  final String selectedDateStr;
+  final List<Transaction> transactions;
+  final List<Account> accounts;
+  final CategoryInfo Function(String category) getCategoryInfo;
+  final void Function(String id) onDeleteTransaction;
+  final void Function(String recurringId) onDeleteRecurringTransactions;
+
+  const DailyDetail({
+    super.key,
+    required this.selectedDateStr,
+    required this.transactions,
+    required this.accounts,
+    required this.getCategoryInfo,
+    required this.onDeleteTransaction,
+    required this.onDeleteRecurringTransactions,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final dateStr = state.selectedDateStr;
+    final dateStr = selectedDateStr;
     final parts = dateStr.split('-');
     final dateObj = parts.length == 3
         ? DateTime(int.parse(parts[0]), int.parse(parts[1]), int.parse(parts[2]))
         : DateTime.now();
     final dayNames = ['일', '월', '화', '수', '목', '금', '토'];
     final titleText = '${dateObj.month}월 ${dateObj.day}일 (${dayNames[dateObj.weekday % 7]})';
-    final txs = state.getTransactionsForDate(dateStr);
+    final txs = transactions;
     final dailyExpense = txs.where((t) => t.type == 'expense').fold(0, (s, t) => s + t.amount);
     final dailyIncome = txs.where((t) => t.type == 'income').fold(0, (s, t) => s + t.amount);
     final total = dailyIncome - dailyExpense;
@@ -66,7 +81,13 @@ class DailyDetail extends StatelessWidget {
               : ListView.builder(
                   padding: const EdgeInsets.symmetric(horizontal: 12),
                   itemCount: txs.length,
-                  itemBuilder: (context, i) => _TxItem(tx: txs[i], state: state),
+                  itemBuilder: (context, i) => _TxItem(
+                    tx: txs[i],
+                    accounts: accounts,
+                    getCategoryInfo: getCategoryInfo,
+                    onDeleteTransaction: onDeleteTransaction,
+                    onDeleteRecurringTransactions: onDeleteRecurringTransactions,
+                  ),
                 ),
         ),
       ],
@@ -76,13 +97,23 @@ class DailyDetail extends StatelessWidget {
 
 class _TxItem extends StatelessWidget {
   final Transaction tx;
-  final AppState state;
-  const _TxItem({required this.tx, required this.state});
+  final List<Account> accounts;
+  final CategoryInfo Function(String category) getCategoryInfo;
+  final void Function(String id) onDeleteTransaction;
+  final void Function(String recurringId) onDeleteRecurringTransactions;
+
+  const _TxItem({
+    required this.tx,
+    required this.accounts,
+    required this.getCategoryInfo,
+    required this.onDeleteTransaction,
+    required this.onDeleteRecurringTransactions,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final acc = state.accounts.firstWhereOrNull((a) => a.id == tx.accountId);
-    final catInfo = state.getCategoryInfo(tx.category);
+    final acc = accounts.firstWhereOrNull((a) => a.id == tx.accountId);
+    final catInfo = getCategoryInfo(tx.category);
     final isExpense = tx.type == 'expense';
     final amountColor = isExpense ? const Color(0xFFE11D48) : const Color(0xFF059669);
     final accLabel = acc != null
@@ -128,7 +159,7 @@ class _TxItem extends StatelessWidget {
               const SizedBox(height: 4),
               if (!tx.isSettlement)
                 GestureDetector(
-                  onTap: () => _confirmDelete(context, tx, state),
+                  onTap: () => _confirmDelete(context, tx),
                   child: const Padding(
                     padding: EdgeInsets.only(top: 4),
                     child: Icon(Icons.delete_outline, size: 16, color: Color(0xFF94A3B8)),
@@ -141,7 +172,7 @@ class _TxItem extends StatelessWidget {
     );
   }
 
-  void _confirmDelete(BuildContext context, Transaction tx, AppState state) {
+  void _confirmDelete(BuildContext context, Transaction tx) {
     if (tx.isRecurring && tx.recurringId != null) {
       showDialog(
         context: context,
@@ -153,11 +184,11 @@ class _TxItem extends StatelessWidget {
           actions: [
             TextButton(onPressed: () => Navigator.pop(context), child: Text('취소', style: GoogleFonts.notoSansKr(color: const Color(0xFF94A3B8)))),
             TextButton(
-              onPressed: () { state.deleteTransaction(tx.id); Navigator.pop(context); },
+              onPressed: () { onDeleteTransaction(tx.id); Navigator.pop(context); },
               child: Text('이 항목만', style: GoogleFonts.notoSansKr(color: const Color(0xFFE11D48), fontWeight: FontWeight.w700)),
             ),
             TextButton(
-              onPressed: () { state.deleteRecurringTransactions(tx.recurringId!); Navigator.pop(context); },
+              onPressed: () { onDeleteRecurringTransactions(tx.recurringId!); Navigator.pop(context); },
               child: Text('모든 일정', style: GoogleFonts.notoSansKr(color: const Color(0xFFE11D48), fontWeight: FontWeight.w700)),
             ),
           ],
@@ -174,7 +205,7 @@ class _TxItem extends StatelessWidget {
           actions: [
             TextButton(onPressed: () => Navigator.pop(context), child: Text('취소', style: GoogleFonts.notoSansKr(color: const Color(0xFF94A3B8)))),
             TextButton(
-              onPressed: () { state.deleteTransaction(tx.id); Navigator.pop(context); },
+              onPressed: () { onDeleteTransaction(tx.id); Navigator.pop(context); },
               child: Text('삭제', style: GoogleFonts.notoSansKr(color: const Color(0xFFE11D48), fontWeight: FontWeight.w700)),
             ),
           ],

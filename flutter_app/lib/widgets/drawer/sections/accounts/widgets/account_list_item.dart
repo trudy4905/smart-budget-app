@@ -4,7 +4,9 @@ import '../../../../../../providers/app_state.dart';
 import '../../../../../../utils/helpers.dart';
 
 class AccountListItem extends StatelessWidget {
-  final AppState state;
+  final List<String> selectedAccountIds;
+  final int totalAccountsCount;
+  final void Function(List<String>) onSelectedAccountIdsChanged;
   final String id;
   final IconData icon;
   final String label;
@@ -22,7 +24,9 @@ class AccountListItem extends StatelessWidget {
 
   const AccountListItem({
     super.key,
-    required this.state,
+    required this.selectedAccountIds,
+    required this.totalAccountsCount,
+    required this.onSelectedAccountIdsChanged,
     required this.id,
     required this.icon,
     required this.label,
@@ -41,8 +45,8 @@ class AccountListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isAllActive = state.selectedAccountIds.contains('all');
-    final isChecked = isAll ? isAllActive : (isAllActive || state.selectedAccountIds.contains(id));
+    final isAllActive = selectedAccountIds.contains('all');
+    final isChecked = isAll ? isAllActive : (isAllActive || selectedAccountIds.contains(id));
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -52,23 +56,12 @@ class AccountListItem extends StatelessWidget {
           onTap: () {
             if (isAll) {
               if (isAllActive) {
-                state.setSelectedAccountIds([]);
+                onSelectedAccountIdsChanged([]);
               } else {
-                state.setSelectedAccountIds(['all']);
+                onSelectedAccountIdsChanged(['all']);
               }
             } else {
-              if (state.selectedAccountIds.contains('all')) {
-                final next = state.accounts.map((e) => e.id).where((x) => x != id).toList();
-                state.setSelectedAccountIds(next);
-              } else {
-                if (state.selectedAccountIds.contains(id)) {
-                  final next = state.selectedAccountIds.where((x) => x != id).toList();
-                  state.setSelectedAccountIds(next);
-                } else {
-                  final next = [...state.selectedAccountIds, id];
-                  state.setSelectedAccountIds(next.length == state.accounts.length ? ['all'] : next);
-                }
-              }
+              onSelectedAccountIdsChanged([id]); // The parent will handle the toggle logic
             }
           },
           child: Padding(

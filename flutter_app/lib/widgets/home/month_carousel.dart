@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../providers/app_state.dart';
 
 class MonthCarousel extends StatefulWidget {
-  final AppState state;
-  const MonthCarousel({super.key, required this.state});
+  final DateTime currentDate;
+  final void Function(DateTime month) onMonthSelected;
+
+  const MonthCarousel({
+    super.key,
+    required this.currentDate,
+    required this.onMonthSelected,
+  });
 
   @override
   State<MonthCarousel> createState() => MonthCarouselState();
@@ -28,7 +33,7 @@ class MonthCarouselState extends State<MonthCarousel> {
 
   @override
   Widget build(BuildContext context) {
-    final state = widget.state;
+    final currentDate = widget.currentDate;
     final now = DateTime.now();
     final start = DateTime(now.year - 3, 1, 1);
     final end = DateTime(now.year + 2, 12, 1);
@@ -51,12 +56,12 @@ class MonthCarouselState extends State<MonthCarousel> {
         ));
       }
       lastYear = m.year;
-      final isActive = m.year == state.currentDate.year && m.month == state.currentDate.month;
+      final isActive = m.year == currentDate.year && m.month == currentDate.month;
       
       final keyStr = '${m.year}-${m.month}';
       final key = _monthKeys.putIfAbsent(keyStr, () => GlobalKey());
       
-      items.add(_monthPill(m, isActive, state, key: key));
+      items.add(_monthPill(m, isActive, key: key));
     }
 
     if (_shouldScrollToLeft) {
@@ -65,12 +70,12 @@ class MonthCarouselState extends State<MonthCarousel> {
         Future.delayed(const Duration(milliseconds: 300), () {
           if (!mounted) return;
           if (_scrollCtrl.hasClients) {
-            int prevYear = state.currentDate.year;
-            int prevMonth = state.currentDate.month - 1;
+            int prevYear = currentDate.year;
+            int prevMonth = currentDate.month - 1;
             if (prevMonth == 0) { prevMonth = 12; prevYear--; }
             
             final prevKeyStr = '$prevYear-$prevMonth';
-            final activeKeyStr = '${state.currentDate.year}-${state.currentDate.month}';
+            final activeKeyStr = '${currentDate.year}-${currentDate.month}';
             final keyToScroll = _monthKeys[prevKeyStr] ?? _monthKeys[activeKeyStr];
             
             if (keyToScroll?.currentContext != null) {
@@ -98,13 +103,12 @@ class MonthCarouselState extends State<MonthCarousel> {
     );
   }
 
-  Widget _monthPill(DateTime m, bool isActive, AppState state, {Key? key}) {
+  Widget _monthPill(DateTime m, bool isActive, {Key? key}) {
     return GestureDetector(
       key: key,
       onTap: () {
         _shouldScrollToLeft = false;
-        state.setCurrentDate(m);
-        state.setSelectedDate('${m.year}-${m.month.toString().padLeft(2, '0')}-01');
+        widget.onMonthSelected(m);
       },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
