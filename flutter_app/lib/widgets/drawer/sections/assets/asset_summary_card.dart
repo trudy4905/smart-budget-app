@@ -1,4 +1,4 @@
-﻿import 'dart:ui';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -85,19 +85,7 @@ class _AssetSummaryCardState extends State<AssetSummaryCard> {
                 const SizedBox(height: 6),
                 Builder(
                   builder: (context) {
-                    int totalAssets = 0;
-                    if (state.selectedAccountIds.contains('all')) {
-                      totalAssets = state.getNetAssets();
-                    } else {
-                      for (final acc in state.accounts) {
-                        if (!state.selectedAccountIds.contains(acc.id)) continue;
-                        if (acc.isBank) {
-                          totalAssets += state.getBankAccountBalance(acc.id);
-                        } else if (acc.isCredit) {
-                          totalAssets += state.getCreditCardDebt(acc.id);
-                        }
-                      }
-                    }
+                    final totalAssets = state.getFilteredNetAssets();
                     return ImageFiltered(
                       imageFilter: ImageFilter.blur(sigmaX: _isAssetVisible ? 0 : 8, sigmaY: _isAssetVisible ? 0 : 8),
                       child: Text('${formatNumber(totalAssets)}원', style: GoogleFonts.notoSansKr(fontSize: 28, fontWeight: FontWeight.w700, color: const Color(0xFF0F172A), letterSpacing: -0.5)),

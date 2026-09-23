@@ -548,6 +548,23 @@ class AppState extends ChangeNotifier {
     return total;
   }
 
+  int getFilteredNetAssets() {
+    if (selectedAccountIds.contains('all')) {
+      return getNetAssets();
+    }
+    
+    int total = 0;
+    for (final acc in accounts) {
+      if (!selectedAccountIds.contains(acc.id)) continue;
+      if (acc.isBank) {
+        total += getBankAccountBalance(acc.id);
+      } else if (acc.isCredit) {
+        total += getCreditCardDebt(acc.id);
+      }
+    }
+    return total;
+  }
+
   bool _isCardTransactionSettled(Account card, DateTime txDate, DateTime upToDate) {
     for (int offset = -1; offset <= 3; offset++) {
       int y = txDate.year;
