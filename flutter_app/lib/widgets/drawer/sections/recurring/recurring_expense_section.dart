@@ -170,7 +170,6 @@ class _RecurringExpenseSectionState extends State<RecurringExpenseSection> {
                       ],
                     );
                   }),
-                  const SizedBox(height: 8),
                 ],
               ),
               secondChild: const SizedBox(width: double.infinity),

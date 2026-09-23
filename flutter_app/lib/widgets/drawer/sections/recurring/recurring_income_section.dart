@@ -116,7 +116,6 @@ class _RecurringIncomeSectionState extends State<RecurringIncomeSection> {
                       ],
                     );
                   }),
-                  const SizedBox(height: 8),
                 ],
               ),
               secondChild: const SizedBox(width: double.infinity),
