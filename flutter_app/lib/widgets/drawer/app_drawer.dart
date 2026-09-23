@@ -131,6 +131,11 @@ class _AppDrawerState extends State<AppDrawer> {
                                           padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                                           child: Divider(color: Color(0xFFF1F5F9), height: 1),
                                         ),
+                                        
+                                        const Padding(
+                                          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                          child: Divider(color: Color(0xFFF1F5F9), height: 1),
+                                        ),
                                         RecurringIncomeSection(drawerCashFlowDate: _drawerCashFlowDate),
                                         const Padding(
                                           padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
