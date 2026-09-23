@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../providers/app_state.dart';
 import '../../../../models/account.dart';
 import '../../../../utils/helpers.dart';
-import '../../../common/add_account_sheet.dart';
+import 'add_account_sheet/add_account_sheet.dart';
 import 'widgets/account_list_item.dart';
 class AccountsSection extends StatefulWidget {
   const AccountsSection({super.key});

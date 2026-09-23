@@ -1,20 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:provider/provider.dart';
-import '../../providers/app_state.dart';
-import '../../models/account.dart';
-import '../../utils/helpers.dart';
+import '../../../../../../models/account.dart';
+import '../../../../../../utils/helpers.dart';
 
-class AddAccountSheet extends StatefulWidget {
+class AddAccountSheetUi extends StatefulWidget {
   final Account? editAccount;
-  const AddAccountSheet({super.key, this.editAccount});
+  final List<Account> bankAccounts;
+  final void Function(Account account) onSave;
+
+  const AddAccountSheetUi({
+    super.key,
+    this.editAccount,
+    required this.bankAccounts,
+    required this.onSave,
+  });
 
   @override
-  State<AddAccountSheet> createState() => _AddAccountSheetState();
+  State<AddAccountSheetUi> createState() => _AddAccountSheetUiState();
 }
 
-class _AddAccountSheetState extends State<AddAccountSheet> {
+class _AddAccountSheetUiState extends State<AddAccountSheetUi> {
   String _type = 'bank'; // 'bank', 'credit', 'debit'
   String _bank = '신한은행';
   final _nameCtrl = TextEditingController();
@@ -83,10 +89,9 @@ class _AddAccountSheetState extends State<AddAccountSheet> {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
         if (_type == 'credit' || _type == 'debit') {
-          final banks = context.read<AppState>().accounts.where((a) => a.isBank).toList();
-          if (banks.isNotEmpty) {
+          if (widget.bankAccounts.isNotEmpty) {
             setState(() {
-              _linkedBankId = banks.first.id;
+              _linkedBankId = widget.bankAccounts.first.id;
             });
           }
         }
@@ -94,16 +99,14 @@ class _AddAccountSheetState extends State<AddAccountSheet> {
     }
   }
 
-  // Helper to change type and reset bank
   void _changeType(String newType) {
     setState(() {
       _type = newType;
       final bankList = _type == 'bank' ? _banks : _cards;
       _bank = bankList[0];
       if (_type == 'credit' || _type == 'debit') {
-        final banks = context.read<AppState>().accounts.where((a) => a.isBank).toList();
-        if (banks.isNotEmpty) {
-          _linkedBankId = banks.first.id;
+        if (widget.bankAccounts.isNotEmpty) {
+          _linkedBankId = widget.bankAccounts.first.id;
         } else {
           _linkedBankId = null;
         }
@@ -122,12 +125,10 @@ class _AddAccountSheetState extends State<AddAccountSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final state = context.watch<AppState>();
     final bankList = _type == 'bank' ? _banks : _cards;
-    final bankAccounts = state.accounts.where((a) => a.isBank).toList();
     
     String? validLinkedBankId = _linkedBankId;
-    if (validLinkedBankId != null && !bankAccounts.any((b) => b.id == validLinkedBankId)) {
+    if (validLinkedBankId != null && !widget.bankAccounts.any((b) => b.id == validLinkedBankId)) {
       validLinkedBankId = null;
     }
 
@@ -289,7 +290,7 @@ class _AddAccountSheetState extends State<AddAccountSheet> {
               const SizedBox(height: 14),
               Text(_type == 'debit' ? '연결 통장' : '결제 출금 통장', style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF64748B))),
               const SizedBox(height: 6),
-              if (bankAccounts.isEmpty)
+              if (widget.bankAccounts.isEmpty)
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -303,7 +304,7 @@ class _AddAccountSheetState extends State<AddAccountSheet> {
                   style: GoogleFonts.notoSansKr(color: const Color(0xFF0F172A)),
                   decoration: _inputDec('통장을 선택해주세요'),
                   items: [
-                    ...bankAccounts.map((a) => DropdownMenuItem(value: a.id, child: Text(a.name))),
+                    ...widget.bankAccounts.map((a) => DropdownMenuItem(value: a.id, child: Text(a.name))),
                   ],
                   onChanged: (v) => setState(() => _linkedBankId = v),
                 ),
@@ -463,7 +464,6 @@ class _AddAccountSheetState extends State<AddAccountSheet> {
       _billingStartMonth = _billingEndMonth - 1;
     }
     
-    // Show a snackbar feedback
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('$_bank 결제일($_paymentDay일) 기준 이용기간이 자동 설정되었습니다.', style: GoogleFonts.notoSansKr()),
@@ -482,7 +482,7 @@ class _AddAccountSheetState extends State<AddAccountSheet> {
 
     String? finalLinkedId = _linkedBankId;
     if (finalLinkedId != null) {
-      final bankExists = context.read<AppState>().accounts.any((a) => a.id == finalLinkedId && a.isBank);
+      final bankExists = widget.bankAccounts.any((a) => a.id == finalLinkedId);
       if (!bankExists) finalLinkedId = null;
     }
 
@@ -490,6 +490,7 @@ class _AddAccountSheetState extends State<AddAccountSheet> {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('연결할 통장을 선택해주세요', style: GoogleFonts.notoSansKr())));
       return;
     }
+
     final acc = Account(
       id: widget.editAccount?.id ?? 'acc_${DateTime.now().millisecondsSinceEpoch}',
       type: _type == 'bank' ? 'bank' : 'card',
@@ -506,18 +507,6 @@ class _AddAccountSheetState extends State<AddAccountSheet> {
       linkedBankAccountId: (_type == 'credit' || _type == 'debit') ? finalLinkedId : null,
     );
 
-    if (widget.editAccount != null) {
-      context.read<AppState>().updateAccount(acc);
-    } else {
-      context.read<AppState>().addAccount(acc);
-    }
-
-    Navigator.pop(context);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(widget.editAccount != null ? '$name이(가) 수정되었습니다' : '$name이(가) 추가되었습니다', style: GoogleFonts.notoSansKr()),
-        backgroundColor: const Color(0xFF059669),
-      ),
-    );
+    widget.onSave(acc);
   }
 }
