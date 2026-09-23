@@ -258,10 +258,10 @@ class _AccountsSectionState extends State<AccountsSection> {
             if (acc.billingStartMonth != null && acc.billingStartDay != null && acc.billingEndMonth != null && acc.billingEndDay != null) {
               final startM = acc.billingStartMonth == -1 ? '전월' : '당월';
               final endM = acc.billingEndMonth == -1 ? '전월' : '당월';
-              rightTopText = '합산: $startM ${acc.billingStartDay}일 ~ $endM ${acc.billingEndDay}일';
+              rightTopText = '$startM ${acc.billingStartDay}일 ~ $endM ${acc.billingEndDay}일';
             }
             if (acc.paymentDay != null) {
-              rightBottomText = '결제일: 매월 ${acc.paymentDay}일';
+              rightBottomText = '매월 ${acc.paymentDay}일';
             }
           } else {
             amount = null;
