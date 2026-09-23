@@ -7,7 +7,7 @@ import '../widgets/drawer/app_drawer.dart';
 import '../widgets/home/month_carousel.dart';
 import '../widgets/home/calendar_grid.dart';
 import '../widgets/home/daily_detail.dart';
-import 'add_transaction_screen.dart';
+import 'add_transaction/add_transaction_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});

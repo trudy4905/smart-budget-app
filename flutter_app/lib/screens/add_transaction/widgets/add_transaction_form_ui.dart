@@ -1,21 +1,47 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:provider/provider.dart';
-import '../providers/app_state.dart';
-import '../models/transaction.dart';
-import '../models/category_info.dart';
-import '../utils/helpers.dart';
+import '../../../../models/category_info.dart';
+import '../../../../models/account.dart';
+import '../../../../utils/helpers.dart';
 
-class AddTransactionScreen extends StatefulWidget {
+class AddTransactionFormUi extends StatefulWidget {
   final String initialType;
-  const AddTransactionScreen({super.key, this.initialType = 'expense'});
+  final String initialDateStr;
+  final String? initialAccountId;
+  final List<CategoryInfo> categories;
+  final List<Account> accounts;
+
+  final void Function(
+    String type,
+    int amount,
+    String dateStr,
+    String category,
+    String accountId,
+    String memo,
+    bool isFixed,
+  ) onSave;
+  
+  final void Function(String currentType) onAddCategoryTap;
+  final void Function(CategoryInfo category) onCategoryLongPress;
+
+  const AddTransactionFormUi({
+    super.key,
+    required this.initialType,
+    required this.initialDateStr,
+    this.initialAccountId,
+    required this.categories,
+    required this.accounts,
+    required this.onSave,
+    required this.onAddCategoryTap,
+    required this.onCategoryLongPress,
+  });
 
   @override
-  State<AddTransactionScreen> createState() => _AddTransactionScreenState();
+  State<AddTransactionFormUi> createState() => AddTransactionFormUiState();
 }
 
-class _AddTransactionScreenState extends State<AddTransactionScreen> {
+class AddTransactionFormUiState extends State<AddTransactionFormUi> {
   late String _type;
   String _category = '식당';
   String? _accountId;
@@ -28,9 +54,15 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   void initState() {
     super.initState();
     _type = widget.initialType;
-    final s = context.read<AppState>();
-    _dateStr = s.selectedDateStr;
-    if (s.accounts.isNotEmpty) _accountId = s.accounts.first.id;
+    _dateStr = widget.initialDateStr;
+    _accountId = widget.initialAccountId;
+  }
+
+  // Allow external updates if needed (e.g. category added)
+  void setCategory(String categoryName) {
+    setState(() {
+      _category = categoryName;
+    });
   }
 
   @override
@@ -42,8 +74,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final state = context.watch<AppState>();
-    final cats = state.categories.where((c) => c.type == _type).toList();
+    final cats = widget.categories.where((c) => c.type == _type).toList();
     if (!cats.any((c) => c.name == _category) && cats.isNotEmpty) _category = cats.first.name;
 
     return FractionallySizedBox(
@@ -58,7 +89,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
             leading: IconButton(icon: const Icon(Icons.close, color: Color(0xFF0F172A)), onPressed: () => Navigator.pop(context)),
             actions: [
               TextButton(
-                onPressed: _save,
+                onPressed: _handleSave,
                 child: Text('저장', style: GoogleFonts.notoSansKr(color: const Color(0xFF4F46E5), fontWeight: FontWeight.w700, fontSize: 16)),
               ),
             ],
@@ -138,7 +169,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                       final isSelected = _category == c.name;
                       return GestureDetector(
                         onTap: () => setState(() => _category = c.name),
-                        onLongPress: () => _showCategoryOptionsDialog(c),
+                        onLongPress: () => widget.onCategoryLongPress(c),
                         child: AnimatedContainer(
                           duration: const Duration(milliseconds: 150),
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -159,7 +190,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                       );
                     }),
                     GestureDetector(
-                      onTap: () => _showCategoryDialog(null),
+                      onTap: () => widget.onAddCategoryTap(_type),
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                         decoration: BoxDecoration(
@@ -203,7 +234,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                   style: GoogleFonts.notoSansKr(color: const Color(0xFF0F172A)),
                   decoration: _inputDecoration('결제수단 선택'),
                   items: [
-                    ...state.accounts.where((a) => _type == 'income' ? a.isBank : true).map((a) {
+                    ...widget.accounts.where((a) => _type == 'income' ? a.isBank : true).map((a) {
                       final icon = a.isCredit ? '💳[신용]' : a.isDebit ? '💳[체크]' : '🏦';
                       return DropdownMenuItem(value: a.id, child: Text('$icon ${a.name}'));
                     }),
@@ -232,11 +263,10 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
       child: GestureDetector(
         onTap: () => setState(() {
           _type = type;
-          final s = context.read<AppState>();
           if (type == 'income' && _accountId != null) {
-            final acc = s.accounts.firstWhereOrNull((a) => a.id == _accountId);
+            final acc = widget.accounts.where((a) => a.id == _accountId).firstOrNull;
             if (acc != null && !acc.isBank) {
-              _accountId = s.accounts.firstWhereOrNull((a) => a.isBank)?.id;
+              _accountId = widget.accounts.where((a) => a.isBank).firstOrNull?.id;
             }
           }
         }),
@@ -321,7 +351,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
     }
   }
 
-  void _save() {
+  void _handleSave() {
     final amount = int.tryParse(_amountCtrl.text.replaceAll(',', '')) ?? 0;
     if (amount <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('금액을 입력해주세요', style: GoogleFonts.notoSansKr())));
@@ -331,178 +361,6 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('결제수단을 선택해주세요', style: GoogleFonts.notoSansKr())));
       return;
     }
-
-    final baseId = 'tx_${DateTime.now().millisecondsSinceEpoch}';
-
-    if (_isFixed) {
-      final parts = _dateStr.split('-');
-      int y = int.parse(parts[0]);
-      int m = int.parse(parts[1]);
-      int d = int.parse(parts[2]);
-      
-      List<Transaction> txs = [];
-      for (int i = 0; i < 60; i++) {
-        int curM = m + i;
-        int curY = y + ((curM - 1) ~/ 12);
-        curM = ((curM - 1) % 12) + 1;
-        
-        int lastDay = DateTime(curY, curM + 1, 0).day;
-        int curD = d > lastDay ? lastDay : d;
-        
-        final dateStr = '$curY-${curM.toString().padLeft(2, '0')}-${curD.toString().padLeft(2, '0')}';
-        
-        txs.add(Transaction(
-          id: '${baseId}_$i',
-          date: dateStr, accountId: _accountId!, type: _type,
-          amount: amount, category: _category, memo: _memoCtrl.text, payment: '자동',
-          isRecurring: true, recurringId: baseId,
-        ));
-      }
-      context.read<AppState>().addTransactions(txs);
-    } else {
-      context.read<AppState>().addTransaction(Transaction(
-        id: baseId,
-        date: _dateStr, accountId: _accountId!, type: _type,
-        amount: amount, category: _category, memo: _memoCtrl.text, payment: '자동',
-      ));
-    }
-    
-    Navigator.pop(context);
-  }
-
-  void _showCategoryOptionsDialog(CategoryInfo cat) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: const Color(0xFFFFFFFF),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text('${cat.emoji} ${cat.name}', style: GoogleFonts.notoSansKr(fontWeight: FontWeight.w700, color: const Color(0xFF0F172A))),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: const Icon(Icons.edit, color: Color(0xFF4F46E5)),
-              title: Text('수정', style: GoogleFonts.notoSansKr()),
-              onTap: () {
-                Navigator.pop(ctx);
-                _showCategoryDialog(cat);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.delete, color: Color(0xFFE11D48)),
-              title: Text('삭제', style: GoogleFonts.notoSansKr()),
-              onTap: () {
-                Navigator.pop(ctx);
-                _showCategoryDeleteDialog(cat);
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _showCategoryDialog(CategoryInfo? cat) {
-    final emojiCtrl = TextEditingController(text: cat?.emoji ?? '📌');
-    final nameCtrl = TextEditingController(text: cat?.name ?? '');
-    
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: const Color(0xFFFFFFFF),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text(cat == null ? '새 카테고리 추가' : '카테고리 수정', style: GoogleFonts.notoSansKr(fontWeight: FontWeight.w700, color: const Color(0xFF0F172A))),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: emojiCtrl,
-              decoration: _inputDecoration('아이콘 (이모지 1글자)').copyWith(labelText: '아이콘'),
-              maxLength: 2,
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: nameCtrl,
-              decoration: _inputDecoration('카테고리 이름').copyWith(labelText: '이름'),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: Text('취소', style: GoogleFonts.notoSansKr(color: const Color(0xFF94A3B8)))),
-          TextButton(
-            onPressed: () {
-              final emoji = emojiCtrl.text.trim();
-              final name = nameCtrl.text.trim();
-              if (emoji.isEmpty || name.isEmpty) return;
-
-              final newCat = CategoryInfo(
-                name: name,
-                emoji: emoji,
-                color: cat?.color ?? const Color(0xFF4F46E5), // default color
-                type: _type,
-              );
-              
-              if (cat == null) {
-                context.read<AppState>().addCategory(newCat);
-                setState(() => _category = name);
-              } else {
-                context.read<AppState>().updateCategory(newCat, cat.name);
-                if (_category == cat.name) setState(() => _category = name);
-              }
-              Navigator.pop(ctx);
-            },
-            child: Text('저장', style: GoogleFonts.notoSansKr(color: const Color(0xFF4F46E5), fontWeight: FontWeight.w700)),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showCategoryDeleteDialog(CategoryInfo cat) {
-    final state = context.read<AppState>();
-    final others = state.categories.where((c) => c.type == cat.type && c.name != cat.name).toList();
-    String? selectedTransfer = others.isNotEmpty ? others.first.name : null;
-
-    showDialog(
-      context: context,
-      builder: (ctx) => StatefulBuilder(
-        builder: (ctx, setDialogState) => AlertDialog(
-          backgroundColor: const Color(0xFFFFFFFF),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title: Text('카테고리 삭제', style: GoogleFonts.notoSansKr(fontWeight: FontWeight.w700, color: const Color(0xFFE11D48))),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('이 카테고리로 작성된 내역들을 다른 카테고리로 이관하시겠습니까?', style: GoogleFonts.notoSansKr(color: const Color(0xFF0F172A))),
-              const SizedBox(height: 16),
-              if (others.isNotEmpty)
-                DropdownButtonFormField<String>(
-                  value: selectedTransfer,
-                  dropdownColor: const Color(0xFFFFFFFF),
-                  decoration: _inputDecoration('이관할 카테고리'),
-                  items: others.map((c) => DropdownMenuItem(value: c.name, child: Text('${c.emoji} ${c.name}'))).toList(),
-                  onChanged: (v) => setDialogState(() => selectedTransfer = v),
-                )
-              else
-                Text('이관할 다른 카테고리가 없습니다.', style: GoogleFonts.notoSansKr(color: const Color(0xFF94A3B8))),
-            ],
-          ),
-          actions: [
-            TextButton(onPressed: () => Navigator.pop(ctx), child: Text('취소', style: GoogleFonts.notoSansKr(color: const Color(0xFF94A3B8)))),
-            TextButton(
-              onPressed: () {
-                state.deleteCategory(cat.name, selectedTransfer);
-                if (_category == cat.name) {
-                  setState(() => _category = selectedTransfer ?? (others.isNotEmpty ? others.first.name : '기타'));
-                }
-                Navigator.pop(ctx);
-              },
-              child: Text('삭제 및 이관', style: GoogleFonts.notoSansKr(color: const Color(0xFFE11D48), fontWeight: FontWeight.w700)),
-            ),
-          ],
-        ),
-      ),
-    );
+    widget.onSave(_type, amount, _dateStr, _category, _accountId!, _memoCtrl.text, _isFixed);
   }
 }
