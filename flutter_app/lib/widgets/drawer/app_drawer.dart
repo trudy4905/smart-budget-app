@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../providers/app_state.dart';
-import 'components/drawer_header.dart';
+import 'drawer_header.dart';
 import 'sections/assets/asset_summary_card.dart';
 import 'sections/cash_flow/cash_flow_section.dart';
 import 'sections/accounts/accounts_section.dart';
