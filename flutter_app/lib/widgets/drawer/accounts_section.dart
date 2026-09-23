@@ -255,10 +255,14 @@ class _AccountsSectionState extends State<AccountsSection> {
             amount = null;
             badgeText = '신용';
             subLabel = acc.bank;
-            final now = DateTime.now();
-            final cardInfo = state.getCardPaymentInfo(acc, now.year, now.month);
-            rightTopText = '${cardInfo.paymentDateStr} 결제예정';
-            rightBottomText = '${formatNumber(cardInfo.amount)}원';
+            if (acc.billingStartMonth != null && acc.billingStartDay != null && acc.billingEndMonth != null && acc.billingEndDay != null) {
+              final startM = acc.billingStartMonth == -1 ? '전월' : '당월';
+              final endM = acc.billingEndMonth == -1 ? '전월' : '당월';
+              rightTopText = '합산: $startM ${acc.billingStartDay}일 ~ $endM ${acc.billingEndDay}일';
+            }
+            if (acc.paymentDay != null) {
+              rightBottomText = '결제일: 매월 ${acc.paymentDay}일';
+            }
           } else {
             amount = null;
             badgeText = '체크';

@@ -56,7 +56,7 @@ class CashFlowRowWidget extends StatelessWidget {
           behavior: HitTestBehavior.opaque,
           onTap: onTap,
           child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 8),
+            padding: const EdgeInsets.symmetric(vertical: 14),
             child: Row(
               children: [
                 Container(
