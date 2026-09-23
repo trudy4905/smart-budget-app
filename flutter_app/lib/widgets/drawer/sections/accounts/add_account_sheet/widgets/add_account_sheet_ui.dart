@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../../../models/account.dart';
 import '../../../../../../utils/helpers.dart';
+import '../constants/account_constants.dart';
 
 class AddAccountSheetUi extends StatefulWidget {
   final Account? editAccount;
@@ -32,35 +33,6 @@ class _AddAccountSheetUiState extends State<AddAccountSheetUi> {
   int _billingEndDay = 31;
   String? _linkedBankId;
   String _color = '#6366f1';
-
-  final _banks = ['KB국민은행', '신한은행', '우리은행', '하나은행', 'NH농협은행', 'IBK기업은행', '카카오뱅크', '토스뱅크', '케이뱅크', '새마을금고', '우체국'];
-  final _cards = ['신한카드', 'KB국민카드', '삼성카드', '현대카드', '롯데카드', '하나카드', '우리카드', 'NH농협카드', 'BC카드', '카카오페이카드', '토스카드'];
-
-  static const Map<String, String> _logoUrls = {
-    '신한카드': 'https://static.toss.im/icons/png/4x/icon-bank-shinhan.png',
-    'KB국민카드': 'https://static.toss.im/icons/png/4x/icon-bank-kb.png',
-    '삼성카드': 'https://static.toss.im/icons/png/4x/icon-bank-samsung.png',
-    '현대카드': 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/Hyundai_Card.svg/512px-Hyundai_Card.svg.png',
-    '롯데카드': 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Lotte_Card_logo.svg/512px-Lotte_Card_logo.svg.png',
-    '하나카드': 'https://static.toss.im/icons/png/4x/icon-bank-hana.png',
-    '우리카드': 'https://static.toss.im/icons/png/4x/icon-bank-woori.png',
-    'NH농협카드': 'https://static.toss.im/icons/png/4x/icon-bank-nh.png',
-    'BC카드': 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/BC_Card_logo.svg/512px-BC_Card_logo.svg.png',
-    '카카오페이카드': 'https://static.toss.im/icons/png/4x/icon-bank-kakao.png',
-    '토스카드': 'https://static.toss.im/icons/png/4x/icon-bank-toss.png',
-    'KB국민은행': 'https://static.toss.im/icons/png/4x/icon-bank-kb.png',
-    '신한은행': 'https://static.toss.im/icons/png/4x/icon-bank-shinhan.png',
-    '우리은행': 'https://static.toss.im/icons/png/4x/icon-bank-woori.png',
-    '하나은행': 'https://static.toss.im/icons/png/4x/icon-bank-hana.png',
-    'NH농협은행': 'https://static.toss.im/icons/png/4x/icon-bank-nh.png',
-    'IBK기업은행': 'https://static.toss.im/icons/png/4x/icon-bank-ibk.png',
-    '카카오뱅크': 'https://static.toss.im/icons/png/4x/icon-bank-kakao.png',
-    '토스뱅크': 'https://static.toss.im/icons/png/4x/icon-bank-toss.png',
-    '케이뱅크': 'https://static.toss.im/icons/png/4x/icon-bank-kbank.png',
-    '새마을금고': 'https://static.toss.im/icons/png/4x/icon-bank-mg.png',
-    '우체국': 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/Korea_Post_logo.svg/512px-Korea_Post_logo.svg.png',
-  };
-  final _colors = ['#6366f1', '#3b82f6', '#10b981', '#ec4899', '#f59e0b', '#8b5cf6'];
 
   @override
   void initState() {
@@ -102,7 +74,7 @@ class _AddAccountSheetUiState extends State<AddAccountSheetUi> {
   void _changeType(String newType) {
     setState(() {
       _type = newType;
-      final bankList = _type == 'bank' ? _banks : _cards;
+      final bankList = _type == 'bank' ? AccountConstants.banks : AccountConstants.cards;
       _bank = bankList[0];
       if (_type == 'credit' || _type == 'debit') {
         if (widget.bankAccounts.isNotEmpty) {
@@ -125,7 +97,7 @@ class _AddAccountSheetUiState extends State<AddAccountSheetUi> {
 
   @override
   Widget build(BuildContext context) {
-    final bankList = _type == 'bank' ? _banks : _cards;
+    final bankList = _type == 'bank' ? AccountConstants.banks : AccountConstants.cards;
     
     String? validLinkedBankId = _linkedBankId;
     if (validLinkedBankId != null && !widget.bankAccounts.any((b) => b.id == validLinkedBankId)) {
@@ -168,34 +140,10 @@ class _AddAccountSheetUiState extends State<AddAccountSheetUi> {
             // Bank/card selection
             Text(_type == 'bank' ? '은행' : '카드사', style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF64748B))),
             const SizedBox(height: 6),
-            SizedBox(
-              height: 36,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                children: bankList.map((b) {
-                  final isActive = _bank == b;
-                  return GestureDetector(
-                    onTap: () => setState(() => _bank = b),
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 150),
-                      margin: const EdgeInsets.only(right: 6),
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      decoration: BoxDecoration(
-                        color: isActive ? const Color(0xFF4F46E5).withOpacity(0.15) : const Color(0xFFFFFFFF),
-                        borderRadius: BorderRadius.circular(18),
-                        border: Border.all(color: isActive ? const Color(0xFF4F46E5).withOpacity(0.4) : const Color(0xFFE2E8F0)),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          _buildLogo(b),
-                          Text(b, style: GoogleFonts.notoSansKr(fontSize: 11, color: isActive ? const Color(0xFF4F46E5) : const Color(0xFF64748B))),
-                        ],
-                      ),
-                    ),
-                  );
-                }).toList(),
-              ),
+            _BankSelectorRow(
+              bankList: bankList,
+              selectedBank: _bank,
+              onBankSelected: (b) => setState(() => _bank = b),
             ),
             const SizedBox(height: 14),
             // Name
@@ -312,46 +260,12 @@ class _AddAccountSheetUiState extends State<AddAccountSheetUi> {
             const SizedBox(height: 14),
             Text('테마 색상', style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF64748B))),
             const SizedBox(height: 8),
-            Row(
-              children: _colors.map((c) {
-                final isActive = _color == c;
-                return GestureDetector(
-                  onTap: () => setState(() => _color = c),
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 150),
-                    width: 32, height: 32,
-                    margin: const EdgeInsets.only(right: 8),
-                    decoration: BoxDecoration(
-                      color: hexToColor(c),
-                      shape: BoxShape.circle,
-                      border: isActive ? Border.all(color: const Color(0xFF0F172A), width: 2.5) : null,
-                    ),
-                    child: isActive ? const Icon(Icons.check, size: 14, color: Color(0xFF0F172A)) : null,
-                  ),
-                );
-              }).toList(),
+            _ColorSelectorRow(
+              selectedColor: _color,
+              onColorSelected: (c) => setState(() => _color = c),
             ),
             const SizedBox(height: 20),
           ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildLogo(String name) {
-    final url = _logoUrls[name];
-    if (url == null) return const SizedBox.shrink();
-
-    return Padding(
-      padding: const EdgeInsets.only(right: 6),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(6),
-        child: Image.network(
-          url,
-          width: 14,
-          height: 14,
-          fit: BoxFit.contain,
-          errorBuilder: (context, error, stackTrace) => const SizedBox.shrink(),
         ),
       ),
     );
@@ -508,5 +422,102 @@ class _AddAccountSheetUiState extends State<AddAccountSheetUi> {
     );
 
     widget.onSave(acc);
+  }
+}
+
+class _BankSelectorRow extends StatelessWidget {
+  final List<String> bankList;
+  final String selectedBank;
+  final ValueChanged<String> onBankSelected;
+
+  const _BankSelectorRow({
+    required this.bankList,
+    required this.selectedBank,
+    required this.onBankSelected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 36,
+      child: ListView(
+        scrollDirection: Axis.horizontal,
+        children: bankList.map((b) {
+          final isActive = selectedBank == b;
+          return GestureDetector(
+            onTap: () => onBankSelected(b),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 150),
+              margin: const EdgeInsets.only(right: 6),
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              decoration: BoxDecoration(
+                color: isActive ? const Color(0xFF4F46E5).withOpacity(0.15) : const Color(0xFFFFFFFF),
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(color: isActive ? const Color(0xFF4F46E5).withOpacity(0.4) : const Color(0xFFE2E8F0)),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  _buildLogo(b),
+                  Text(b, style: GoogleFonts.notoSansKr(fontSize: 11, color: isActive ? const Color(0xFF4F46E5) : const Color(0xFF64748B))),
+                ],
+              ),
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget _buildLogo(String name) {
+    final url = AccountConstants.logoUrls[name];
+    if (url == null) return const SizedBox.shrink();
+
+    return Padding(
+      padding: const EdgeInsets.only(right: 6),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(6),
+        child: Image.network(
+          url,
+          width: 14,
+          height: 14,
+          fit: BoxFit.contain,
+          errorBuilder: (context, error, stackTrace) => const SizedBox.shrink(),
+        ),
+      ),
+    );
+  }
+}
+
+class _ColorSelectorRow extends StatelessWidget {
+  final String selectedColor;
+  final ValueChanged<String> onColorSelected;
+
+  const _ColorSelectorRow({
+    required this.selectedColor,
+    required this.onColorSelected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: AccountConstants.themeColors.map((c) {
+        final isActive = selectedColor == c;
+        return GestureDetector(
+          onTap: () => onColorSelected(c),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 150),
+            width: 32, height: 32,
+            margin: const EdgeInsets.only(right: 8),
+            decoration: BoxDecoration(
+              color: hexToColor(c),
+              shape: BoxShape.circle,
+              border: isActive ? Border.all(color: const Color(0xFF0F172A), width: 2.5) : null,
+            ),
+            child: isActive ? const Icon(Icons.check, size: 14, color: Color(0xFF0F172A)) : null,
+          ),
+        );
+      }).toList(),
+    );
   }
 }
