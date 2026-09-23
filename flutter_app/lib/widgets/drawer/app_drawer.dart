@@ -122,12 +122,20 @@ class _AppDrawerState extends State<AppDrawer> {
                                           child: ExpectedAssetCard(drawerCashFlowDate: _drawerCashFlowDate),
                                         ),
 
+                                        const Padding(
+                                          padding: EdgeInsets.symmetric(horizontal: 16),
+                                          child: Divider(color: Color(0xFFF1F5F9), height: 1),
+                                        ),
                                         RecurringExpenseSection(drawerCashFlowDate: _drawerCashFlowDate),
                                         const Padding(
                                           padding: EdgeInsets.symmetric(horizontal: 16),
                                           child: Divider(color: Color(0xFFF1F5F9), height: 1),
                                         ),
                                         RecurringIncomeSection(drawerCashFlowDate: _drawerCashFlowDate),
+                                        const Padding(
+                                          padding: EdgeInsets.symmetric(horizontal: 16),
+                                          child: Divider(color: Color(0xFFF1F5F9), height: 1),
+                                        ),
                                       ],
                                     ),
                                   ),
