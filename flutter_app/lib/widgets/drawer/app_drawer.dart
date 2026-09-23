@@ -22,12 +22,46 @@ class _AppDrawerState extends State<AppDrawer> {
   DateTime _drawerCashFlowDate = DateTime.now();
   String _openPanel = ''; // 'income', 'expense', 'upcoming_income', 'upcoming_expense'
 
-  void _toggleSidePanel(String type) {
+  void _toggleSidePanel(String type, BuildContext context, DashboardSummary dash) {
     setState(() {
-      if (_openPanel == type) {
-        _openPanel = '';
-      } else {
-        _openPanel = type;
+      _openPanel = type;
+    });
+
+    showGeneralDialog(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: 'Dismiss',
+      barrierColor: Colors.black.withOpacity(0.3),
+      transitionDuration: const Duration(milliseconds: 250),
+      pageBuilder: (context, anim1, anim2) {
+        return Align(
+          alignment: Alignment.centerRight,
+          child: Padding(
+            padding: EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.height * 0.2),
+            child: Material(
+              color: Colors.transparent,
+              child: ClipRRect(
+                borderRadius: const BorderRadius.only(topLeft: Radius.circular(16), bottomLeft: Radius.circular(16)),
+                child: SizedBox(
+                  width: 280,
+                  child: DrawerSidePanel(dash: dash, openPanelType: type),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+      transitionBuilder: (context, anim1, anim2, child) {
+        return SlideTransition(
+          position: Tween(begin: const Offset(1, 0), end: Offset.zero).animate(CurvedAnimation(parent: anim1, curve: Curves.easeOutCubic)),
+          child: child,
+        );
+      },
+    ).then((_) {
+      if (mounted) {
+        setState(() {
+          _openPanel = '';
+        });
       }
     });
   }
@@ -112,7 +146,7 @@ class _AppDrawerState extends State<AppDrawer> {
                                                   type: 'income',
                                                   icon: Icons.download, iconBgColor: const Color(0xFFECFDF5), iconColor: const Color(0xFF059669),
                                                   title: '수입', amount: dash.alreadyReceivedIncome, isExpanded: _openPanel == 'income',
-                                                  onTap: () => _toggleSidePanel('income'),
+                                                  onTap: () => _toggleSidePanel('income', context, dash),
                                                 );
                                                 break;
                                               case 'expense':
@@ -120,7 +154,7 @@ class _AppDrawerState extends State<AppDrawer> {
                                                   type: 'expense',
                                                   icon: Icons.upload, iconBgColor: const Color(0xFFFFF1F2), iconColor: const Color(0xFFE11D48),
                                                   title: '지출', amount: dash.totalAlreadyPaid, isExpanded: _openPanel == 'expense',
-                                                  onTap: () => _toggleSidePanel('expense'),
+                                                  onTap: () => _toggleSidePanel('expense', context, dash),
                                                 );
                                                 break;
                                               case 'upcoming_income':
@@ -128,7 +162,7 @@ class _AppDrawerState extends State<AppDrawer> {
                                                   type: 'upcoming_income',
                                                   icon: Icons.next_plan, iconBgColor: const Color(0xFFFEF3C7), iconColor: const Color(0xFFD97706),
                                                   title: '예정 수입', amount: dash.totalUpcomingIncome, isExpanded: _openPanel == 'upcoming_income',
-                                                  onTap: () => _toggleSidePanel('upcoming_income'),
+                                                  onTap: () => _toggleSidePanel('upcoming_income', context, dash),
                                                 );
                                                 break;
                                               case 'upcoming_expense':
@@ -136,7 +170,7 @@ class _AppDrawerState extends State<AppDrawer> {
                                                   type: 'upcoming_expense',
                                                   icon: Icons.event_busy, iconBgColor: const Color(0xFFF3E8FF), iconColor: const Color(0xFF7C3AED),
                                                   title: '예정 지출', amount: dash.totalUpcomingExpense, isExpanded: _openPanel == 'upcoming_expense',
-                                                  onTap: () => _toggleSidePanel('upcoming_expense'),
+                                                  onTap: () => _toggleSidePanel('upcoming_expense', context, dash),
                                                 );
                                                 break;
                                               case 'expected_asset':
@@ -245,14 +279,6 @@ class _AppDrawerState extends State<AppDrawer> {
                     ),
                   ),
                 ),
-                if (isSideListOpen)
-                  Positioned(
-                    right: 0,
-                    top: 0,
-                    bottom: 0,
-                    width: MediaQuery.of(context).size.width * 0.85 * 0.5,
-                    child: DrawerSidePanel(dash: dash, openPanelType: _openPanel),
-                  ),
               ],
             ),
           ),
