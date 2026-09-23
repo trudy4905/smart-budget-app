@@ -85,35 +85,50 @@ class _AppDrawerState extends State<AppDrawer> {
                                             },
                                           ),
                                         ),
-                                        CashFlowRowWidget(
-                                          type: 'income',
-                                          icon: Icons.download, iconBgColor: const Color(0xFFECFDF5), iconColor: const Color(0xFF059669),
-                                          title: '수입', amount: dash.alreadyReceivedIncome, isExpanded: _openPanel == 'income',
-                                          onTap: () => _toggleSidePanel('income'),
-                                        ),
-                                        CashFlowRowWidget(
-                                          type: 'expense',
-                                          icon: Icons.upload, iconBgColor: const Color(0xFFFFF1F2), iconColor: const Color(0xFFE11D48),
-                                          title: '지출', amount: dash.totalAlreadyPaid, isExpanded: _openPanel == 'expense',
-                                          onTap: () => _toggleSidePanel('expense'),
-                                        ),
-                                        CashFlowRowWidget(
-                                          type: 'upcoming_income',
-                                          icon: Icons.next_plan, iconBgColor: const Color(0xFFFEF3C7), iconColor: const Color(0xFFD97706),
-                                          title: '예정 수입', amount: dash.totalUpcomingIncome, isExpanded: _openPanel == 'upcoming_income',
-                                          onTap: () => _toggleSidePanel('upcoming_income'),
-                                        ),
-                                        CashFlowRowWidget(
-                                          type: 'upcoming_expense',
-                                          icon: Icons.event_busy, iconBgColor: const Color(0xFFF3E8FF), iconColor: const Color(0xFF7C3AED),
-                                          title: '예정 지출', amount: dash.totalUpcomingExpense, isExpanded: _openPanel == 'upcoming_expense',
-                                          onTap: () => _toggleSidePanel('upcoming_expense'),
+                                        Container(
+                                          margin: const EdgeInsets.symmetric(horizontal: 12),
+                                          padding: const EdgeInsets.symmetric(vertical: 4),
+                                          decoration: BoxDecoration(
+                                            color: const Color(0xFFF8FAFC),
+                                            borderRadius: BorderRadius.circular(12),
+                                          ),
+                                          child: Column(
+                                            children: [
+                                              CashFlowRowWidget(
+                                                type: 'income',
+                                                icon: Icons.download, iconBgColor: const Color(0xFFECFDF5), iconColor: const Color(0xFF059669),
+                                                title: '수입', amount: dash.alreadyReceivedIncome, isExpanded: _openPanel == 'income',
+                                                onTap: () => _toggleSidePanel('income'),
+                                              ),
+                                              CashFlowRowWidget(
+                                                type: 'expense',
+                                                icon: Icons.upload, iconBgColor: const Color(0xFFFFF1F2), iconColor: const Color(0xFFE11D48),
+                                                title: '지출', amount: dash.totalAlreadyPaid, isExpanded: _openPanel == 'expense',
+                                                onTap: () => _toggleSidePanel('expense'),
+                                              ),
+                                              CashFlowRowWidget(
+                                                type: 'upcoming_income',
+                                                icon: Icons.next_plan, iconBgColor: const Color(0xFFFEF3C7), iconColor: const Color(0xFFD97706),
+                                                title: '예정 수입', amount: dash.totalUpcomingIncome, isExpanded: _openPanel == 'upcoming_income',
+                                                onTap: () => _toggleSidePanel('upcoming_income'),
+                                              ),
+                                              CashFlowRowWidget(
+                                                type: 'upcoming_expense',
+                                                icon: Icons.event_busy, iconBgColor: const Color(0xFFF3E8FF), iconColor: const Color(0xFF7C3AED),
+                                                title: '예정 지출', amount: dash.totalUpcomingExpense, isExpanded: _openPanel == 'upcoming_expense',
+                                                onTap: () => _toggleSidePanel('upcoming_expense'),
+                                              ),
+                                            ],
+                                          ),
                                         ),
                                         const Padding(
                                           padding: EdgeInsets.symmetric(horizontal: 16),
                                           child: Divider(color: Color(0xFFF1F5F9), height: 1),
                                         ),
-                                        ExpectedAssetCard(drawerCashFlowDate: _drawerCashFlowDate),
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                                          child: ExpectedAssetCard(drawerCashFlowDate: _drawerCashFlowDate),
+                                        ),
                                         const Padding(
                                           padding: EdgeInsets.symmetric(horizontal: 16),
                                           child: Divider(color: Color(0xFFF1F5F9), height: 1),

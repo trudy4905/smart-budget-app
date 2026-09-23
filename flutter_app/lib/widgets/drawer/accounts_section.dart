@@ -127,7 +127,7 @@ class _AccountsSectionState extends State<AccountsSection> {
             }
           },
           child: Padding(
-            padding: const EdgeInsets.only(left: 16, right: 8, top: 0, bottom: 0),
+            padding: const EdgeInsets.only(left: 16, right: 8, top: 8, bottom: 8),
             child: Row(
               children: [
                 if (isSubItem)
@@ -196,23 +196,6 @@ class _AccountsSectionState extends State<AccountsSection> {
                             Text(rightBottomText!, style: GoogleFonts.notoSansKr(fontSize: 10, color: const Color(0xFF0F172A), fontWeight: FontWeight.w600)),
                         ],
                       ),
-                      if (thirdLineText != null)
-                        Container(
-                          margin: const EdgeInsets.only(top: 4),
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFF1F5F9),
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const Icon(Icons.link, size: 10, color: Color(0xFF64748B)),
-                              const SizedBox(width: 4),
-                              Text(thirdLineText!, style: GoogleFonts.notoSansKr(fontSize: 9, color: const Color(0xFF64748B))),
-                            ],
-                          ),
-                        ),
                     ],
                   ),
                 ),
@@ -269,7 +252,7 @@ class _AccountsSectionState extends State<AccountsSection> {
             badgeText = '통장';
             subLabel = acc.bank;
           } else if (acc.isCredit) {
-            amount = state.getCreditCardDebt(acc.id, upToDate: DateTime.now());
+            amount = null;
             badgeText = '신용';
             subLabel = acc.bank;
             final now = DateTime.now();
@@ -277,6 +260,7 @@ class _AccountsSectionState extends State<AccountsSection> {
             rightTopText = '${cardInfo.paymentDateStr} 결제예정';
             rightBottomText = '${formatNumber(cardInfo.amount)}원';
           } else {
+            amount = null;
             badgeText = '체크';
             subLabel = acc.bank;
           }
@@ -288,13 +272,11 @@ class _AccountsSectionState extends State<AccountsSection> {
             label: acc.name,
             badgeText: badgeText,
             subLabel: subLabel,
-            color: const Color(0xFF4F46E5),
+            color: hexToColor(acc.color),
             amount: amount,
             rightTopText: rightTopText,
             rightBottomText: rightBottomText,
-            thirdLineText: (!acc.isBank && acc.linkedBankAccountId != null)
-                ? '연결: ${state.accounts.where((a) => a.id == acc.linkedBankAccountId).firstOrNull?.name ?? '알 수 없음'}'
-                : null,
+            thirdLineText: null,
             isSubItem: isSubItem,
             onAction: (val) {
               if (val == 'edit') _showAddAccountDialog(context, state, editAccount: acc);
