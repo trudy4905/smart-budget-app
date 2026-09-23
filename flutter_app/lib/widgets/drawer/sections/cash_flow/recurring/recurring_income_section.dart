@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../../providers/app_state.dart';
 import '../../../../../models/transaction.dart';
 import '../../../../../utils/helpers.dart';
-import '../../components/shared_drawer_components.dart';
+import 'widgets/recurring_item_widget.dart';
 
 class RecurringIncomeSection extends StatefulWidget {
   final DateTime drawerCashFlowDate;
