@@ -85,12 +85,14 @@ class AccountsSectionUI extends StatelessWidget {
       );
     }
 
-    return Container(
-      decoration: BoxDecoration(
-        color: const Color(0xFFFFFFFF),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
-      ),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+      child: Container(
+        decoration: BoxDecoration(
+          color: const Color(0xFFFFFFFF),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: const Color(0xFFE2E8F0)),
+        ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -154,8 +156,17 @@ class AccountsSectionUI extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Padding(
-                          padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
-                          child: Text('미연결 계좌/카드', style: GoogleFonts.notoSansKr(fontSize: 12, color: const Color(0xFF64748B), fontWeight: FontWeight.w600)),
+                          padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                          child: Row(
+                            children: [
+                              const SizedBox(width: 8, child: Divider(color: Color(0xFFE2E8F0), thickness: 1)),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 8),
+                                child: Text('미연결 계좌/카드 (${unlinked.length})', style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF94A3B8), fontWeight: FontWeight.w600)),
+                              ),
+                              const Expanded(child: Divider(color: Color(0xFFE2E8F0), thickness: 1)),
+                            ],
+                          ),
                         ),
                         ...unlinked.map((c) => buildAccNode(c)),
                       ],
