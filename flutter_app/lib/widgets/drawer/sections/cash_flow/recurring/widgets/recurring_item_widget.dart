@@ -23,13 +23,13 @@ class RecurringItemWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      padding: const EdgeInsets.only(left: 16, right: 20, top: 8, bottom: 8),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           if (isSubItem)
             const Padding(
-              padding: EdgeInsets.only(left: 0, right: 8),
+              padding: EdgeInsets.only(left: 0, right: 4),
               child: Icon(Icons.subdirectory_arrow_right, size: 16, color: Color(0xFFCBD5E1)),
             ),
           Container(

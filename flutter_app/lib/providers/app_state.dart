@@ -560,8 +560,6 @@ class AppState extends ChangeNotifier {
       if (!selectedAccountIds.contains(acc.id)) continue;
       if (acc.isBank) {
         total += getBankAccountBalance(acc.id);
-      } else if (acc.isCredit) {
-        total += getCreditCardDebt(acc.id);
       }
     }
     return total;
