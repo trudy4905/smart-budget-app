@@ -3,10 +3,10 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'providers/app_state.dart';
-import 'view_models/recurring_view_model.dart';
-import 'view_models/dashboard_view_model.dart';
-import 'screens/home_screen.dart';
+import 'package:flutter_app/core/providers/app_state.dart';
+import 'package:flutter_app/features/recurring/view_models/recurring_view_model.dart';
+import 'package:flutter_app/features/dashboard/view_models/dashboard_view_model.dart';
+import 'package:flutter_app/features/home/views/home_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
