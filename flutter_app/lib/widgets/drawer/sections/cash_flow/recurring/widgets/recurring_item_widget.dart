@@ -11,10 +11,13 @@ class RecurringItemWidget extends StatelessWidget {
   final int? amount;
   final Widget? rightWidget;
   final VoidCallback? onDelete;
+  final IconData icon;
+  final bool isSubItem;
 
   const RecurringItemWidget({
     super.key, required this.iconBgColor, required this.iconColor, required this.title,
-    this.titleTag, required this.subtitle, this.amount, this.rightWidget, this.onDelete
+    this.titleTag, required this.subtitle, this.amount, this.rightWidget, this.onDelete,
+    this.icon = Icons.calendar_today, this.isSubItem = false,
   });
 
   @override
@@ -24,13 +27,18 @@ class RecurringItemWidget extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
+          if (isSubItem)
+            const Padding(
+              padding: EdgeInsets.only(left: 0, right: 8),
+              child: Icon(Icons.subdirectory_arrow_right, size: 16, color: Color(0xFFCBD5E1)),
+            ),
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
               color: iconBgColor,
               shape: BoxShape.circle,
             ),
-            child: Icon(Icons.calendar_today, size: 16, color: iconColor),
+            child: Icon(icon, size: 16, color: iconColor),
           ),
           const SizedBox(width: 12),
           Expanded(

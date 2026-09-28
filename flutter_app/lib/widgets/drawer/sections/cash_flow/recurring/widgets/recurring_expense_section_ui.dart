@@ -69,6 +69,7 @@ class RecurringExpenseSectionUI extends StatelessWidget {
                   children: [
                     const Padding(padding: EdgeInsets.only(left: 8, right: 8), child: Divider(color: Color(0xFFF1F5F9), height: 1)),
                     RecurringItemWidget(
+                      icon: txAccount == null ? Icons.calendar_today : (txAccount.isBank ? Icons.account_balance : Icons.credit_card),
                       iconBgColor: const Color(0xFFFFF1F2),
                       iconColor: const Color(0xFFE11D48),
                       title: tx.memo.isNotEmpty ? '${tx.category} (${tx.memo})' : tx.category,
@@ -126,6 +127,7 @@ class RecurringExpenseSectionUI extends StatelessWidget {
                   children: [
                     const Padding(padding: EdgeInsets.only(left: 8, right: 8), child: Divider(color: Color(0xFFF1F5F9), height: 1)),
                     RecurringItemWidget(
+                      icon: Icons.credit_card,
                       iconBgColor: const Color(0xFFFFF1F2),
                       iconColor: const Color(0xFFE11D48),
                       title: '${c.name} 대금 결제',
@@ -140,6 +142,8 @@ class RecurringExpenseSectionUI extends StatelessWidget {
                           children: [
                             const Padding(padding: EdgeInsets.only(left: 8, right: 8), child: Divider(color: Color(0xFFF1F5F9), height: 1)),
                             RecurringItemWidget(
+                              isSubItem: true,
+                              icon: Icons.credit_card,
                               iconBgColor: const Color(0xFFFFF1F2).withOpacity(0.5),
                               iconColor: const Color(0xFFE11D48).withOpacity(0.5),
                               title: tx.memo.isNotEmpty ? '${tx.category} (${tx.memo})' : tx.category,
