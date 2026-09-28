@@ -4,6 +4,7 @@ import 'package:flutter_app/features/transactions/models/transaction.dart';
 import 'package:flutter_app/features/accounts/models/account.dart';
 import 'package:flutter_app/features/categories/models/category_info.dart';
 import 'package:flutter_app/core/utils/helpers.dart';
+import 'package:flutter_app/core/theme/app_colors.dart';
 
 class DailyDetail extends StatelessWidget {
   final String selectedDateStr;
@@ -44,7 +45,7 @@ class DailyDetail extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Text(titleText, style: GoogleFonts.notoSansKr(fontSize: 15, fontWeight: FontWeight.w700, color: const Color(0xFF0F172A))),
+              Text(titleText, style: GoogleFonts.notoSansKr(fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.textMain)),
               const Spacer(),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
@@ -54,9 +55,9 @@ class DailyDetail extends StatelessWidget {
                     children: [
                       Text('수입 ₩${formatNumber(dailyIncome)}', style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF059669))),
                       const SizedBox(width: 6),
-                      Text('지출 ₩${formatNumber(dailyExpense)}', style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFFE11D48))),
+                      Text('지출 ₩${formatNumber(dailyExpense)}', style: GoogleFonts.notoSansKr(fontSize: 11, color: AppColors.expense)),
                       const SizedBox(width: 6),
-                      Text('합계 ₩${formatNumber(total)}', style: GoogleFonts.notoSansKr(fontSize: 11, fontWeight: FontWeight.w700, color: const Color(0xFF0F172A))),
+                      Text('합계 ₩${formatNumber(total)}', style: GoogleFonts.notoSansKr(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.textMain)),
                     ],
                   ),
                 ],
@@ -70,9 +71,9 @@ class DailyDetail extends StatelessWidget {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(Icons.receipt_long_outlined, color: Color(0xFFE2E8F0), size: 40),
+                      const Icon(Icons.receipt_long_outlined, color: AppColors.divider, size: 40),
                       const SizedBox(height: 8),
-                      Text('등록된 내역이 없습니다', style: GoogleFonts.notoSansKr(color: const Color(0xFF94A3B8), fontSize: 13)),
+                      Text('등록된 내역이 없습니다', style: GoogleFonts.notoSansKr(color: AppColors.textHint, fontSize: 13)),
                       const SizedBox(height: 4),
                       Text('+ 항목 추가를 눌러 기록해보세요', style: GoogleFonts.notoSansKr(color: const Color(0xFFF8FAFC), fontSize: 11)),
                     ],
@@ -115,7 +116,7 @@ class _TxItem extends StatelessWidget {
     final acc = accounts.firstWhereOrNull((a) => a.id == tx.accountId);
     final catInfo = getCategoryInfo(tx.category);
     final isExpense = tx.type == 'expense';
-    final amountColor = isExpense ? const Color(0xFFE11D48) : const Color(0xFF059669);
+    final amountColor = isExpense ? AppColors.expense : const Color(0xFF059669);
     final accLabel = acc != null
         ? (acc.isCredit ? '💳[신용] ${acc.name}' : acc.isDebit ? '💳[체크] ${acc.name}' : '🏦 ${acc.name}')
         : '미지정 결제수단';
@@ -124,9 +125,9 @@ class _TxItem extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
-        color: const Color(0xFFFFFFFF),
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(color: AppColors.divider),
       ),
       child: Row(
         children: [
@@ -141,11 +142,11 @@ class _TxItem extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(tx.memo.isNotEmpty ? '${tx.category} (${tx.memo})' : tx.category,
-                    style: GoogleFonts.notoSansKr(fontSize: 13, fontWeight: FontWeight.w600, color: const Color(0xFF0F172A)),
+                    style: GoogleFonts.notoSansKr(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textMain),
                     overflow: TextOverflow.ellipsis),
                 const SizedBox(height: 3),
                 Text(accLabel,
-                    style: GoogleFonts.notoSansKr(fontSize: 10, color: const Color(0xFF94A3B8)),
+                    style: GoogleFonts.notoSansKr(fontSize: 10, color: AppColors.textHint),
                     overflow: TextOverflow.ellipsis),
               ],
             ),
@@ -162,7 +163,7 @@ class _TxItem extends StatelessWidget {
                   onTap: () => _confirmDelete(context, tx),
                   child: const Padding(
                     padding: EdgeInsets.only(top: 4),
-                    child: Icon(Icons.delete_outline, size: 16, color: Color(0xFF94A3B8)),
+                    child: Icon(Icons.delete_outline, size: 16, color: AppColors.textHint),
                   ),
                 ),
             ],
@@ -177,19 +178,19 @@ class _TxItem extends StatelessWidget {
       showDialog(
         context: context,
         builder: (_) => AlertDialog(
-          backgroundColor: const Color(0xFFFFFFFF),
+          backgroundColor: AppColors.surface,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title: Text('고정 지출 삭제', style: GoogleFonts.notoSansKr(fontWeight: FontWeight.w700, color: const Color(0xFF0F172A))),
-          content: Text('이 항목은 매달 반복되는 고정 지출입니다.\n어떻게 삭제하시겠습니까?', style: GoogleFonts.notoSansKr(color: const Color(0xFF64748B))),
+          title: Text('고정 지출 삭제', style: GoogleFonts.notoSansKr(fontWeight: FontWeight.w700, color: AppColors.textMain)),
+          content: Text('이 항목은 매달 반복되는 고정 지출입니다.\n어떻게 삭제하시겠습니까?', style: GoogleFonts.notoSansKr(color: AppColors.textSub)),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(context), child: Text('취소', style: GoogleFonts.notoSansKr(color: const Color(0xFF94A3B8)))),
+            TextButton(onPressed: () => Navigator.pop(context), child: Text('취소', style: GoogleFonts.notoSansKr(color: AppColors.textHint))),
             TextButton(
               onPressed: () { onDeleteTransaction(tx.id); Navigator.pop(context); },
-              child: Text('이 항목만', style: GoogleFonts.notoSansKr(color: const Color(0xFFE11D48), fontWeight: FontWeight.w700)),
+              child: Text('이 항목만', style: GoogleFonts.notoSansKr(color: AppColors.expense, fontWeight: FontWeight.w700)),
             ),
             TextButton(
               onPressed: () { onDeleteRecurringTransactions(tx.recurringId!); Navigator.pop(context); },
-              child: Text('모든 일정', style: GoogleFonts.notoSansKr(color: const Color(0xFFE11D48), fontWeight: FontWeight.w700)),
+              child: Text('모든 일정', style: GoogleFonts.notoSansKr(color: AppColors.expense, fontWeight: FontWeight.w700)),
             ),
           ],
         ),
@@ -198,15 +199,15 @@ class _TxItem extends StatelessWidget {
       showDialog(
         context: context,
         builder: (_) => AlertDialog(
-          backgroundColor: const Color(0xFFFFFFFF),
+          backgroundColor: AppColors.surface,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title: Text('삭제', style: GoogleFonts.notoSansKr(fontWeight: FontWeight.w700, color: const Color(0xFF0F172A))),
-          content: Text('해당 내역을 삭제하시겠습니까?', style: GoogleFonts.notoSansKr(color: const Color(0xFF64748B))),
+          title: Text('삭제', style: GoogleFonts.notoSansKr(fontWeight: FontWeight.w700, color: AppColors.textMain)),
+          content: Text('해당 내역을 삭제하시겠습니까?', style: GoogleFonts.notoSansKr(color: AppColors.textSub)),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(context), child: Text('취소', style: GoogleFonts.notoSansKr(color: const Color(0xFF94A3B8)))),
+            TextButton(onPressed: () => Navigator.pop(context), child: Text('취소', style: GoogleFonts.notoSansKr(color: AppColors.textHint))),
             TextButton(
               onPressed: () { onDeleteTransaction(tx.id); Navigator.pop(context); },
-              child: Text('삭제', style: GoogleFonts.notoSansKr(color: const Color(0xFFE11D48), fontWeight: FontWeight.w700)),
+              child: Text('삭제', style: GoogleFonts.notoSansKr(color: AppColors.expense, fontWeight: FontWeight.w700)),
             ),
           ],
         ),

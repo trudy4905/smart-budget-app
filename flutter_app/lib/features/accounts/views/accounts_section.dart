@@ -6,6 +6,7 @@ import 'package:flutter_app/core/providers/app_state.dart';
 import 'package:flutter_app/features/accounts/models/account.dart';
 import 'package:flutter_app/features/accounts/views/add_account_sheet/add_account_sheet.dart';
 import 'package:flutter_app/features/accounts/views/widgets/accounts_section_ui.dart';
+import 'package:flutter_app/core/theme/app_colors.dart';
 class AccountsSection extends StatefulWidget {
   const AccountsSection({super.key});
 
@@ -32,7 +33,7 @@ class _AccountsSectionState extends State<AccountsSection> {
   void _showAddAccountDialog(BuildContext context, AppState state, {Account? editAccount}) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: const Color(0xFFF1F5F9),
+      backgroundColor: AppColors.background,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (_) => ChangeNotifierProvider.value(
@@ -49,11 +50,11 @@ class _AccountsSectionState extends State<AccountsSection> {
         showDialog(
           context: context,
           builder: (_) => AlertDialog(
-            backgroundColor: const Color(0xFFFFFFFF),
-            title: Text('삭제 불가', style: GoogleFonts.notoSansKr(color: const Color(0xFFE11D48), fontWeight: FontWeight.w700)),
-            content: Text('최소 한 개의 은행 통장이 필요합니다. 카드를 연결하거나 현금 흐름을 관리하기 위해 삭제할 수 없습니다.', style: GoogleFonts.notoSansKr(color: const Color(0xFF0F172A))),
+            backgroundColor: AppColors.surface,
+            title: Text('삭제 불가', style: GoogleFonts.notoSansKr(color: AppColors.expense, fontWeight: FontWeight.w700)),
+            content: Text('최소 한 개의 은행 통장이 필요합니다. 카드를 연결하거나 현금 흐름을 관리하기 위해 삭제할 수 없습니다.', style: GoogleFonts.notoSansKr(color: AppColors.textMain)),
             actions: [
-              TextButton(onPressed: () => Navigator.pop(context), child: Text('확인', style: GoogleFonts.notoSansKr(color: const Color(0xFF4F46E5)))),
+              TextButton(onPressed: () => Navigator.pop(context), child: Text('확인', style: GoogleFonts.notoSansKr(color: AppColors.primary))),
             ],
           ),
         );
@@ -64,14 +65,14 @@ class _AccountsSectionState extends State<AccountsSection> {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        backgroundColor: const Color(0xFFFFFFFF),
-        title: Text('계좌 삭제', style: GoogleFonts.notoSansKr(color: const Color(0xFF0F172A))),
-        content: Text('${acc.name}을(를) 삭제하시겠습니까?', style: GoogleFonts.notoSansKr(color: const Color(0xFF64748B))),
+        backgroundColor: AppColors.surface,
+        title: Text('계좌 삭제', style: GoogleFonts.notoSansKr(color: AppColors.textMain)),
+        content: Text('${acc.name}을(를) 삭제하시겠습니까?', style: GoogleFonts.notoSansKr(color: AppColors.textSub)),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: Text('취소', style: GoogleFonts.notoSansKr(color: const Color(0xFF94A3B8)))),
+          TextButton(onPressed: () => Navigator.pop(context), child: Text('취소', style: GoogleFonts.notoSansKr(color: AppColors.textHint))),
           TextButton(
             onPressed: () { state.deleteAccount(acc.id); Navigator.pop(context); },
-            child: Text('삭제', style: GoogleFonts.notoSansKr(color: const Color(0xFFE11D48))),
+            child: Text('삭제', style: GoogleFonts.notoSansKr(color: AppColors.expense)),
           ),
         ],
       ),

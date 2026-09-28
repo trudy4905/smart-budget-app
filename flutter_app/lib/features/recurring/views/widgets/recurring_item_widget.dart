@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_app/core/utils/helpers.dart';
+import 'package:flutter_app/core/theme/app_colors.dart';
 
 class RecurringItemWidget extends StatelessWidget {
   final Color iconBgColor;
@@ -47,19 +48,19 @@ class RecurringItemWidget extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Text(title, style: GoogleFonts.notoSansKr(fontSize: 13, fontWeight: FontWeight.w600, color: const Color(0xFF0F172A))),
+                    Text(title, style: GoogleFonts.notoSansKr(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textMain)),
                     if (titleTag != null) ...[
                       const SizedBox(width: 6),
                       titleTag!,
                     ],
                   ],
                 ),
-                Text(subtitle, style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF94A3B8))),
+                Text(subtitle, style: GoogleFonts.notoSansKr(fontSize: 11, color: AppColors.textHint)),
               ],
             ),
           ),
           if (amount != null)
-            Text('${formatNumber(amount!)}원', style: GoogleFonts.notoSansKr(fontSize: 13, fontWeight: FontWeight.w600, color: const Color(0xFF0F172A))),
+            Text('${formatNumber(amount!)}원', style: GoogleFonts.notoSansKr(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textMain)),
           if (rightWidget != null)
             rightWidget!,
           if (onDelete != null)
@@ -67,7 +68,7 @@ class RecurringItemWidget extends StatelessWidget {
               onTap: onDelete,
               child: const Padding(
                 padding: EdgeInsets.only(left: 12),
-                child: Icon(Icons.delete_outline, size: 16, color: Color(0xFF94A3B8)),
+                child: Icon(Icons.delete_outline, size: 16, color: AppColors.textHint),
               ),
             ),
         ],

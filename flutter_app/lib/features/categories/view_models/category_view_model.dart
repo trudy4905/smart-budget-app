@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/features/categories/models/category_info.dart';
 import 'package:flutter_app/core/services/storage_service.dart';
+import 'package:flutter_app/core/theme/app_colors.dart';
 
 class CategoryViewModel extends ChangeNotifier {
   final StorageService _storageService = StorageService();
@@ -21,7 +22,7 @@ class CategoryViewModel extends ChangeNotifier {
     for (final c in categories) {
       if (c.name == name) return c;
     }
-    return const CategoryInfo(name: '기타', emoji: '📌', color: Color(0xFF94A3B8), type: 'expense');
+    return const CategoryInfo(name: '기타', emoji: '📌', color: AppColors.textHint, type: 'expense');
   }
 
   void addCategory(CategoryInfo cat) {

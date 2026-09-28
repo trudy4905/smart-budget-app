@@ -4,6 +4,7 @@ import 'package:flutter_app/features/dashboard/views/cash_flow_widgets.dart';
 import 'package:flutter_app/features/dashboard/views/expected_asset_card.dart';
 import 'package:flutter_app/features/recurring/views/recurring_expense_section.dart';
 import 'package:flutter_app/features/recurring/views/recurring_income_section.dart';
+import 'package:flutter_app/core/theme/app_colors.dart';
 
 class CashFlowSectionUI extends StatelessWidget {
   final DateTime drawerCashFlowDate;
@@ -31,9 +32,9 @@ class CashFlowSectionUI extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
       child: Container(
         decoration: BoxDecoration(
-          color: const Color(0xFFFFFFFF),
+          color: AppColors.surface,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: const Color(0xFFE2E8F0)),
+          border: Border.all(color: AppColors.divider),
         ),
         child: Column(
           children: [
@@ -52,7 +53,7 @@ class CashFlowSectionUI extends StatelessWidget {
               proxyDecorator: (Widget child, int index, Animation<double> animation) {
                 return Material(
                   elevation: 6,
-                  color: const Color(0xFFFFFFFF),
+                  color: AppColors.surface,
                   borderRadius: BorderRadius.circular(16),
                   child: child,
                 );
@@ -67,7 +68,7 @@ class CashFlowSectionUI extends StatelessWidget {
                   case 'income':
                     childWidget = CashFlowRowWidget(
                       type: 'income',
-                      icon: Icons.download, iconBgColor: const Color(0xFFECFDF5), iconColor: const Color(0xFF059669),
+                      icon: Icons.download, iconBgColor: AppColors.incomeBg, iconColor: const Color(0xFF059669),
                       title: '수입', amount: dash.alreadyReceivedIncome, isExpanded: openPanel == 'income',
                       onTap: () => onToggleSidePanel('income', context, dash),
                     );
@@ -75,7 +76,7 @@ class CashFlowSectionUI extends StatelessWidget {
                   case 'expense':
                     childWidget = CashFlowRowWidget(
                       type: 'expense',
-                      icon: Icons.upload, iconBgColor: const Color(0xFFFFF1F2), iconColor: const Color(0xFFE11D48),
+                      icon: Icons.upload, iconBgColor: AppColors.expenseBg, iconColor: AppColors.expense,
                       title: '지출', amount: dash.totalAlreadyPaid, isExpanded: openPanel == 'expense',
                       onTap: () => onToggleSidePanel('expense', context, dash),
                     );
@@ -106,12 +107,12 @@ class CashFlowSectionUI extends StatelessWidget {
                       margin: const EdgeInsets.only(bottom: 4),
                       child: Column(
                         children: [
-                          const Padding(padding: EdgeInsets.symmetric(horizontal: 4), child: Divider(color: Color(0xFFF1F5F9), height: 1)),
+                          const Padding(padding: EdgeInsets.symmetric(horizontal: 4), child: Divider(color: AppColors.background, height: 1)),
                           Padding(
                             padding: const EdgeInsets.symmetric(vertical: 4),
                             child: RecurringExpenseSection(drawerCashFlowDate: drawerCashFlowDate),
                           ),
-                          const Padding(padding: EdgeInsets.symmetric(horizontal: 4), child: Divider(color: Color(0xFFF1F5F9), height: 1)),
+                          const Padding(padding: EdgeInsets.symmetric(horizontal: 4), child: Divider(color: AppColors.background, height: 1)),
                         ],
                       ),
                     );
@@ -121,12 +122,12 @@ class CashFlowSectionUI extends StatelessWidget {
                       margin: const EdgeInsets.only(bottom: 4),
                       child: Column(
                         children: [
-                          const Padding(padding: EdgeInsets.symmetric(horizontal: 4), child: Divider(color: Color(0xFFF1F5F9), height: 1)),
+                          const Padding(padding: EdgeInsets.symmetric(horizontal: 4), child: Divider(color: AppColors.background, height: 1)),
                           Padding(
                             padding: const EdgeInsets.symmetric(vertical: 4),
                             child: RecurringIncomeSection(drawerCashFlowDate: drawerCashFlowDate),
                           ),
-                          const Padding(padding: EdgeInsets.symmetric(horizontal: 4), child: Divider(color: Color(0xFFF1F5F9), height: 1)),
+                          const Padding(padding: EdgeInsets.symmetric(horizontal: 4), child: Divider(color: AppColors.background, height: 1)),
                         ],
                       ),
                     );

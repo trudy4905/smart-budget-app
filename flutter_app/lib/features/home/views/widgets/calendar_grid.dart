@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_app/features/transactions/models/transaction.dart';
 import 'package:flutter_app/features/accounts/models/account.dart';
 import 'package:flutter_app/core/utils/helpers.dart';
+import 'package:flutter_app/core/theme/app_colors.dart';
 
 /// Calendar grid widget
 class CalendarGrid extends StatelessWidget {
@@ -35,7 +36,7 @@ class CalendarGrid extends StatelessWidget {
     final dayHeaders = ['일', '월', '화', '수', '목', '금', '토'];
 
     return Container(
-      color: const Color(0xFFFFFFFF),
+      color: AppColors.surface,
       child: Column(
         children: [
           Padding(
@@ -144,7 +145,7 @@ class _CalendarCell extends StatelessWidget {
                     style: GoogleFonts.notoSansKr(
                       fontSize: 11,
                       fontWeight: isToday || isSelected ? FontWeight.w700 : FontWeight.w500,
-                      color: isToday ? const Color(0xFFFFFFFF) : (isOtherMonth ? const Color(0xFFD4D4D4) : const Color(0xFF3C4043)),
+                      color: isToday ? AppColors.surface : (isOtherMonth ? const Color(0xFFD4D4D4) : const Color(0xFF3C4043)),
                     )),
               ),
             ),
@@ -179,8 +180,8 @@ class _CellChips extends StatelessWidget {
           Container(
             margin: const EdgeInsets.only(top: 1),
             padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 1),
-            decoration: BoxDecoration(color: const Color(0xFFE2E8F0), borderRadius: BorderRadius.circular(3)),
-            child: Text('+$overflow', style: GoogleFonts.notoSansKr(fontSize: 8, color: const Color(0xFF64748B))),
+            decoration: BoxDecoration(color: AppColors.divider, borderRadius: BorderRadius.circular(3)),
+            child: Text('+$overflow', style: GoogleFonts.notoSansKr(fontSize: 8, color: AppColors.textSub)),
           ),
       ],
     );
@@ -205,7 +206,7 @@ class _Chip extends StatelessWidget {
     if (isIncome) {
       chipColor = const Color(0xFF059669);
     } else {
-      chipColor = isCredit ? const Color(0xFF2563EB) : (isDebit ? const Color(0xFFD97706) : const Color(0xFFE11D48));
+      chipColor = isCredit ? AppColors.secondary : (isDebit ? const Color(0xFFD97706) : AppColors.expense);
     }
     
     if (isCredit) {

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_app/core/providers/app_state.dart';
 import 'package:flutter_app/core/utils/helpers.dart';
+import 'package:flutter_app/core/theme/app_colors.dart';
 
 class DrawerSidePanel extends StatelessWidget {
   final DashboardSummary dash;
@@ -25,13 +26,13 @@ class DrawerSidePanel extends StatelessWidget {
       title = '지출 내역';
       sortItems = [
         ...dash.alreadyPaidFixedList.map((tx) => _SortItem(
-          day: int.parse(tx.date.split('-')[2]), date: tx.date, category: tx.category, memo: tx.memo, amount: tx.amount, color: const Color(0xFFE11D48)
+          day: int.parse(tx.date.split('-')[2]), date: tx.date, category: tx.category, memo: tx.memo, amount: tx.amount, color: AppColors.expense
         )),
         ...dash.alreadyPaidCashDebitList.map((tx) => _SortItem(
-          day: int.parse(tx.date.split('-')[2]), date: tx.date, category: tx.category, memo: tx.memo, amount: tx.amount, color: const Color(0xFFE11D48)
+          day: int.parse(tx.date.split('-')[2]), date: tx.date, category: tx.category, memo: tx.memo, amount: tx.amount, color: AppColors.expense
         )),
         ...dash.alreadyPaidCardList.map((c) => _SortItem(
-          day: int.parse(c.paymentDateStr.split('/')[1]), date: c.paymentDateStr, category: '${c.account.name} 대금', memo: '', amount: c.amount, color: const Color(0xFFE11D48)
+          day: int.parse(c.paymentDateStr.split('/')[1]), date: c.paymentDateStr, category: '${c.account.name} 대금', memo: '', amount: c.amount, color: AppColors.expense
         )),
       ];
     } else if (openPanelType == 'upcoming_income') {
@@ -60,19 +61,19 @@ class DrawerSidePanel extends StatelessWidget {
         boxShadow: [
           BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(-2, 0)),
         ],
-        border: const Border(left: BorderSide(color: Color(0xFFE2E8F0))),
+        border: const Border(left: BorderSide(color: AppColors.divider)),
       ),
       child: Column(
         children: [
           Container(
             padding: const EdgeInsets.all(16),
             width: double.infinity,
-            decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: Color(0xFFE2E8F0)))),
-            child: Text(title, style: GoogleFonts.notoSansKr(fontSize: 14, fontWeight: FontWeight.w700, color: const Color(0xFF0F172A))),
+            decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: AppColors.divider))),
+            child: Text(title, style: GoogleFonts.notoSansKr(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.textMain)),
           ),
           Expanded(
             child: children.isEmpty
-                ? Center(child: Text('내역 없음', style: GoogleFonts.notoSansKr(color: const Color(0xFF94A3B8))))
+                ? Center(child: Text('내역 없음', style: GoogleFonts.notoSansKr(color: AppColors.textHint)))
                 : ListView(
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     children: children,
@@ -97,7 +98,7 @@ class DrawerSidePanel extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(formattedDate, style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF94A3B8))),
+          Text(formattedDate, style: GoogleFonts.notoSansKr(fontSize: 11, color: AppColors.textHint)),
           const SizedBox(width: 8),
           Expanded(
             child: Column(
@@ -105,7 +106,7 @@ class DrawerSidePanel extends StatelessWidget {
               children: [
                 Text(title, style: GoogleFonts.notoSansKr(fontSize: 12, fontWeight: FontWeight.w600, color: const Color(0xFF334155))),
                 if (memo.isNotEmpty)
-                  Text(memo, style: GoogleFonts.notoSansKr(fontSize: 10, color: const Color(0xFF94A3B8))),
+                  Text(memo, style: GoogleFonts.notoSansKr(fontSize: 10, color: AppColors.textHint)),
               ],
             ),
           ),

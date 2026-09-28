@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_app/core/theme/app_colors.dart';
 
 class CustomSpeedDial extends StatefulWidget {
   final Function(String) onSelect;
@@ -82,7 +83,7 @@ class _CustomSpeedDialState extends State<CustomSpeedDial> with SingleTickerProv
         ),
         FloatingActionButton(
           onPressed: _toggle,
-          backgroundColor: const Color(0xFF2563EB),
+          backgroundColor: AppColors.secondary,
           elevation: 4,
           shape: const CircleBorder(),
           child: AnimatedRotation(

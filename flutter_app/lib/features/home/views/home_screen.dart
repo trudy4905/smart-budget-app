@@ -8,6 +8,7 @@ import 'package:flutter_app/features/home/views/widgets/month_carousel.dart';
 import 'package:flutter_app/features/home/views/widgets/calendar_grid.dart';
 import 'package:flutter_app/features/home/views/widgets/daily_detail.dart';
 import 'package:flutter_app/features/transactions/views/add_transaction_screen.dart';
+import 'package:flutter_app/core/theme/app_colors.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -24,14 +25,14 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
-      backgroundColor: const Color(0xFFFFFFFF),
+      backgroundColor: AppColors.surface,
       drawer: const AppDrawer(),
       body: Stack(
         children: [
           Consumer<AppState>(
             builder: (context, state, _) {
               if (!state.loaded) {
-                return const Center(child: CircularProgressIndicator(color: Color(0xFF4F46E5)));
+                return const Center(child: CircularProgressIndicator(color: AppColors.primary));
               }
               return SafeArea(
                 child: Column(
@@ -63,7 +64,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               }
                             },
                           ),
-                          const Divider(color: Color(0xFFFFFFFF), height: 1),
+                          const Divider(color: AppColors.surface, height: 1),
                           Expanded(
                             child: DailyDetail(
                               selectedDateStr: state.selectedDateStr,
@@ -108,11 +109,11 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: const Color(0xFFFFFFFF),
+                color: AppColors.surface,
                 borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: const Color(0xFFE2E8F0)),
+                border: Border.all(color: AppColors.divider),
               ),
-              child: const Icon(Icons.menu_rounded, color: Color(0xFF0F172A), size: 20),
+              child: const Icon(Icons.menu_rounded, color: AppColors.textMain, size: 20),
             ),
           ),
           const SizedBox(width: 12),
@@ -123,16 +124,16 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               decoration: BoxDecoration(
-                color: const Color(0xFFFFFFFF),
+                color: AppColors.surface,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(state.currentMonthStr,
-                      style: GoogleFonts.notoSansKr(fontSize: 18, fontWeight: FontWeight.w700, color: const Color(0xFF0F172A))),
+                      style: GoogleFonts.notoSansKr(fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.textMain)),
                   const SizedBox(width: 4),
-                  const Icon(Icons.keyboard_arrow_down_rounded, color: Color(0xFF4F46E5), size: 22),
+                  const Icon(Icons.keyboard_arrow_down_rounded, color: AppColors.primary, size: 22),
                 ],
               ),
             ),
@@ -149,16 +150,16 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
-                color: const Color(0xFFFFFFFF),
+                color: AppColors.surface,
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: const Color(0xFF4F46E5).withOpacity(0.6)),
+                border: Border.all(color: AppColors.primary.withOpacity(0.6)),
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.today_rounded, size: 16, color: Color(0xFF4F46E5)),
+                  const Icon(Icons.today_rounded, size: 16, color: AppColors.primary),
                   const SizedBox(width: 6),
                   Text('${now.day}일',
-                      style: GoogleFonts.notoSansKr(fontSize: 13, fontWeight: FontWeight.w700, color: const Color(0xFF0F172A))),
+                      style: GoogleFonts.notoSansKr(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textMain)),
                 ],
               ),
             ),
@@ -174,14 +175,14 @@ class _HomeScreenState extends State<HomeScreen> {
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setDialogState) => AlertDialog(
-          backgroundColor: const Color(0xFFFFFFFF),
+          backgroundColor: AppColors.surface,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           title: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              IconButton(icon: const Icon(Icons.chevron_left, color: Color(0xFF0F172A)), onPressed: () => setDialogState(() => displayYear--)),
-              Text('$displayYear년', style: GoogleFonts.notoSansKr(color: const Color(0xFF0F172A), fontWeight: FontWeight.w700, fontSize: 18)),
-              IconButton(icon: const Icon(Icons.chevron_right, color: Color(0xFF0F172A)), onPressed: () => setDialogState(() => displayYear++)),
+              IconButton(icon: const Icon(Icons.chevron_left, color: AppColors.textMain), onPressed: () => setDialogState(() => displayYear--)),
+              Text('$displayYear년', style: GoogleFonts.notoSansKr(color: AppColors.textMain, fontWeight: FontWeight.w700, fontSize: 18)),
+              IconButton(icon: const Icon(Icons.chevron_right, color: AppColors.textMain), onPressed: () => setDialogState(() => displayYear++)),
             ],
           ),
           content: SizedBox(
@@ -204,14 +205,14 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 150),
                     decoration: BoxDecoration(
-                      color: isActive ? const Color(0xFF4F46E5) : const Color(0xFFF1F5F9),
+                      color: isActive ? AppColors.primary : AppColors.background,
                       borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: isActive ? const Color(0xFF4F46E5) : const Color(0xFFE2E8F0)),
+                      border: Border.all(color: isActive ? AppColors.primary : AppColors.divider),
                     ),
                     child: Center(
                       child: Text('${i + 1}월',
                           style: GoogleFonts.notoSansKr(
-                            color: isActive ? const Color(0xFF0F172A) : const Color(0xFF64748B),
+                            color: isActive ? AppColors.textMain : AppColors.textSub,
                             fontWeight: isActive ? FontWeight.w700 : FontWeight.w400,
                             fontSize: 13,
                           )),

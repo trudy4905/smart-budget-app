@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_app/core/utils/helpers.dart';
+import 'package:flutter_app/core/theme/app_colors.dart';
 
 class AccountListItem extends StatelessWidget {
   final List<String> selectedAccountIds;
@@ -78,18 +79,18 @@ class AccountListItem extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: isChecked ? color : Colors.transparent,
                     shape: BoxShape.circle,
-                    border: Border.all(color: isChecked ? color : const Color(0xFFE2E8F0), width: 1.5),
+                    border: Border.all(color: isChecked ? color : AppColors.divider, width: 1.5),
                   ),
-                  child: isChecked ? const Icon(Icons.check, size: 12, color: Color(0xFFFFFFFF)) : null,
+                  child: isChecked ? const Icon(Icons.check, size: 12, color: AppColors.surface) : null,
                 ),
                 const SizedBox(width: 12),
                 Container(
                   width: 32, height: 32,
                   decoration: const BoxDecoration(
-                    color: Color(0xFFF1F5F9),
+                    color: AppColors.background,
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(icon, size: 16, color: const Color(0xFF64748B)),
+                  child: Icon(icon, size: 16, color: AppColors.textSub),
                 ),
                 const SizedBox(width: 10),
                 Expanded(
@@ -103,12 +104,12 @@ class AccountListItem extends StatelessWidget {
                             child: Text(label,
                                 style: GoogleFonts.notoSansKr(
                                   fontSize: 13,
-                                  color: isChecked ? const Color(0xFF0F172A) : const Color(0xFF64748B),
+                                  color: isChecked ? AppColors.textMain : AppColors.textSub,
                                   fontWeight: isChecked ? FontWeight.w600 : FontWeight.w400,
                                 ), overflow: TextOverflow.ellipsis),
                           ),
                           if (rightTopText != null)
-                            Text(rightTopText!, style: GoogleFonts.notoSansKr(fontSize: 10, color: const Color(0xFF64748B))),
+                            Text(rightTopText!, style: GoogleFonts.notoSansKr(fontSize: 10, color: AppColors.textSub)),
                         ],
                       ),
                       const SizedBox(height: 2),
@@ -121,16 +122,16 @@ class AccountListItem extends StatelessWidget {
                                 if (badgeText != null)
                                   Padding(
                                     padding: const EdgeInsets.only(right: 4),
-                                    child: Text('[$badgeText]', style: GoogleFonts.notoSansKr(fontSize: 10, color: const Color(0xFF94A3B8))),
+                                    child: Text('[$badgeText]', style: GoogleFonts.notoSansKr(fontSize: 10, color: AppColors.textHint)),
                                   ),
                                 Expanded(
-                                  child: Text(subLabel, style: GoogleFonts.notoSansKr(fontSize: 10, color: const Color(0xFF94A3B8)), overflow: TextOverflow.ellipsis),
+                                  child: Text(subLabel, style: GoogleFonts.notoSansKr(fontSize: 10, color: AppColors.textHint), overflow: TextOverflow.ellipsis),
                                 ),
                               ],
                             ),
                           ),
                           if (rightBottomText != null)
-                            Text(rightBottomText!, style: GoogleFonts.notoSansKr(fontSize: 10, color: const Color(0xFF0F172A), fontWeight: FontWeight.w600)),
+                            Text(rightBottomText!, style: GoogleFonts.notoSansKr(fontSize: 10, color: AppColors.textMain, fontWeight: FontWeight.w600)),
                         ],
                       ),
                     ],
@@ -143,19 +144,19 @@ class AccountListItem extends StatelessWidget {
                       amount! >= 0 ? '₩${formatNumber(amount!)}' : '-₩${formatNumber(amount!.abs())}',
                       style: GoogleFonts.notoSansKr(
                         fontSize: 11, fontWeight: FontWeight.w600,
-                        color: amount! >= 0 ? const Color(0xFF059669) : const Color(0xFFE11D48),
+                        color: amount! >= 0 ? const Color(0xFF059669) : AppColors.expense,
                       ),
                     ),
                   ),
                 if (onAction != null)
                   PopupMenuButton<String>(
                     padding: EdgeInsets.zero,
-                    icon: const Icon(Icons.more_vert, size: 16, color: Color(0xFF94A3B8)),
-                    color: const Color(0xFFFFFFFF),
+                    icon: const Icon(Icons.more_vert, size: 16, color: AppColors.textHint),
+                    color: AppColors.surface,
                     onSelected: onAction,
                     itemBuilder: (ctx) => popupMenuItems ?? [
-                      PopupMenuItem(value: 'edit', child: Text('수정', style: GoogleFonts.notoSansKr(fontSize: 13, color: const Color(0xFF0F172A)))),
-                      PopupMenuItem(value: 'delete', child: Text('삭제', style: GoogleFonts.notoSansKr(fontSize: 13, color: const Color(0xFFE11D48)))),
+                      PopupMenuItem(value: 'edit', child: Text('수정', style: GoogleFonts.notoSansKr(fontSize: 13, color: AppColors.textMain))),
+                      PopupMenuItem(value: 'delete', child: Text('삭제', style: GoogleFonts.notoSansKr(fontSize: 13, color: AppColors.expense))),
                     ],
                   ),
               ],
@@ -164,7 +165,7 @@ class AccountListItem extends StatelessWidget {
         ),
         const Padding(
           padding: EdgeInsets.symmetric(horizontal: 16),
-          child: Divider(color: Color(0xFFF1F5F9), height: 1),
+          child: Divider(color: AppColors.background, height: 1),
         ),
       ],
     );

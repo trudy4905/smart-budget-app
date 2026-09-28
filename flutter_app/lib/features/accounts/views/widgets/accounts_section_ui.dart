@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_app/features/accounts/models/account.dart';
 import 'package:flutter_app/core/utils/helpers.dart';
 import 'package:flutter_app/features/accounts/views/widgets/account_list_item.dart';
+import 'package:flutter_app/core/theme/app_colors.dart';
 
 class AccountsSectionUI extends StatelessWidget {
   final List<Account> banks;
@@ -119,9 +120,9 @@ class AccountsSectionUI extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
       child: Container(
         decoration: BoxDecoration(
-          color: const Color(0xFFFFFFFF),
+          color: AppColors.surface,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: const Color(0xFFE2E8F0)),
+          border: Border.all(color: AppColors.divider),
         ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -133,31 +134,31 @@ class AccountsSectionUI extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(20, 12, 20, 8),
               child: Row(
                 children: [
-                  Text('등록 계좌/카드', style: GoogleFonts.notoSansKr(fontSize: 14, color: const Color(0xFF0F172A), fontWeight: FontWeight.w700)),
+                  Text('등록 계좌/카드', style: GoogleFonts.notoSansKr(fontSize: 14, color: AppColors.textMain, fontWeight: FontWeight.w700)),
                   const SizedBox(width: 4),
-                  Text('($totalAccountsCount)', style: GoogleFonts.notoSansKr(fontSize: 14, color: const Color(0xFF64748B), fontWeight: FontWeight.w600)),
+                  Text('($totalAccountsCount)', style: GoogleFonts.notoSansKr(fontSize: 14, color: AppColors.textSub, fontWeight: FontWeight.w600)),
                   const Spacer(),
                   GestureDetector(
                     onTap: onAddClick,
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF4F46E5).withOpacity(0.15),
+                        color: AppColors.primary.withOpacity(0.15),
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: const Color(0xFF4F46E5).withOpacity(0.3)),
+                        border: Border.all(color: AppColors.primary.withOpacity(0.3)),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Icons.add, size: 12, color: Color(0xFF4F46E5)),
+                          const Icon(Icons.add, size: 12, color: AppColors.primary),
                           const SizedBox(width: 4),
-                          Text('추가', style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF4F46E5))),
+                          Text('추가', style: GoogleFonts.notoSansKr(fontSize: 11, color: AppColors.primary)),
                         ],
                       ),
                     ),
                   ),
                   const SizedBox(width: 12),
-                  Icon(isExpanded ? Icons.keyboard_arrow_down : Icons.keyboard_arrow_right, size: 16, color: const Color(0xFF94A3B8)),
+                  Icon(isExpanded ? Icons.keyboard_arrow_down : Icons.keyboard_arrow_right, size: 16, color: AppColors.textHint),
                 ],
               ),
             ),
@@ -167,7 +168,7 @@ class AccountsSectionUI extends StatelessWidget {
               children: [
                 const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 16),
-                  child: Divider(color: Color(0xFFF1F5F9), height: 1),
+                  child: Divider(color: AppColors.background, height: 1),
                 ),
                 ...banks.map((b) {
                   final linkedCards = cards.where((c) => c.linkedBankAccountId == b.id).toList();
@@ -189,12 +190,12 @@ class AccountsSectionUI extends StatelessWidget {
                           padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
                           child: Row(
                             children: [
-                              const SizedBox(width: 8, child: Divider(color: Color(0xFFE2E8F0), thickness: 1)),
+                              const SizedBox(width: 8, child: Divider(color: AppColors.divider, thickness: 1)),
                               Padding(
                                 padding: const EdgeInsets.symmetric(horizontal: 8),
-                                child: Text('미연결 계좌/카드 (${unlinked.length})', style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF94A3B8), fontWeight: FontWeight.w600)),
+                                child: Text('미연결 계좌/카드 (${unlinked.length})', style: GoogleFonts.notoSansKr(fontSize: 11, color: AppColors.textHint, fontWeight: FontWeight.w600)),
                               ),
-                              const Expanded(child: Divider(color: Color(0xFFE2E8F0), thickness: 1)),
+                              const Expanded(child: Divider(color: AppColors.divider, thickness: 1)),
                             ],
                           ),
                         ),

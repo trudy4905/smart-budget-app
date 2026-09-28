@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_app/core/utils/helpers.dart';
+import 'package:flutter_app/core/theme/app_colors.dart';
 
 class AssetSummaryCardUI extends StatelessWidget {
   final bool isAssetVisible;
@@ -39,11 +40,11 @@ class AssetSummaryCardUI extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Text('내 자산 현황', style: GoogleFonts.notoSansKr(fontSize: 14, color: const Color(0xFF0F172A), fontWeight: FontWeight.w700)),
+                    Text('내 자산 현황', style: GoogleFonts.notoSansKr(fontSize: 14, color: AppColors.textMain, fontWeight: FontWeight.w700)),
                     const SizedBox(width: 6),
                     GestureDetector(
                       onTap: onToggleVisibility,
-                      child: Icon(isAssetVisible ? Icons.visibility : Icons.visibility_off, size: 16, color: const Color(0xFF94A3B8)),
+                      child: Icon(isAssetVisible ? Icons.visibility : Icons.visibility_off, size: 16, color: AppColors.textHint),
                     ),
                   ],
                 ),
@@ -56,9 +57,9 @@ class AssetSummaryCardUI extends StatelessWidget {
                   },
                   child: Row(
                     children: [
-                      Text('${assetReferenceDate.year.toString().substring(2)}년 ${assetReferenceDate.month}월 ${assetReferenceDate.day}일 기준', style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF64748B))),
+                      Text('${assetReferenceDate.year.toString().substring(2)}년 ${assetReferenceDate.month}월 ${assetReferenceDate.day}일 기준', style: GoogleFonts.notoSansKr(fontSize: 11, color: AppColors.textSub)),
                       const SizedBox(width: 4),
-                      const Icon(Icons.keyboard_arrow_down, size: 14, color: Color(0xFF64748B)),
+                      const Icon(Icons.keyboard_arrow_down, size: 14, color: AppColors.textSub),
                     ],
                   ),
                 ),
@@ -67,7 +68,7 @@ class AssetSummaryCardUI extends StatelessWidget {
             const SizedBox(height: 6),
             ImageFiltered(
               imageFilter: ImageFilter.blur(sigmaX: isAssetVisible ? 0 : 8, sigmaY: isAssetVisible ? 0 : 8),
-              child: Text('${formatNumber(totalAssets)}원', style: GoogleFonts.notoSansKr(fontSize: 28, fontWeight: FontWeight.w700, color: const Color(0xFF0F172A), letterSpacing: -0.5)),
+              child: Text('${formatNumber(totalAssets)}원', style: GoogleFonts.notoSansKr(fontSize: 28, fontWeight: FontWeight.w700, color: AppColors.textMain, letterSpacing: -0.5)),
             ),
           ],
         ),

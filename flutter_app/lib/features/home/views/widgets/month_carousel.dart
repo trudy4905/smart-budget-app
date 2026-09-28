@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_app/core/theme/app_colors.dart';
 
 class MonthCarousel extends StatefulWidget {
   final DateTime currentDate;
@@ -52,7 +53,7 @@ class MonthCarouselState extends State<MonthCarousel> {
         items.add(Padding(
           padding: const EdgeInsets.only(left: 8, right: 4, top: 8),
           child: Text('${m.year}년',
-              style: GoogleFonts.notoSansKr(fontSize: 11, fontWeight: FontWeight.bold, color: const Color(0xFF94A3B8))),
+              style: GoogleFonts.notoSansKr(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.textHint)),
         ));
       }
       lastYear = m.year;
@@ -115,7 +116,7 @@ class MonthCarouselState extends State<MonthCarousel> {
         margin: const EdgeInsets.symmetric(horizontal: 3, vertical: 4),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
         decoration: BoxDecoration(
-          color: isActive ? const Color(0xFFD3E3FD) : const Color(0xFFFFFFFF),
+          color: isActive ? const Color(0xFFD3E3FD) : AppColors.surface,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: isActive ? Colors.transparent : const Color(0xFFE0E0E0)),
         ),
@@ -124,7 +125,7 @@ class MonthCarouselState extends State<MonthCarousel> {
               style: GoogleFonts.notoSansKr(
                 fontSize: 12,
                 fontWeight: isActive ? FontWeight.w700 : FontWeight.w400,
-                color: isActive ? const Color(0xFF0F172A) : const Color(0xFF64748B),
+                color: isActive ? AppColors.textMain : AppColors.textSub,
               )),
         ),
       ),

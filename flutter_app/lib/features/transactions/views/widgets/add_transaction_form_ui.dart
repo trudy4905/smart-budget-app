@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_app/features/categories/models/category_info.dart';
 import 'package:flutter_app/features/accounts/models/account.dart';
 import 'package:flutter_app/core/utils/helpers.dart';
+import 'package:flutter_app/core/theme/app_colors.dart';
 
 class AddTransactionFormUi extends StatefulWidget {
   final String initialType;
@@ -82,15 +83,15 @@ class AddTransactionFormUiState extends State<AddTransactionFormUi> {
       child: ClipRRect(
         borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
         child: Scaffold(
-          backgroundColor: const Color(0xFFF1F5F9),
+          backgroundColor: AppColors.background,
           appBar: AppBar(
-            backgroundColor: const Color(0xFFF1F5F9),
-            title: Text('항목 추가', style: GoogleFonts.notoSansKr(fontWeight: FontWeight.w700, color: const Color(0xFF0F172A))),
-            leading: IconButton(icon: const Icon(Icons.close, color: Color(0xFF0F172A)), onPressed: () => Navigator.pop(context)),
+            backgroundColor: AppColors.background,
+            title: Text('항목 추가', style: GoogleFonts.notoSansKr(fontWeight: FontWeight.w700, color: AppColors.textMain)),
+            leading: IconButton(icon: const Icon(Icons.close, color: AppColors.textMain), onPressed: () => Navigator.pop(context)),
             actions: [
               TextButton(
                 onPressed: _handleSave,
-                child: Text('저장', style: GoogleFonts.notoSansKr(color: const Color(0xFF4F46E5), fontWeight: FontWeight.w700, fontSize: 16)),
+                child: Text('저장', style: GoogleFonts.notoSansKr(color: AppColors.primary, fontWeight: FontWeight.w700, fontSize: 16)),
               ),
             ],
           ),
@@ -100,7 +101,7 @@ class AddTransactionFormUiState extends State<AddTransactionFormUi> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  decoration: BoxDecoration(color: const Color(0xFFFFFFFF), borderRadius: BorderRadius.circular(12)),
+                  decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(12)),
                   child: Row(children: [_typeTab('income', '수입'), _typeTab('expense', '지출')]),
                 ),
                 const SizedBox(height: 16),
@@ -109,7 +110,7 @@ class AddTransactionFormUiState extends State<AddTransactionFormUi> {
                   controller: _amountCtrl,
                   keyboardType: TextInputType.text,
                   inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9\-]'))],
-                  style: GoogleFonts.notoSansKr(color: const Color(0xFF0F172A), fontSize: 20, fontWeight: FontWeight.w700),
+                  style: GoogleFonts.notoSansKr(color: AppColors.textMain, fontSize: 20, fontWeight: FontWeight.w700),
                   decoration: _inputDecoration('0').copyWith(
                     prefixText: '₩ ',
                     prefixStyle: const TextStyle(color: Color(0xFF475569), fontSize: 20, fontWeight: FontWeight.w700),
@@ -147,15 +148,15 @@ class AddTransactionFormUiState extends State<AddTransactionFormUi> {
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFFFFFF),
+                      color: AppColors.surface,
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(color: Colors.transparent),
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.calendar_today_rounded, size: 16, color: Color(0xFF4F46E5)),
+                        const Icon(Icons.calendar_today_rounded, size: 16, color: AppColors.primary),
                         const SizedBox(width: 8),
-                        Text(_dateStr, style: GoogleFonts.notoSansKr(color: const Color(0xFF0F172A))),
+                        Text(_dateStr, style: GoogleFonts.notoSansKr(color: AppColors.textMain)),
                       ],
                     ),
                   ),
@@ -174,16 +175,16 @@ class AddTransactionFormUiState extends State<AddTransactionFormUi> {
                           duration: const Duration(milliseconds: 150),
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                           decoration: BoxDecoration(
-                            color: isSelected ? c.color.withOpacity(0.15) : const Color(0xFFFFFFFF),
+                            color: isSelected ? c.color.withOpacity(0.15) : AppColors.surface,
                             borderRadius: BorderRadius.circular(20),
-                            border: Border.all(color: isSelected ? c.color.withOpacity(0.4) : const Color(0xFFFFFFFF)),
+                            border: Border.all(color: isSelected ? c.color.withOpacity(0.4) : AppColors.surface),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(c.emoji),
                               const SizedBox(width: 6),
-                              Text(c.name, style: GoogleFonts.notoSansKr(color: isSelected ? c.color : const Color(0xFF64748B), fontSize: 12)),
+                              Text(c.name, style: GoogleFonts.notoSansKr(color: isSelected ? c.color : AppColors.textSub, fontSize: 12)),
                             ],
                           ),
                         ),
@@ -194,16 +195,16 @@ class AddTransactionFormUiState extends State<AddTransactionFormUi> {
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFFFFFFF),
+                          color: AppColors.surface,
                           borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: const Color(0xFFE2E8F0)),
+                          border: Border.all(color: AppColors.divider),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Icon(Icons.add, size: 14, color: Color(0xFF64748B)),
+                            const Icon(Icons.add, size: 14, color: AppColors.textSub),
                             const SizedBox(width: 4),
-                            Text('추가', style: GoogleFonts.notoSansKr(color: const Color(0xFF64748B), fontSize: 12)),
+                            Text('추가', style: GoogleFonts.notoSansKr(color: AppColors.textSub, fontSize: 12)),
                           ],
                         ),
                       ),
@@ -219,19 +220,19 @@ class AddTransactionFormUiState extends State<AddTransactionFormUi> {
                       child: Checkbox(
                         value: _isFixed,
                         onChanged: (v) => setState(() => _isFixed = v ?? false),
-                        activeColor: const Color(0xFF4F46E5),
+                        activeColor: AppColors.primary,
                       ),
                     ),
                     const SizedBox(width: 8),
-                    Text('매달 고정 지출', style: GoogleFonts.notoSansKr(fontSize: 13, color: const Color(0xFF0F172A))),
+                    Text('매달 고정 지출', style: GoogleFonts.notoSansKr(fontSize: 13, color: AppColors.textMain)),
                   ],
                 ),
                 const SizedBox(height: 16),
                 _label('결제수단'),
                 DropdownButtonFormField<String>(
                   value: _accountId,
-                  dropdownColor: const Color(0xFFFFFFFF),
-                  style: GoogleFonts.notoSansKr(color: const Color(0xFF0F172A)),
+                  dropdownColor: AppColors.surface,
+                  style: GoogleFonts.notoSansKr(color: AppColors.textMain),
                   decoration: _inputDecoration('결제수단 선택'),
                   items: [
                     ...widget.accounts.where((a) => _type == 'income' ? a.isBank : true).map((a) {
@@ -245,7 +246,7 @@ class AddTransactionFormUiState extends State<AddTransactionFormUi> {
                 _label('메모'),
                 TextField(
                   controller: _memoCtrl,
-                  style: GoogleFonts.notoSansKr(color: const Color(0xFF0F172A)),
+                  style: GoogleFonts.notoSansKr(color: AppColors.textMain),
                   decoration: _inputDecoration('메모를 입력하세요...'),
                 ),
                 const SizedBox(height: 80),
@@ -274,14 +275,14 @@ class AddTransactionFormUiState extends State<AddTransactionFormUi> {
           duration: const Duration(milliseconds: 200),
           padding: const EdgeInsets.symmetric(vertical: 12),
           decoration: BoxDecoration(
-            color: isActive ? const Color(0xFF4F46E5).withOpacity(0.15) : Colors.transparent,
+            color: isActive ? AppColors.primary.withOpacity(0.15) : Colors.transparent,
             borderRadius: BorderRadius.circular(12),
-            border: isActive ? Border.all(color: const Color(0xFF4F46E5).withOpacity(0.4)) : Border.all(color: Colors.transparent),
+            border: isActive ? Border.all(color: AppColors.primary.withOpacity(0.4)) : Border.all(color: Colors.transparent),
           ),
           child: Center(
             child: Text(label,
                 style: GoogleFonts.notoSansKr(
-                  color: isActive ? const Color(0xFF4F46E5) : const Color(0xFF94A3B8),
+                  color: isActive ? AppColors.primary : AppColors.textHint,
                   fontWeight: isActive ? FontWeight.w700 : FontWeight.w400,
                 )),
           ),
@@ -308,7 +309,7 @@ class AddTransactionFormUiState extends State<AddTransactionFormUi> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
-          color: const Color(0xFFFFFFFF),
+          color: AppColors.surface,
           borderRadius: BorderRadius.circular(20),
         ),
         child: Text(label, style: GoogleFonts.notoSansKr(fontSize: 12, color: const Color(0xFF475569), fontWeight: FontWeight.w600)),
@@ -319,14 +320,14 @@ class AddTransactionFormUiState extends State<AddTransactionFormUi> {
   Widget _label(String text) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
-      child: Text(text, style: GoogleFonts.notoSansKr(fontSize: 12, color: const Color(0xFF64748B))),
+      child: Text(text, style: GoogleFonts.notoSansKr(fontSize: 12, color: AppColors.textSub)),
     );
   }
 
   InputDecoration _inputDecoration(String hint) => InputDecoration(
         hintText: hint,
-        hintStyle: GoogleFonts.notoSansKr(color: const Color(0xFF94A3B8)),
-        filled: true, fillColor: const Color(0xFFFFFFFF),
+        hintStyle: GoogleFonts.notoSansKr(color: AppColors.textHint),
+        filled: true, fillColor: AppColors.surface,
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       );
@@ -340,7 +341,7 @@ class AddTransactionFormUiState extends State<AddTransactionFormUi> {
       context: context,
       initialDate: init, firstDate: DateTime(2020), lastDate: DateTime(2030),
       builder: (ctx, child) => Theme(
-        data: ThemeData.dark().copyWith(colorScheme: const ColorScheme.dark(primary: Color(0xFF4F46E5), surface: Color(0xFFFFFFFF))),
+        data: ThemeData.dark().copyWith(colorScheme: const ColorScheme.dark(primary: AppColors.primary, surface: AppColors.surface)),
         child: child!,
       ),
     );

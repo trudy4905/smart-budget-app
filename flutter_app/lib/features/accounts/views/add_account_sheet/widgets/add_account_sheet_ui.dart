@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_app/features/accounts/models/account.dart';
 import 'package:flutter_app/core/utils/helpers.dart';
 import 'package:flutter_app/features/accounts/views/add_account_sheet/constants/account_constants.dart';
+import 'package:flutter_app/core/theme/app_colors.dart';
 
 class AddAccountSheetUi extends StatefulWidget {
   final Account? editAccount;
@@ -114,31 +115,31 @@ class _AddAccountSheetUiState extends State<AddAccountSheetUi> {
           children: [
             Row(
               children: [
-                GestureDetector(onTap: () => Navigator.pop(context), child: const Icon(Icons.close, color: Color(0xFF0F172A))),
+                GestureDetector(onTap: () => Navigator.pop(context), child: const Icon(Icons.close, color: AppColors.textMain)),
                 const SizedBox(width: 8),
-                Text('계좌/카드 추가', style: GoogleFonts.notoSansKr(fontSize: 18, fontWeight: FontWeight.w700, color: const Color(0xFF0F172A))),
+                Text('계좌/카드 추가', style: GoogleFonts.notoSansKr(fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.textMain)),
                 const Spacer(),
                 GestureDetector(
                   onTap: _save,
-                  child: Text('저장', style: GoogleFonts.notoSansKr(color: const Color(0xFF4F46E5), fontWeight: FontWeight.w700, fontSize: 16)),
+                  child: Text('저장', style: GoogleFonts.notoSansKr(color: AppColors.primary, fontWeight: FontWeight.w700, fontSize: 16)),
                 ),
               ],
             ),
             const SizedBox(height: 16),
             // Type toggle
             Container(
-              decoration: BoxDecoration(color: const Color(0xFFFFFFFF), borderRadius: BorderRadius.circular(10)),
+              decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(10)),
               child: Row(
                 children: [
                   _typeTab('bank', '통장', Icons.account_balance, const Color(0xFF059669)),
-                  _typeTab('credit', '신용카드', Icons.credit_card, const Color(0xFF2563EB)),
+                  _typeTab('credit', '신용카드', Icons.credit_card, AppColors.secondary),
                   _typeTab('debit', '체크카드', Icons.credit_score, const Color(0xFFD97706)),
                 ],
               ),
             ),
             const SizedBox(height: 14),
             // Bank/card selection
-            Text(_type == 'bank' ? '은행' : '카드사', style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF64748B))),
+            Text(_type == 'bank' ? '은행' : '카드사', style: GoogleFonts.notoSansKr(fontSize: 11, color: AppColors.textSub)),
             const SizedBox(height: 6),
             _BankSelectorRow(
               bankList: bankList,
@@ -147,22 +148,22 @@ class _AddAccountSheetUiState extends State<AddAccountSheetUi> {
             ),
             const SizedBox(height: 14),
             // Name
-            Text('별칭', style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF64748B))),
+            Text('별칭', style: GoogleFonts.notoSansKr(fontSize: 11, color: AppColors.textSub)),
             const SizedBox(height: 6),
             TextField(
               controller: _nameCtrl,
-              style: GoogleFonts.notoSansKr(color: const Color(0xFF0F172A)),
+              style: GoogleFonts.notoSansKr(color: AppColors.textMain),
               decoration: _inputDec(_type == 'bank' ? '예: 주거래 통장' : '예: 신한 쏠 신용카드'),
             ),
             if (_type == 'bank') ...[
               const SizedBox(height: 14),
-              Text('초기 잔액', style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF64748B))),
+              Text('초기 잔액', style: GoogleFonts.notoSansKr(fontSize: 11, color: AppColors.textSub)),
               const SizedBox(height: 6),
               TextField(
                 controller: _balanceCtrl,
                 keyboardType: TextInputType.text,
                 inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9\-]'))],
-                style: GoogleFonts.notoSansKr(color: const Color(0xFF0F172A)),
+                style: GoogleFonts.notoSansKr(color: AppColors.textMain),
                 decoration: _inputDec('예: 1,500,000'),
                 onChanged: (value) {
                   String text = value.replaceAll(',', '');
@@ -180,7 +181,7 @@ class _AddAccountSheetUiState extends State<AddAccountSheetUi> {
             ],
             if (_type == 'credit') ...[
               const SizedBox(height: 14),
-              Text('결제일', style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF64748B))),
+              Text('결제일', style: GoogleFonts.notoSansKr(fontSize: 11, color: AppColors.textSub)),
               const SizedBox(height: 6),
               Row(
                 children: [
@@ -188,13 +189,13 @@ class _AddAccountSheetUiState extends State<AddAccountSheetUi> {
                     width: 80,
                     child: TextField(
                       keyboardType: TextInputType.number,
-                      style: GoogleFonts.notoSansKr(color: const Color(0xFF0F172A)),
+                      style: GoogleFonts.notoSansKr(color: AppColors.textMain),
                       decoration: _inputDec('25'),
                       onChanged: (v) => _paymentDay = int.tryParse(v) ?? 25,
                     ),
                   ),
                   const SizedBox(width: 8),
-                  Text('일', style: GoogleFonts.notoSansKr(color: const Color(0xFF0F172A))),
+                  Text('일', style: GoogleFonts.notoSansKr(color: AppColors.textMain)),
                   const Spacer(),
                   GestureDetector(
                     onTap: () {
@@ -205,16 +206,16 @@ class _AddAccountSheetUiState extends State<AddAccountSheetUi> {
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF4F46E5).withOpacity(0.1),
+                        color: AppColors.primary.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: Text('합산일 자동입력', style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF4F46E5), fontWeight: FontWeight.w600)),
+                      child: Text('합산일 자동입력', style: GoogleFonts.notoSansKr(fontSize: 11, color: AppColors.primary, fontWeight: FontWeight.w600)),
                     ),
                   ),
                 ],
               ),
               const SizedBox(height: 14),
-              Text('합산 시작일', style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF64748B))),
+              Text('합산 시작일', style: GoogleFonts.notoSansKr(fontSize: 11, color: AppColors.textSub)),
               const SizedBox(height: 6),
               Row(
                 children: [
@@ -224,7 +225,7 @@ class _AddAccountSheetUiState extends State<AddAccountSheetUi> {
                 ],
               ),
               const SizedBox(height: 10),
-              Text('합산 종료일', style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF64748B))),
+              Text('합산 종료일', style: GoogleFonts.notoSansKr(fontSize: 11, color: AppColors.textSub)),
               const SizedBox(height: 6),
               Row(
                 children: [
@@ -236,20 +237,20 @@ class _AddAccountSheetUiState extends State<AddAccountSheetUi> {
             ],
             if (_type == 'credit' || _type == 'debit') ...[
               const SizedBox(height: 14),
-              Text(_type == 'debit' ? '연결 통장' : '결제 출금 통장', style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF64748B))),
+              Text(_type == 'debit' ? '연결 통장' : '결제 출금 통장', style: GoogleFonts.notoSansKr(fontSize: 11, color: AppColors.textSub)),
               const SizedBox(height: 6),
               if (widget.bankAccounts.isEmpty)
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   decoration: BoxDecoration(color: const Color(0xFFF8FAFC), borderRadius: BorderRadius.circular(12)),
-                  child: Text('등록된 통장 목록이 없습니다. 먼저 통장을 추가해주세요.', style: GoogleFonts.notoSansKr(fontSize: 13, color: const Color(0xFF94A3B8))),
+                  child: Text('등록된 통장 목록이 없습니다. 먼저 통장을 추가해주세요.', style: GoogleFonts.notoSansKr(fontSize: 13, color: AppColors.textHint)),
                 )
               else
                 DropdownButtonFormField<String>(
                   value: validLinkedBankId,
-                  dropdownColor: const Color(0xFFFFFFFF),
-                  style: GoogleFonts.notoSansKr(color: const Color(0xFF0F172A)),
+                  dropdownColor: AppColors.surface,
+                  style: GoogleFonts.notoSansKr(color: AppColors.textMain),
                   decoration: _inputDec('통장을 선택해주세요'),
                   items: [
                     ...widget.bankAccounts.map((a) => DropdownMenuItem(value: a.id, child: Text(a.name))),
@@ -258,7 +259,7 @@ class _AddAccountSheetUiState extends State<AddAccountSheetUi> {
                 ),
             ],
             const SizedBox(height: 14),
-            Text('테마 색상', style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF64748B))),
+            Text('테마 색상', style: GoogleFonts.notoSansKr(fontSize: 11, color: AppColors.textSub)),
             const SizedBox(height: 8),
             _ColorSelectorRow(
               selectedColor: _color,
@@ -275,8 +276,8 @@ class _AddAccountSheetUiState extends State<AddAccountSheetUi> {
     return Expanded(
       child: DropdownButtonFormField<int>(
         value: val,
-        dropdownColor: const Color(0xFFFFFFFF),
-        style: GoogleFonts.notoSansKr(color: const Color(0xFF0F172A), fontSize: 13),
+        dropdownColor: AppColors.surface,
+        style: GoogleFonts.notoSansKr(color: AppColors.textMain, fontSize: 13),
         decoration: _inputDec(''),
         items: const [
           DropdownMenuItem(value: -2, child: Text('전전월')),
@@ -292,8 +293,8 @@ class _AddAccountSheetUiState extends State<AddAccountSheetUi> {
     return Expanded(
       child: DropdownButtonFormField<int>(
         value: val,
-        dropdownColor: const Color(0xFFFFFFFF),
-        style: GoogleFonts.notoSansKr(color: const Color(0xFF0F172A), fontSize: 13),
+        dropdownColor: AppColors.surface,
+        style: GoogleFonts.notoSansKr(color: AppColors.textMain, fontSize: 13),
         decoration: _inputDec(''),
         items: List.generate(31, (i) => i + 1).map((d) => DropdownMenuItem(value: d, child: Text('$d일${d == 31 ? '(말일)' : ''}'))).toList(),
         onChanged: onChanged,
@@ -310,18 +311,18 @@ class _AddAccountSheetUiState extends State<AddAccountSheetUi> {
           duration: const Duration(milliseconds: 150),
           padding: const EdgeInsets.symmetric(vertical: 10),
           decoration: BoxDecoration(
-            color: isActive ? const Color(0xFF4F46E5).withOpacity(0.15) : Colors.transparent,
+            color: isActive ? AppColors.primary.withOpacity(0.15) : Colors.transparent,
             borderRadius: BorderRadius.circular(10),
-            border: isActive ? Border.all(color: const Color(0xFF4F46E5).withOpacity(0.4)) : Border.all(color: Colors.transparent),
+            border: isActive ? Border.all(color: AppColors.primary.withOpacity(0.4)) : Border.all(color: Colors.transparent),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(iconData, size: 14, color: isActive ? iconColor : const Color(0xFF94A3B8)),
+              Icon(iconData, size: 14, color: isActive ? iconColor : AppColors.textHint),
               const SizedBox(width: 4),
               Text(label,
                   style: GoogleFonts.notoSansKr(
-                    fontSize: 11, color: isActive ? const Color(0xFF4F46E5) : const Color(0xFF94A3B8),
+                    fontSize: 11, color: isActive ? AppColors.primary : AppColors.textHint,
                     fontWeight: isActive ? FontWeight.w700 : FontWeight.w400,
                   )),
             ],
@@ -333,9 +334,9 @@ class _AddAccountSheetUiState extends State<AddAccountSheetUi> {
 
   InputDecoration _inputDec(String hint) => InputDecoration(
         hintText: hint,
-        hintStyle: GoogleFonts.notoSansKr(color: const Color(0xFF94A3B8)),
+        hintStyle: GoogleFonts.notoSansKr(color: AppColors.textHint),
         filled: true,
-        fillColor: const Color(0xFFFFFFFF),
+        fillColor: AppColors.surface,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide.none,
@@ -381,7 +382,7 @@ class _AddAccountSheetUiState extends State<AddAccountSheetUi> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('$_bank 결제일($_paymentDay일) 기준 이용기간이 자동 설정되었습니다.', style: GoogleFonts.notoSansKr()),
-        backgroundColor: const Color(0xFF4F46E5),
+        backgroundColor: AppColors.primary,
         duration: const Duration(seconds: 2),
       ),
     );
@@ -451,15 +452,15 @@ class _BankSelectorRow extends StatelessWidget {
               margin: const EdgeInsets.only(right: 6),
               padding: const EdgeInsets.symmetric(horizontal: 12),
               decoration: BoxDecoration(
-                color: isActive ? const Color(0xFF4F46E5).withOpacity(0.15) : const Color(0xFFFFFFFF),
+                color: isActive ? AppColors.primary.withOpacity(0.15) : AppColors.surface,
                 borderRadius: BorderRadius.circular(18),
-                border: Border.all(color: isActive ? const Color(0xFF4F46E5).withOpacity(0.4) : const Color(0xFFE2E8F0)),
+                border: Border.all(color: isActive ? AppColors.primary.withOpacity(0.4) : AppColors.divider),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   _buildLogo(b),
-                  Text(b, style: GoogleFonts.notoSansKr(fontSize: 11, color: isActive ? const Color(0xFF4F46E5) : const Color(0xFF64748B))),
+                  Text(b, style: GoogleFonts.notoSansKr(fontSize: 11, color: isActive ? AppColors.primary : AppColors.textSub)),
                 ],
               ),
             ),
@@ -512,9 +513,9 @@ class _ColorSelectorRow extends StatelessWidget {
             decoration: BoxDecoration(
               color: hexToColor(c),
               shape: BoxShape.circle,
-              border: isActive ? Border.all(color: const Color(0xFF0F172A), width: 2.5) : null,
+              border: isActive ? Border.all(color: AppColors.textMain, width: 2.5) : null,
             ),
-            child: isActive ? const Icon(Icons.check, size: 14, color: Color(0xFF0F172A)) : null,
+            child: isActive ? const Icon(Icons.check, size: 14, color: AppColors.textMain) : null,
           ),
         );
       }).toList(),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_app/core/utils/helpers.dart';
+import 'package:flutter_app/core/theme/app_colors.dart';
 
 class ExpectedAssetCardUi extends StatelessWidget {
   final int month;
@@ -32,7 +33,7 @@ class ExpectedAssetCardUi extends StatelessWidget {
             child: Image.asset('assets/expected_assets_icon.png', fit: BoxFit.contain),
           ),
           const SizedBox(width: 8),
-          Text('$month월 예상 자산', style: GoogleFonts.notoSansKr(fontSize: 15, color: const Color(0xFF0F172A), fontWeight: FontWeight.w600)),
+          Text('$month월 예상 자산', style: GoogleFonts.notoSansKr(fontSize: 15, color: AppColors.textMain, fontWeight: FontWeight.w600)),
           const Spacer(),
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,

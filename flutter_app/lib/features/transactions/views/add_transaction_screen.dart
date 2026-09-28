@@ -5,6 +5,7 @@ import 'package:flutter_app/features/transactions/models/transaction.dart';
 import 'package:flutter_app/features/categories/models/category_info.dart';
 import 'package:flutter_app/features/transactions/views/widgets/add_transaction_form_ui.dart';
 import 'package:flutter_app/features/transactions/views/widgets/category_dialogs.dart';
+import 'package:flutter_app/core/theme/app_colors.dart';
 
 class AddTransactionScreen extends StatefulWidget {
   final String initialType;
@@ -101,7 +102,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
       context: context,
       cat: null,
       onSave: (emoji, name) {
-        final newCat = CategoryInfo(name: name, emoji: emoji, color: const Color(0xFF4F46E5), type: currentType);
+        final newCat = CategoryInfo(name: name, emoji: emoji, color: AppColors.primary, type: currentType);
         context.read<AppState>().addCategory(newCat);
         _formKey.currentState?.setCategory(name);
       }

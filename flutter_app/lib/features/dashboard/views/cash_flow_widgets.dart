@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_app/core/utils/helpers.dart';
+import 'package:flutter_app/core/theme/app_colors.dart';
 
 class CashFlowHeaderWidget extends StatelessWidget {
   final DateTime drawerCashFlowDate;
@@ -14,14 +15,14 @@ class CashFlowHeaderWidget extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         IconButton(
-          icon: const Icon(Icons.chevron_left, color: Color(0xFF64748B)),
+          icon: const Icon(Icons.chevron_left, color: AppColors.textSub),
           onPressed: () => onChangeMonth(-1),
           padding: EdgeInsets.zero,
           constraints: const BoxConstraints(),
         ),
-        Text('${drawerCashFlowDate.month}월 현금 흐름', style: GoogleFonts.notoSansKr(fontSize: 15, fontWeight: FontWeight.w700, color: const Color(0xFF0F172A))),
+        Text('${drawerCashFlowDate.month}월 현금 흐름', style: GoogleFonts.notoSansKr(fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.textMain)),
         IconButton(
-          icon: const Icon(Icons.chevron_right, color: Color(0xFF64748B)),
+          icon: const Icon(Icons.chevron_right, color: AppColors.textSub),
           onPressed: () => onChangeMonth(1),
           padding: EdgeInsets.zero,
           constraints: const BoxConstraints(),
@@ -73,9 +74,9 @@ class CashFlowRowWidget extends StatelessWidget {
                 const SizedBox(width: 12),
                 Text(title, style: GoogleFonts.notoSansKr(fontSize: 13, color: const Color(0xFF334155), fontWeight: FontWeight.w600)),
                 const Spacer(),
-                Text('${formatNumber(amount)}원', style: GoogleFonts.notoSansKr(fontSize: 13, fontWeight: FontWeight.w700, color: const Color(0xFF0F172A))),
+                Text('${formatNumber(amount)}원', style: GoogleFonts.notoSansKr(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textMain)),
                 const SizedBox(width: 8),
-                Icon(Icons.keyboard_arrow_right, size: 16, color: isExpanded ? const Color(0xFF0F172A) : const Color(0xFF94A3B8)),
+                Icon(Icons.keyboard_arrow_right, size: 16, color: isExpanded ? AppColors.textMain : AppColors.textHint),
               ],
             ),
           ),
