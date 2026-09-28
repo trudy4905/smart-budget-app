@@ -34,11 +34,7 @@ class RecurringExpenseSectionUI extends StatelessWidget {
   Widget build(BuildContext context) {
     final nonCreditRecurringCount = recurringTxs.where((tx) => getAccount(tx.accountId)?.isCredit != true).length;
     
-    int displayedItemCount = nonCreditRecurringCount + cards.length;
-    for (final c in cards) {
-      final info = getCardPaymentInfo(c);
-      displayedItemCount += info.recurringTxs.length;
-    }
+    int displayedItemCount = recurringTxs.length + cards.length;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -133,7 +129,7 @@ class RecurringExpenseSectionUI extends StatelessWidget {
                   );
                 }
                 
-                final cardRecurringTxs = cardInfo.recurringTxs;
+                final cardRecurringTxs = recurringTxs.where((tx) => tx.accountId == c.id).toList();
 
                 return Column(
                   children: [
