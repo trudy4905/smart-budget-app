@@ -66,7 +66,37 @@ class AccountsSectionUI extends StatelessWidget {
       return AccountListItem(
         selectedAccountIds: selectedAccountIds,
         totalAccountsCount: totalAccountsCount,
-        onSelectedAccountIdsChanged: onSelectedAccountIdsChanged,
+        onSelectedAccountIdsChanged: (newIds) {
+          if (newIds.isEmpty || newIds.contains('all')) {
+            onSelectedAccountIdsChanged(newIds);
+          } else {
+            final toggleId = newIds.first;
+            final currentIds = List<String>.from(selectedAccountIds);
+            
+            if (currentIds.contains('all')) {
+              // all was selected -> all except toggleId
+              final allIds = [...banks.map((b)=>b.id), ...cards.map((c)=>c.id)];
+              allIds.remove(toggleId);
+              onSelectedAccountIdsChanged(allIds.isEmpty ? ['all'] : allIds);
+            } else {
+              if (currentIds.contains(toggleId)) {
+                currentIds.remove(toggleId);
+                if (currentIds.isEmpty) {
+                  onSelectedAccountIdsChanged(['all']);
+                } else {
+                  onSelectedAccountIdsChanged(currentIds);
+                }
+              } else {
+                currentIds.add(toggleId);
+                if (currentIds.length == totalAccountsCount) {
+                  onSelectedAccountIdsChanged(['all']);
+                } else {
+                  onSelectedAccountIdsChanged(currentIds);
+                }
+              }
+            }
+          }
+        },
         id: acc.id,
         icon: acc.isBank ? Icons.account_balance : Icons.credit_card,
         label: acc.name,
