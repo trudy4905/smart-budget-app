@@ -7,6 +7,7 @@ import 'package:flutter_app/core/providers/app_state.dart';
 import 'package:flutter_app/features/recurring/view_models/recurring_view_model.dart';
 import 'package:flutter_app/features/dashboard/view_models/dashboard_view_model.dart';
 import 'package:flutter_app/features/home/views/home_screen.dart';
+import 'package:flutter_app/core/theme/app_theme.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -43,18 +44,7 @@ class SmartBudgetApp extends StatelessWidget {
     return MaterialApp(
       title: 'Smart Budget',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        brightness: Brightness.light,
-        scaffoldBackgroundColor: const Color(0xFFF1F5F9),
-        primaryColor: const Color(0xFF4F46E5),
-        colorScheme: const ColorScheme.light(
-          primary: Color(0xFF4F46E5),
-          secondary: Color(0xFF2563EB),
-          surface: Color(0xFFFFFFFF),
-        ),
-        textTheme: GoogleFonts.notoSansKrTextTheme(ThemeData.light().textTheme),
-        drawerTheme: const DrawerThemeData(backgroundColor: Color(0xFFF1F5F9)),
-      ),
+      theme: AppTheme.lightTheme,
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
