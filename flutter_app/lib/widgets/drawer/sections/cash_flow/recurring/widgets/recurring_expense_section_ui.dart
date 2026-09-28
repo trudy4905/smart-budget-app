@@ -33,8 +33,14 @@ class RecurringExpenseSectionUI extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final nonCreditRecurringCount = recurringTxs.where((tx) => getAccount(tx.accountId)?.isCredit != true).length;
-    int displayedItemCount = nonCreditRecurringCount + cards.length;
-    for (final c in cards) {
+    
+    final visibleCards = cards.where((c) {
+      final info = getCardPaymentInfo(c);
+      return info.amount > 0 || info.recurringTxs.isNotEmpty;
+    }).toList();
+
+    int displayedItemCount = nonCreditRecurringCount + visibleCards.length;
+    for (final c in visibleCards) {
       final info = getCardPaymentInfo(c);
       displayedItemCount += info.recurringTxs.length;
     }
@@ -64,7 +70,7 @@ class RecurringExpenseSectionUI extends StatelessWidget {
           firstChild: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (recurringTxs.isEmpty && cards.isEmpty)
+              if (recurringTxs.isEmpty && visibleCards.isEmpty)
                 Padding(
                   padding: const EdgeInsets.only(left: 24, top: 4, bottom: 12),
                   child: Text('내역 없음', style: GoogleFonts.notoSansKr(fontSize: 12, color: const Color(0xFF94A3B8))),
@@ -111,7 +117,7 @@ class RecurringExpenseSectionUI extends StatelessWidget {
                   ],
                 );
               }),
-              ...cards.asMap().entries.map((e) {
+              ...visibleCards.asMap().entries.map((e) {
                 final c = e.value;
                 final cardInfo = getCardPaymentInfo(c);
                 int cardPaymentAmount = cardInfo.amount;
