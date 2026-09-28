@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../providers/app_state.dart';
+import '../../../../view_models/dashboard_view_model.dart';
 import 'summary/drawer_side_panel.dart';
 import 'widgets/cash_flow_section_ui.dart';
 import 'summary/drawer_side_panel.dart';
@@ -62,9 +63,9 @@ class _CashFlowSectionState extends State<CashFlowSection> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<AppState>(
-      builder: (context, state, _) {
-        final dash = state.getDashboardSummary(_drawerCashFlowDate.year, _drawerCashFlowDate.month);
+    return Consumer2<AppState, DashboardViewModel>(
+      builder: (context, state, dashboardVM, _) {
+        final dash = dashboardVM.getDashboardSummary(_drawerCashFlowDate.year, _drawerCashFlowDate.month);
 
         return CashFlowSectionUI(
           drawerCashFlowDate: _drawerCashFlowDate,

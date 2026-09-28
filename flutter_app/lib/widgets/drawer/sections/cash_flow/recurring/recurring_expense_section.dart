@@ -3,6 +3,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../../providers/app_state.dart';
+import '../../../../../view_models/dashboard_view_model.dart';
+import '../../../../../view_models/recurring_view_model.dart';
 import 'package:collection/collection.dart';
 import '../../../../../models/transaction.dart';
 import 'widgets/recurring_expense_section_ui.dart';
@@ -34,19 +36,13 @@ class _RecurringExpenseSectionState extends State<RecurringExpenseSection> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<AppState>(
-      builder: (context, state, _) {
-        final dash = state.getDashboardSummary(widget.drawerCashFlowDate.year, widget.drawerCashFlowDate.month);
+    return Consumer2<AppState, RecurringViewModel>(
+      builder: (context, state, recurringVM, _) {
+        final dashboardVM = Provider.of<DashboardViewModel>(context, listen: false);
+        final dash = dashboardVM.getDashboardSummary(widget.drawerCashFlowDate.year, widget.drawerCashFlowDate.month);
         
-        final Map<String, Transaction> recurringMap = {};
-        for (final t in state.transactions) {
-          if (t.isRecurring && t.recurringId != null && t.type == 'expense') {
-            if (!state.selectedAccountIds.contains('all') && !state.selectedAccountIds.contains(t.accountId)) continue;
-            recurringMap[t.recurringId!] = t;
-          }
-        }
-        final recurringTxs = recurringMap.values.toList();
-        final cards = state.accounts.where((a) => a.isCredit && a.paymentDay != null && (state.selectedAccountIds.contains('all') || state.selectedAccountIds.contains(a.id))).toList();
+        final recurringTxs = recurringVM.getNonCreditRecurringExpenses();
+        final cards = recurringVM.getCreditCardsForRecurring();
         
         int totalExpense = 0;
         for (final tx in recurringTxs) {

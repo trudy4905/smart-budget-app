@@ -6,89 +6,29 @@ import '../models/transaction.dart';
 import '../utils/helpers.dart';
 
 import '../models/category_info.dart';
+import '../services/storage_service.dart';
+import '../view_models/ui_view_model.dart';
 
-const kStorageKeyTx = 'smart_budget_transactions_v6.0';
-const kStorageKeyAcc = 'smart_budget_accounts_v6.0';
-const kStorageKeyRec = 'smart_budget_recurring_v6.0';
-const kStorageKeyCat = 'smart_budget_categories_v6.0';
-
-class CardPaymentInfo {
-  final Account account;
-  final String startStr;
-  final String endStr;
-  final String paymentDateStr; // e.g., '9.25'
-  final int amount;
-  final bool isFinalized;
-  final List<Transaction> recurringTxs;
-
-  CardPaymentInfo({
-    required this.account, required this.startStr, required this.endStr, 
-    required this.paymentDateStr, required this.amount, required this.isFinalized,
-    this.recurringTxs = const [],
-  });
-}
-
-class FixedItemInfo {
-  final Transaction tx;
-  final String dateStr;
-  FixedItemInfo(this.tx, this.dateStr);
-}
-
-class DashboardSummary {
-  final int alreadyReceivedIncome;
-  final List<Transaction> alreadyReceivedIncomeList;
-  final List<FixedItemInfo> upcomingIncomeList;
-  final int alreadyPaidCashDebit;
-  final List<Transaction> alreadyPaidCashDebitList;
-  final int alreadyPaidFixed;
-  final List<Transaction> alreadyPaidFixedList;
-  final int alreadyPaidCard;
-  final List<CardPaymentInfo> alreadyPaidCardList;
-  final List<FixedItemInfo> upcomingExpenseList;
-  final List<CardPaymentInfo> upcomingCardPayments;
-  final List<CardPaymentInfo> ongoingCardAccumulations;
-
-  DashboardSummary({
-    required this.alreadyReceivedIncome, required this.alreadyReceivedIncomeList, required this.upcomingIncomeList,
-    required this.alreadyPaidCashDebit, required this.alreadyPaidCashDebitList, required this.alreadyPaidFixed, required this.alreadyPaidFixedList,
-    required this.alreadyPaidCard, required this.alreadyPaidCardList, required this.upcomingExpenseList, required this.upcomingCardPayments,
-    required this.ongoingCardAccumulations,
-  });
-
-  int get totalAlreadyReceived => alreadyReceivedIncome;
-  int get totalUpcomingIncome => upcomingIncomeList.fold(0, (s, e) => s + e.tx.amount);
-  
-  int get totalAlreadyPaid => alreadyPaidCashDebit + alreadyPaidFixed + alreadyPaidCard;
-  int get totalUpcomingFixedExpense => upcomingExpenseList.fold(0, (s, e) => s + e.tx.amount);
-  int get totalUpcomingCard => upcomingCardPayments.fold(0, (s, e) => s + e.amount);
-  int get totalOngoingCard => ongoingCardAccumulations.fold(0, (s, e) => s + e.amount);
-  int get totalUpcomingExpense => totalUpcomingFixedExpense + totalUpcomingCard;
-  
-  int get remaining => (totalAlreadyReceived + totalUpcomingIncome) - (totalAlreadyPaid + totalUpcomingExpense);
-}
+import '../models/dashboard_summary.dart';
+export '../models/dashboard_summary.dart';
 
 class AppState extends ChangeNotifier {
   List<Account> accounts = [];
   List<Transaction> transactions = [];
   List<CategoryInfo> categories = [];
-  DateTime currentDate = DateTime(DateTime.now().year, DateTime.now().month, 1);
-  String selectedDateStr = _formatDate(DateTime.now());
-  List<String> selectedAccountIds = ['all'];
-  String drawerFilter = 'all'; // 'all', 'income', 'cash', 'card', 'total_expense', 'next_all', 'next_card'
-  DateTime assetReferenceDate = DateTime.now();
+  final StorageService _storageService = StorageService();
+  final UiViewModel uiState = UiViewModel();
 
-  List<String> dashboardItemOrder = [
-    'income',
-    'expense',
-    'upcoming_income',
-    'upcoming_expense',
-    'expected_asset',
-    'recurring_expense',
-    'recurring_income'
-  ];
+  // ---- UI State Facade ----
+  DateTime get currentDate => uiState.currentDate;
+  String get selectedDateStr => uiState.selectedDateStr;
+  List<String> get selectedAccountIds => uiState.selectedAccountIds;
+  String get drawerFilter => uiState.drawerFilter;
+  DateTime get assetReferenceDate => uiState.assetReferenceDate;
+  List<String> get dashboardItemOrder => uiState.dashboardItemOrder;
 
   void setAssetReferenceDate(DateTime date) {
-    assetReferenceDate = date;
+    uiState.setAssetReferenceDate(date);
     notifyListeners();
   }
 
@@ -109,118 +49,79 @@ class AppState extends ChangeNotifier {
 
   // ---- Load / Save ----
   Future<void> _loadAll() async {
-    final prefs = await SharedPreferences.getInstance();
-
-    final accStr = prefs.getString(kStorageKeyAcc);
-    if (accStr != null) {
-      try {
-        final List dec = jsonDecode(accStr);
-        accounts = dec.map((e) => Account.fromJson(e)).toList();
-      } catch (_) {
-        accounts = _sampleAccounts();
-        _saveAccounts(prefs);
-      }
+    final loadedAccounts = await _storageService.loadAccounts();
+    if (loadedAccounts != null) {
+      accounts = loadedAccounts;
     } else {
       accounts = _sampleAccounts();
-      _saveAccounts(prefs);
+      _saveAccounts();
     }
 
-    final txStr = prefs.getString(kStorageKeyTx);
-    if (txStr != null) {
-      try {
-        final List dec = jsonDecode(txStr);
-        transactions = dec.map((e) => Transaction.fromJson(e)).toList();
-      } catch (_) {
-        transactions = _sampleTransactions();
-        _saveTransactions(prefs);
-      }
+    final loadedTransactions = await _storageService.loadTransactions();
+    if (loadedTransactions != null) {
+      transactions = loadedTransactions;
     } else {
       transactions = _sampleTransactions();
-      _saveTransactions(prefs);
+      _saveTransactions();
     }
 
-    final catStr = prefs.getString(kStorageKeyCat);
-    if (catStr != null) {
-      try {
-        final List dec = jsonDecode(catStr);
-        categories = dec.map((e) => CategoryInfo.fromJson(e)).toList();
-      } catch (_) {
-        categories = [...kExpenseCategories, ...kIncomeCategories];
-        _saveCategories(prefs);
-      }
+    final loadedCategories = await _storageService.loadCategories();
+    if (loadedCategories != null) {
+      categories = loadedCategories;
     } else {
       categories = [...kExpenseCategories, ...kIncomeCategories];
-      _saveCategories(prefs);
+      _saveCategories();
     }
 
-    final orderStr = prefs.getString('dashboardItemOrder');
-    if (orderStr != null) {
-      try {
-        final List dec = jsonDecode(orderStr);
-        dashboardItemOrder = List<String>.from(dec);
-      } catch (_) {}
-    }
+    await uiState.init();
 
     _loaded = true;
     notifyListeners();
   }
 
   Future<void> resetAllData() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(kStorageKeyAcc);
-    await prefs.remove(kStorageKeyTx);
     accounts = _sampleAccounts();
     transactions = [];
-    _saveAccounts(prefs);
-    _saveTransactions(prefs);
+    _saveAccounts();
+    _saveTransactions();
     notifyListeners();
   }
 
-  Future<void> _saveAccounts([SharedPreferences? prefs]) async {
-    prefs ??= await SharedPreferences.getInstance();
-    await prefs.setString(kStorageKeyAcc, jsonEncode(accounts.map((e) => e.toJson()).toList()));
+  Future<void> _saveAccounts() async {
+    await _storageService.saveAccounts(accounts);
   }
 
-  Future<void> _saveTransactions([SharedPreferences? prefs]) async {
-    prefs ??= await SharedPreferences.getInstance();
-    await prefs.setString(kStorageKeyTx, jsonEncode(transactions.map((e) => e.toJson()).toList()));
+  Future<void> _saveTransactions() async {
+    await _storageService.saveTransactions(transactions);
   }
 
-  Future<void> _saveCategories([SharedPreferences? prefs]) async {
-    prefs ??= await SharedPreferences.getInstance();
-    await prefs.setString(kStorageKeyCat, jsonEncode(categories.map((e) => e.toJson()).toList()));
+  Future<void> _saveCategories() async {
+    await _storageService.saveCategories(categories);
   }
 
   Future<void> reorderDashboardItems(int oldIndex, int newIndex) async {
-    if (oldIndex < newIndex) {
-      newIndex -= 1;
-    }
-    final item = dashboardItemOrder.removeAt(oldIndex);
-    dashboardItemOrder.insert(newIndex, item);
+    await uiState.reorderDashboardItems(oldIndex, newIndex);
     notifyListeners();
-    
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('dashboardItemOrder', jsonEncode(dashboardItemOrder));
   }
 
   // ---- Navigation ----
   void setCurrentDate(DateTime d) {
-    currentDate = DateTime(d.year, d.month, 1);
+    uiState.setCurrentDate(d);
     notifyListeners();
   }
 
   void setSelectedDate(String dateStr) {
-    selectedDateStr = dateStr;
+    uiState.setSelectedDate(dateStr);
     notifyListeners();
   }
 
   void setSelectedAccountIds(List<String> ids) {
-    selectedAccountIds = ids;
+    uiState.setSelectedAccountIds(ids);
     notifyListeners();
   }
 
   void setDrawerFilter(String f) {
-    drawerFilter = f;
+    uiState.setDrawerFilter(f);
     notifyListeners();
   }
 
@@ -686,18 +587,17 @@ class AppState extends ChangeNotifier {
 
   // ---- Clear Data ----
   Future<void> clearAllData() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.clear();
+    await _storageService.clearAll();
     
     accounts = _sampleAccounts();
     transactions = _sampleTransactions();
     categories = [...kExpenseCategories, ...kIncomeCategories];
     
-    _saveAccounts(prefs);
-    _saveTransactions(prefs);
-    _saveCategories(prefs);
+    _saveAccounts();
+    _saveTransactions();
+    _saveCategories();
     
-    selectedAccountIds = ['all'];
+    uiState.setSelectedAccountIds(['all']);
     
     notifyListeners();
   }
