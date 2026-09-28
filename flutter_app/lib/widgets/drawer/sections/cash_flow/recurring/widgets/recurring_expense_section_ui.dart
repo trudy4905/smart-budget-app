@@ -32,6 +32,13 @@ class RecurringExpenseSectionUI extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final nonCreditRecurringCount = recurringTxs.where((tx) => getAccount(tx.accountId)?.isCredit != true).length;
+    int displayedItemCount = nonCreditRecurringCount + cards.length;
+    for (final c in cards) {
+      final info = getCardPaymentInfo(c);
+      displayedItemCount += info.recurringTxs.length;
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -44,7 +51,7 @@ class RecurringExpenseSectionUI extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Text('고정 지출 (${recurringTxs.length + cards.length})', style: GoogleFonts.notoSansKr(fontSize: 14, color: const Color(0xFF0F172A), fontWeight: FontWeight.w700)),
+                Text('고정 지출 ($displayedItemCount)', style: GoogleFonts.notoSansKr(fontSize: 14, color: const Color(0xFF0F172A), fontWeight: FontWeight.w700)),
                 const Spacer(),
                 Text(formatNumber(totalExpense), style: GoogleFonts.notoSansKr(fontSize: 14, color: const Color(0xFF0F172A), fontWeight: FontWeight.w700)),
                 const SizedBox(width: 8),
@@ -65,6 +72,10 @@ class RecurringExpenseSectionUI extends StatelessWidget {
               ...recurringTxs.where((tx) => getAccount(tx.accountId)?.isCredit != true).toList().asMap().entries.map((e) {
                 final tx = e.value;
                 final txAccount = getAccount(tx.accountId);
+                final parts = tx.date.split('-');
+                final txMonth = parts.length >= 2 ? int.tryParse(parts[1]) ?? month : month;
+                final txDay = parts.length >= 3 ? int.tryParse(parts[2]) ?? 0 : 0;
+
                 return Column(
                   children: [
                     const Padding(padding: EdgeInsets.only(left: 8, right: 8), child: Divider(color: Color(0xFFF1F5F9), height: 1)),
@@ -73,7 +84,7 @@ class RecurringExpenseSectionUI extends StatelessWidget {
                       iconBgColor: const Color(0xFFFFF1F2),
                       iconColor: const Color(0xFFE11D48),
                       title: tx.memo.isNotEmpty ? '${tx.category} (${tx.memo})' : tx.category,
-                      subtitle: '$month/${int.tryParse(tx.date.split('-').last) ?? 0}',
+                      subtitle: '$txMonth/$txDay',
                       amount: tx.amount,
                       onDelete: () {
                         showDialog(
@@ -121,7 +132,7 @@ class RecurringExpenseSectionUI extends StatelessWidget {
                   );
                 }
                 
-                final cardRecurringTxs = recurringTxs.where((tx) => tx.accountId == c.id).toList();
+                final cardRecurringTxs = cardInfo.recurringTxs;
 
                 return Column(
                   children: [
@@ -136,6 +147,10 @@ class RecurringExpenseSectionUI extends StatelessWidget {
                       amount: cardPaymentAmount,
                     ),
                     ...cardRecurringTxs.map((tx) {
+                      final parts = tx.date.split('-');
+                      final txMonth = parts.length >= 2 ? int.tryParse(parts[1]) ?? month : month;
+                      final txDay = parts.length >= 3 ? int.tryParse(parts[2]) ?? 0 : 0;
+
                       return Column(
                         children: [
                           const Padding(padding: EdgeInsets.only(left: 8, right: 8), child: Divider(color: Color(0xFFF1F5F9), height: 1)),
@@ -145,7 +160,7 @@ class RecurringExpenseSectionUI extends StatelessWidget {
                             iconBgColor: const Color(0xFFFFF1F2).withOpacity(0.5),
                             iconColor: const Color(0xFFE11D48).withOpacity(0.5),
                             title: tx.memo.isNotEmpty ? '${tx.category} (${tx.memo})' : tx.category,
-                            subtitle: '$month/${int.tryParse(tx.date.split('-').last) ?? 0}',
+                            subtitle: '$txMonth/$txDay',
                             amount: tx.amount,
                             onDelete: () {
                               showDialog(

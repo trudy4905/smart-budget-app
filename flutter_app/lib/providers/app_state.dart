@@ -19,10 +19,12 @@ class CardPaymentInfo {
   final String paymentDateStr; // e.g., '9.25'
   final int amount;
   final bool isFinalized;
+  final List<Transaction> recurringTxs;
 
   CardPaymentInfo({
     required this.account, required this.startStr, required this.endStr, 
-    required this.paymentDateStr, required this.amount, required this.isFinalized
+    required this.paymentDateStr, required this.amount, required this.isFinalized,
+    this.recurringTxs = const [],
   });
 }
 
@@ -460,7 +462,22 @@ class AppState extends ChangeNotifier {
         final endNext = _clampDate(year, month + 1 + (acc.billingEndMonth ?? -1), acc.billingEndDay ?? 31);
         
         // Sum up to today
-        int amountNext = _sumCardTransactions(acc.id, startNext, todayOnly.isBefore(endNext) ? todayOnly : endNext);
+        final endNextActual = todayOnly.isBefore(endNext) ? todayOnly : endNext;
+        int amountNext = _sumCardTransactions(acc.id, startNext, endNextActual);
+        
+        List<Transaction> recurringTxsNext = [];
+        for (final t in transactions) {
+          if (t.accountId == acc.id && t.isRecurring && t.type == 'expense') {
+            final parts = t.date.split('-');
+            if (parts.length >= 3) {
+              final txDate = DateTime(int.parse(parts[0]), int.parse(parts[1]), int.parse(parts[2]));
+              // For ongoing accumulation, we can show all recurring items falling in the billing period
+              if (!txDate.isBefore(startNext) && !txDate.isAfter(endNext)) {
+                recurringTxsNext.add(t);
+              }
+            }
+          }
+        }
         
         if (amountNext >= 0) {
           ongoingCard.add(CardPaymentInfo(
@@ -469,7 +486,8 @@ class AppState extends ChangeNotifier {
             endStr: '진행중', 
             paymentDateStr: '${paymentDateNext.month.toString().padLeft(2, '0')}/${paymentDateNext.day.toString().padLeft(2, '0')}', 
             amount: amountNext,
-            isFinalized: false
+            isFinalized: false,
+            recurringTxs: recurringTxsNext,
           ));
         }
       }
@@ -502,13 +520,28 @@ class AppState extends ChangeNotifier {
     final todayOnly = DateTime(today.year, today.month, today.day);
     bool isFinalized = !todayOnly.isBefore(endM);
 
+    // Find all recurring transactions for this card within this billing period
+    List<Transaction> recurringTxsM = [];
+    for (final t in transactions) {
+      if (t.accountId == acc.id && t.isRecurring && t.type == 'expense') {
+        final parts = t.date.split('-');
+        if (parts.length >= 3) {
+          final txDate = DateTime(int.parse(parts[0]), int.parse(parts[1]), int.parse(parts[2]));
+          if (!txDate.isBefore(startM) && !txDate.isAfter(endM)) {
+            recurringTxsM.add(t);
+          }
+        }
+      }
+    }
+
     return CardPaymentInfo(
       account: acc, 
       startStr: '${startM.month.toString().padLeft(2, '0')}/${startM.day.toString().padLeft(2, '0')}', 
       endStr: '${endM.month.toString().padLeft(2, '0')}/${endM.day.toString().padLeft(2, '0')}', 
       paymentDateStr: '${paymentDateM.month.toString().padLeft(2, '0')}/${paymentDateM.day.toString().padLeft(2, '0')}', 
       amount: amountM,
-      isFinalized: isFinalized
+      isFinalized: isFinalized,
+      recurringTxs: recurringTxsM,
     );
   }
 
