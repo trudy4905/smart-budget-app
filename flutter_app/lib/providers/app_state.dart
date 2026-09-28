@@ -408,11 +408,13 @@ class AppState extends ChangeNotifier {
       } else if (t.type == 'expense') {
         final acc = accounts.firstWhereOrNull((a) => a.id == t.accountId);
         if (t.isRecurring) {
-          if (isPastOrToday) {
-            fixedPaid += t.amount;
-            fixedPaidList.add(t);
-          } else {
-            upExpense.add(FixedItemInfo(t, '${txDate.month.toString().padLeft(2, '0')}/${txDate.day.toString().padLeft(2, '0')}'));
+          if (acc == null || !acc.isCredit) {
+            if (isPastOrToday) {
+              fixedPaid += t.amount;
+              fixedPaidList.add(t);
+            } else {
+              upExpense.add(FixedItemInfo(t, '${txDate.month.toString().padLeft(2, '0')}/${txDate.day.toString().padLeft(2, '0')}'));
+            }
           }
         } else {
           // Cash or Debit

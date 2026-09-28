@@ -48,7 +48,14 @@ class _RecurringExpenseSectionState extends State<RecurringExpenseSection> {
         final recurringTxs = recurringMap.values.toList();
         final cards = state.accounts.where((a) => a.isCredit && a.paymentDay != null && (state.selectedAccountIds.contains('all') || state.selectedAccountIds.contains(a.id))).toList();
         
-        int totalExpense = recurringTxs.fold(0, (sum, tx) => sum + (tx.amount ?? 0));
+        int totalExpense = 0;
+        for (final tx in recurringTxs) {
+          final acc = state.accounts.firstWhereOrNull((a) => a.id == tx.accountId);
+          if (acc == null || !acc.isCredit) {
+            totalExpense += (tx.amount ?? 0);
+          }
+        }
+        
         for (final c in cards) {
           for (final info in dash.alreadyPaidCardList) {
             if (info.account.id == c.id) totalExpense += info.amount;

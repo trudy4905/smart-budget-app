@@ -146,7 +146,22 @@ class AccountsSectionUI extends StatelessWidget {
                     ],
                   );
                 }),
-                ...cards.where((c) => c.linkedBankAccountId == null || !banks.any((b) => b.id == c.linkedBankAccountId)).map((c) => buildAccNode(c)),
+                Builder(
+                  builder: (context) {
+                    final unlinked = cards.where((c) => c.linkedBankAccountId == null || !banks.any((b) => b.id == c.linkedBankAccountId)).toList();
+                    if (unlinked.isEmpty) return const SizedBox.shrink();
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+                          child: Text('미연결 계좌/카드', style: GoogleFonts.notoSansKr(fontSize: 12, color: const Color(0xFF64748B), fontWeight: FontWeight.w600)),
+                        ),
+                        ...unlinked.map((c) => buildAccNode(c)),
+                      ],
+                    );
+                  },
+                ),
                 const SizedBox(height: 8),
               ],
             ),
