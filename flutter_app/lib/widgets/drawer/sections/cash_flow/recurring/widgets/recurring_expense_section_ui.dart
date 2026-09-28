@@ -11,6 +11,7 @@ class RecurringExpenseSectionUI extends StatelessWidget {
   final int totalExpense;
   final List<Transaction> recurringTxs;
   final List<Account> cards;
+  final int year;
   final int month;
   final Account? Function(String accountId) getAccount;
   final CardPaymentInfo Function(Account card) getCardPaymentInfo;
@@ -23,6 +24,7 @@ class RecurringExpenseSectionUI extends StatelessWidget {
     required this.totalExpense,
     required this.recurringTxs,
     required this.cards,
+    required this.year,
     required this.month,
     required this.getAccount,
     required this.getCardPaymentInfo,
@@ -70,8 +72,12 @@ class RecurringExpenseSectionUI extends StatelessWidget {
                 final tx = e.value;
                 final txAccount = getAccount(tx.accountId);
                 final parts = tx.date.split('-');
-                final txMonth = parts.length >= 2 ? int.tryParse(parts[1]) ?? month : month;
+                final regYear = parts.isNotEmpty ? int.tryParse(parts[0]) ?? year : year;
+                final regMonth = parts.length >= 2 ? int.tryParse(parts[1]) ?? month : month;
                 final txDay = parts.length >= 3 ? int.tryParse(parts[2]) ?? 0 : 0;
+                
+                bool isPast = (year < regYear) || (year == regYear && month < regMonth);
+                final int displayAmount = isPast ? 0 : (tx.amount ?? 0);
 
                 return Column(
                   children: [
@@ -81,8 +87,8 @@ class RecurringExpenseSectionUI extends StatelessWidget {
                       iconBgColor: const Color(0xFFFFF1F2),
                       iconColor: const Color(0xFFE11D48),
                       title: tx.memo.isNotEmpty ? '${tx.category} (${tx.memo})' : tx.category,
-                      subtitle: '$txMonth/$txDay',
-                      amount: tx.amount,
+                      subtitle: '$month/$txDay',
+                      amount: displayAmount,
                       onDelete: () {
                         showDialog(
                           context: context,
@@ -129,7 +135,7 @@ class RecurringExpenseSectionUI extends StatelessWidget {
                   );
                 }
                 
-                final cardRecurringTxs = recurringTxs.where((tx) => tx.accountId == c.id).toList();
+                final cardRecurringTxs = cardInfo.recurringTxs;
 
                 return Column(
                   children: [

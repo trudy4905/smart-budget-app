@@ -50,9 +50,16 @@ class _RecurringExpenseSectionState extends State<RecurringExpenseSection> {
         
         int totalExpense = 0;
         for (final tx in recurringTxs) {
+          final parts = tx.date.split('-');
+          final regYear = parts.isNotEmpty ? int.tryParse(parts[0]) ?? widget.drawerCashFlowDate.year : widget.drawerCashFlowDate.year;
+          final regMonth = parts.length >= 2 ? int.tryParse(parts[1]) ?? widget.drawerCashFlowDate.month : widget.drawerCashFlowDate.month;
+          
+          bool isPast = (widget.drawerCashFlowDate.year < regYear) || 
+                        (widget.drawerCashFlowDate.year == regYear && widget.drawerCashFlowDate.month < regMonth);
+
           final acc = state.accounts.firstWhereOrNull((a) => a.id == tx.accountId);
           if (acc == null || !acc.isCredit) {
-            totalExpense += (tx.amount ?? 0);
+            totalExpense += isPast ? 0 : (tx.amount ?? 0);
           }
         }
         
@@ -70,6 +77,7 @@ class _RecurringExpenseSectionState extends State<RecurringExpenseSection> {
           totalExpense: totalExpense,
           recurringTxs: recurringTxs,
           cards: cards,
+          year: widget.drawerCashFlowDate.year,
           month: widget.drawerCashFlowDate.month,
           getAccount: (id) => state.accounts.firstWhereOrNull((a) => a.id == id),
           getCardPaymentInfo: (card) => state.getCardPaymentInfo(card, widget.drawerCashFlowDate.year, widget.drawerCashFlowDate.month),
