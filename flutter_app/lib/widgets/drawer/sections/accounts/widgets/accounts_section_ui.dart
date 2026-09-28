@@ -182,6 +182,6 @@ class AccountsSectionUI extends StatelessWidget {
           ),
         ],
       ),
-    );
+    ));
   }
 }
