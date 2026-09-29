@@ -96,6 +96,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 selectedDateStr: state.selectedDateStr,
                                 accounts: state.accounts,
                                 getTransactionsForDate: state.getTransactionsForDate,
+                                getCategoryInfo: state.getCategoryInfo,
                                 onDateSelected: (dateStr, isOtherMonth) {
                                   state.setSelectedDate(dateStr);
                                   if (isOtherMonth) {

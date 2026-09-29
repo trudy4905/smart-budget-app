@@ -4,6 +4,7 @@ import 'package:flutter_app/features/home/add_transaction/models/transaction.dar
 import 'package:flutter_app/features/drawer/accounts/models/account.dart';
 import 'package:flutter_app/core/utils/helpers.dart';
 import 'package:flutter_app/core/theme/app_colors.dart';
+import 'package:flutter_app/features/categories/models/category_info.dart';
 
 /// Calendar grid widget
 class CalendarGrid extends StatelessWidget {
@@ -12,6 +13,7 @@ class CalendarGrid extends StatelessWidget {
   final List<Account> accounts;
   final List<Transaction> Function(String dateStr) getTransactionsForDate;
   final void Function(String dateStr, bool isOtherMonth) onDateSelected;
+  final CategoryInfo Function(String category) getCategoryInfo;
 
   const CalendarGrid({
     super.key,
@@ -20,6 +22,7 @@ class CalendarGrid extends StatelessWidget {
     required this.accounts,
     required this.getTransactionsForDate,
     required this.onDateSelected,
+    required this.getCategoryInfo,
   });
 
   @override
@@ -94,6 +97,7 @@ class CalendarGrid extends StatelessWidget {
                     isOtherMonth: isOtherMonth, isToday: isToday,
                     isSelected: isSelected, txs: txs,
                     accounts: accounts,
+                    getCategoryInfo: getCategoryInfo,
                     onTap: () {
                       onDateSelected(dateStr, isOtherMonth);
                     },
@@ -114,13 +118,14 @@ class _CalendarCell extends StatelessWidget {
   final bool isOtherMonth, isToday, isSelected;
   final List<Transaction> txs;
   final List<Account> accounts;
+  final CategoryInfo Function(String category) getCategoryInfo;
   final VoidCallback onTap;
 
   const _CalendarCell({
     required this.dayNum, required this.dateStr,
     required this.isOtherMonth, required this.isToday,
     required this.isSelected, required this.txs,
-    required this.accounts, required this.onTap,
+    required this.accounts, required this.getCategoryInfo, required this.onTap,
   });
 
   @override
@@ -155,7 +160,7 @@ class _CalendarCell extends StatelessWidget {
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 2),
-                  child: _CellChips(txs: txs, accounts: accounts),
+                  child: _CellChips(txs: txs, accounts: accounts, getCategoryInfo: getCategoryInfo),
                 ),
               ),
           ],
@@ -168,7 +173,8 @@ class _CalendarCell extends StatelessWidget {
 class _CellChips extends StatelessWidget {
   final List<Transaction> txs;
   final List<Account> accounts;
-  const _CellChips({required this.txs, required this.accounts});
+  final CategoryInfo Function(String category) getCategoryInfo;
+  const _CellChips({required this.txs, required this.accounts, required this.getCategoryInfo});
 
   @override
   Widget build(BuildContext context) {
@@ -190,7 +196,7 @@ class _CellChips extends StatelessWidget {
         return Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            ...visible.map((t) => _Chip(tx: t, accounts: accounts)),
+            ...visible.map((t) => _Chip(tx: t, accounts: accounts, getCategoryInfo: getCategoryInfo)),
             if (overflow > 0)
               Container(
                 margin: const EdgeInsets.only(top: 1),
@@ -208,7 +214,8 @@ class _CellChips extends StatelessWidget {
 class _Chip extends StatelessWidget {
   final Transaction tx;
   final List<Account> accounts;
-  const _Chip({required this.tx, required this.accounts});
+  final CategoryInfo Function(String category) getCategoryInfo;
+  const _Chip({required this.tx, required this.accounts, required this.getCategoryInfo});
 
   @override
   Widget build(BuildContext context) {
@@ -234,7 +241,10 @@ class _Chip extends StatelessWidget {
       iconData = Icons.account_balance;
     }
 
-    String text = isIncome ? '+${formatCompactNumber(tx.amount)}' : '-${formatCompactNumber(tx.amount)}';
+    final catInfo = getCategoryInfo(tx.category);
+    String desc = tx.memo.trim().isNotEmpty ? tx.memo : catInfo.name;
+    String sign = isIncome ? '+' : '-';
+    String text = '$desc($sign${formatCompactNumber(tx.amount)})';
 
     return Container(
       margin: const EdgeInsets.only(top: 1),
@@ -256,3 +266,5 @@ class _Chip extends StatelessWidget {
     );
   }
 }
+
+
