@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_app/core/providers/app_state.dart';
@@ -43,7 +43,7 @@ class _RecurringIncomeSectionState extends State<RecurringIncomeSection> {
         }
         final recurringTxs = recurringMap.values.toList();
         
-        int totalIncome = recurringTxs.fold(0, (sum, tx) => sum + (tx.amount ?? 0));
+        int totalIncome = recurringTxs.fold(0, (sum, tx) => sum + tx.amount);
 
         return RecurringIncomeSectionUI(
           isExpanded: _isRecurringIncomeExpanded,
@@ -60,3 +60,4 @@ class _RecurringIncomeSectionState extends State<RecurringIncomeSection> {
     );
   }
 }
+

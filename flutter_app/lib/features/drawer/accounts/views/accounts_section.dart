@@ -1,6 +1,7 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_app/features/drawer/dashboard/view_models/dashboard_view_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_app/core/providers/app_state.dart';
 import 'package:flutter_app/features/drawer/accounts/models/account.dart';
@@ -90,7 +91,7 @@ class _AccountsSectionState extends State<AccountsSection> {
           banks: banks,
           cards: cards,
           isExpanded: _isAccountsExpanded,
-          getBankAccountBalance: (id) => state.getBankAccountBalance(id, upToDate: DateTime.now()),
+          getBankAccountBalance: (id) => context.read<DashboardViewModel>().getBankAccountBalance(id, upToDate: DateTime.now()),
           selectedAccountIds: state.selectedAccountIds,
           totalAccountsCount: state.accounts.length,
           onSelectedAccountIdsChanged: (ids) => state.setSelectedAccountIds(ids),
@@ -106,3 +107,5 @@ class _AccountsSectionState extends State<AccountsSection> {
     );
   }
 }
+
+

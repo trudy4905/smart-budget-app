@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_app/core/providers/app_state.dart';
@@ -53,7 +53,7 @@ class _RecurringExpenseSectionState extends State<RecurringExpenseSection> {
 
           final acc = state.accounts.firstWhereOrNull((a) => a.id == tx.accountId);
           if (acc == null || !acc.isCredit) {
-            totalExpense += isPast ? 0 : (tx.amount ?? 0);
+            totalExpense += isPast ? 0 : tx.amount;
           }
         }
         
@@ -74,7 +74,7 @@ class _RecurringExpenseSectionState extends State<RecurringExpenseSection> {
           year: widget.drawerCashFlowDate.year,
           month: widget.drawerCashFlowDate.month,
           getAccount: (id) => state.accounts.firstWhereOrNull((a) => a.id == id),
-          getCardPaymentInfo: (card) => state.getCardPaymentInfo(card, widget.drawerCashFlowDate.year, widget.drawerCashFlowDate.month),
+          getCardPaymentInfo: (card) => context.read<DashboardViewModel>().getCardPaymentInfo(card, widget.drawerCashFlowDate.year, widget.drawerCashFlowDate.month),
           onToggleExpanded: () {
             setState(() => _isRecurringExpenseExpanded = !_isRecurringExpenseExpanded);
             SharedPreferences.getInstance().then((prefs) => prefs.setBool('isRecurringExpenseExpanded', _isRecurringExpenseExpanded));
@@ -85,3 +85,5 @@ class _RecurringExpenseSectionState extends State<RecurringExpenseSection> {
     );
   }
 }
+
+

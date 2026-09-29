@@ -1,6 +1,7 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_app/features/drawer/dashboard/view_models/dashboard_view_model.dart';
 import 'package:flutter_app/core/providers/app_state.dart';
 import 'package:flutter_app/features/home/views/widgets/custom_speed_dial.dart';
 import 'package:flutter_app/features/drawer/views/app_drawer.dart';
@@ -95,7 +96,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 currentDate: pageDate,
                                 selectedDateStr: state.selectedDateStr,
                                 accounts: state.accounts,
-                                getTransactionsForDate: state.getTransactionsForDate,
+                                getTransactionsForDate: context.read<DashboardViewModel>().getTransactionsForDate,
                                 getCategoryInfo: state.getCategoryInfo,
                                 onDateSelected: (dateStr, isOtherMonth) {
                                   state.setSelectedDate(dateStr);
@@ -112,7 +113,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               const Divider(color: AppColors.surface, height: 1),
                                     DailyDetail(
                                       selectedDateStr: state.selectedDateStr,
-                                      transactions: state.getTransactionsForDate(state.selectedDateStr),
+                                      transactions: context.read<DashboardViewModel>().getTransactionsForDate(state.selectedDateStr),
                                       accounts: state.accounts,
                                       getCategoryInfo: state.getCategoryInfo,
                                       onDeleteTransaction: state.deleteTransaction,
@@ -288,3 +289,5 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 }
+
+

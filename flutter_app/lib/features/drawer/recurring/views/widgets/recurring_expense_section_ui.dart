@@ -35,7 +35,6 @@ class RecurringExpenseSectionUI extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final nonCreditRecurringCount = recurringTxs.where((tx) => getAccount(tx.accountId)?.isCredit != true).length;
     
     int displayedItemCount = recurringTxs.length + cards.length;
 
@@ -78,7 +77,7 @@ class RecurringExpenseSectionUI extends StatelessWidget {
                 final txDay = parts.length >= 3 ? int.tryParse(parts[2]) ?? 0 : 0;
                 
                 bool isPast = (year < regYear) || (year == regYear && month < regMonth);
-                final int displayAmount = isPast ? 0 : (tx.amount ?? 0);
+                final int displayAmount = isPast ? 0 : tx.amount;
 
                 return Column(
                   children: [
@@ -204,3 +203,5 @@ class RecurringExpenseSectionUI extends StatelessWidget {
     );
   }
 }
+
+

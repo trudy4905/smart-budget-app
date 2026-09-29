@@ -1,5 +1,6 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_app/features/drawer/dashboard/view_models/dashboard_view_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_app/core/providers/app_state.dart';
 import 'package:flutter_app/features/drawer/dashboard/views/widgets/asset_summary_card_ui.dart';
@@ -34,7 +35,7 @@ class _AssetSummaryCardState extends State<AssetSummaryCard> {
         return AssetSummaryCardUI(
           isAssetVisible: _isAssetVisible,
           assetReferenceDate: state.assetReferenceDate,
-          totalAssets: state.getFilteredNetAssets(),
+          totalAssets: context.read<DashboardViewModel>().getFilteredNetAssets(),
           onToggleVisibility: () {
             setState(() => _isAssetVisible = !_isAssetVisible);
             SharedPreferences.getInstance().then((prefs) => prefs.setBool('isAssetVisible', _isAssetVisible));
@@ -51,3 +52,4 @@ class _AssetSummaryCardState extends State<AssetSummaryCard> {
     );
   }
 }
+

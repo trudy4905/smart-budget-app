@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
 import 'package:flutter_app/core/providers/app_state.dart';
@@ -14,7 +14,7 @@ class ExpectedAssetCard extends StatelessWidget {
     return Consumer2<AppState, DashboardViewModel>(
       builder: (context, state, dashboardVM, _) {
         final dash = dashboardVM.getDashboardSummary(drawerCashFlowDate.year, drawerCashFlowDate.month);
-        final expectedBalance = state.getExpectedNetAssetAtEnd(drawerCashFlowDate.year, drawerCashFlowDate.month);
+        final expectedBalance = context.read<DashboardViewModel>().getExpectedNetAssetAtEnd(drawerCashFlowDate.year, drawerCashFlowDate.month);
         
         return ExpectedAssetCardUi(
           month: drawerCashFlowDate.month,
@@ -25,3 +25,4 @@ class ExpectedAssetCard extends StatelessWidget {
     );
   }
 }
+

@@ -31,6 +31,7 @@ class DrawerFooterWidget extends StatelessWidget {
               ),
             );
             if (confirm == true) {
+              if (!context.mounted) return;
               context.read<AppState>().resetAllData();
             }
           },
@@ -54,3 +55,4 @@ class DrawerFooterWidget extends StatelessWidget {
     );
   }
 }
+

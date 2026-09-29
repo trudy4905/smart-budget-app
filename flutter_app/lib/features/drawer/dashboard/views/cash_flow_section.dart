@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_app/core/providers/app_state.dart';
 import 'package:flutter_app/features/drawer/dashboard/view_models/dashboard_view_model.dart';
@@ -86,3 +86,4 @@ class _CashFlowSectionState extends State<CashFlowSection> {
     );
   }
 }
+
