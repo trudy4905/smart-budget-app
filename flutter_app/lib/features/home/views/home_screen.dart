@@ -49,20 +49,37 @@ class _HomeScreenState extends State<HomeScreen> {
                     Expanded(
                       child: Column(
                         children: [
-                          CalendarGrid(
-                            currentDate: state.currentDate,
-                            selectedDateStr: state.selectedDateStr,
-                            accounts: state.accounts,
-                            getTransactionsForDate: state.getTransactionsForDate,
-                            onDateSelected: (dateStr, isOtherMonth) {
-                              state.setSelectedDate(dateStr);
-                              if (isOtherMonth) {
-                                final parts = dateStr.split('-');
-                                if (parts.length == 3) {
-                                  state.setCurrentDate(DateTime(int.parse(parts[0]), int.parse(parts[1]), 1));
-                                }
+                          GestureDetector(
+                            onHorizontalDragEnd: (details) {
+                              if (details.primaryVelocity == null) return;
+                              if (details.primaryVelocity! < 0) {
+                                final next = DateTime(state.currentDate.year, state.currentDate.month + 1, 1);
+                                state.setCurrentDate(next);
+                                state.setSelectedDate('${next.year}-${next.month.toString().padLeft(2, '0')}-01');
+                                _carouselKey.currentState?.scrollToActive();
+                              } else if (details.primaryVelocity! > 0) {
+                                final prev = DateTime(state.currentDate.year, state.currentDate.month - 1, 1);
+                                state.setCurrentDate(prev);
+                                state.setSelectedDate('${prev.year}-${prev.month.toString().padLeft(2, '0')}-01');
+                                _carouselKey.currentState?.scrollToActive();
                               }
                             },
+                            child: CalendarGrid(
+                              currentDate: state.currentDate,
+                              selectedDateStr: state.selectedDateStr,
+                              accounts: state.accounts,
+                              getTransactionsForDate: state.getTransactionsForDate,
+                              onDateSelected: (dateStr, isOtherMonth) {
+                                state.setSelectedDate(dateStr);
+                                if (isOtherMonth) {
+                                  final parts = dateStr.split('-');
+                                  if (parts.length == 3) {
+                                    state.setCurrentDate(DateTime(int.parse(parts[0]), int.parse(parts[1]), 1));
+                                    _carouselKey.currentState?.scrollToActive();
+                                  }
+                                }
+                              },
+                            ),
                           ),
                           const Divider(color: AppColors.surface, height: 1),
                           Expanded(
