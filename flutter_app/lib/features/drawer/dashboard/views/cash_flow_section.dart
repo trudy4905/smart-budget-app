@@ -1,8 +1,9 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_app/core/providers/app_state.dart';
+import 'package:flutter_app/core/providers/ui_view_model.dart';
 import 'package:flutter_app/features/drawer/dashboard/view_models/dashboard_view_model.dart';
 import 'package:flutter_app/features/drawer/dashboard/views/drawer_side_panel.dart';
+import 'package:flutter_app/features/drawer/dashboard/models/dashboard_summary.dart';
 import 'package:flutter_app/features/drawer/dashboard/views/widgets/cash_flow_section_ui.dart';
 
 class CashFlowSection extends StatefulWidget {
@@ -62,18 +63,18 @@ class _CashFlowSectionState extends State<CashFlowSection> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer2<AppState, DashboardViewModel>(
-      builder: (context, state, dashboardVM, _) {
+    return Consumer2<UiViewModel, DashboardViewModel>(
+      builder: (context, uiVM, dashboardVM, _) {
         final dash = dashboardVM.getDashboardSummary(_drawerCashFlowDate.year, _drawerCashFlowDate.month);
 
         return CashFlowSectionUI(
           drawerCashFlowDate: _drawerCashFlowDate,
           dash: dash,
-          dashboardItemOrder: state.dashboardItemOrder,
+          dashboardItemOrder: uiVM.dashboardItemOrder,
           openPanel: _openPanel,
           onToggleSidePanel: _toggleSidePanel,
           onReorder: (oldIndex, newIndex) {
-            state.reorderDashboardItems(oldIndex, newIndex);
+            uiVM.reorderDashboardItems(oldIndex, newIndex);
           },
           onChangeMonth: (delta) {
             setState(() {

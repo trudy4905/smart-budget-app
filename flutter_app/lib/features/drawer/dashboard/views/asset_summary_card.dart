@@ -2,7 +2,7 @@
 import 'package:provider/provider.dart';
 import 'package:flutter_app/features/drawer/dashboard/view_models/dashboard_view_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_app/core/providers/app_state.dart';
+import 'package:flutter_app/core/providers/ui_view_model.dart';
 import 'package:flutter_app/features/drawer/dashboard/views/widgets/asset_summary_card_ui.dart';
 
 class AssetSummaryCard extends StatefulWidget {
@@ -30,17 +30,17 @@ class _AssetSummaryCardState extends State<AssetSummaryCard> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<AppState>(
-      builder: (context, state, _) {
+    return Consumer<UiViewModel>(
+      builder: (context, uiState, _) {
         return AssetSummaryCardUI(
           isAssetVisible: _isAssetVisible,
-          assetReferenceDate: state.assetReferenceDate,
+          assetReferenceDate: uiState.assetReferenceDate,
           totalAssets: context.read<DashboardViewModel>().getFilteredNetAssets(),
           onToggleVisibility: () {
             setState(() => _isAssetVisible = !_isAssetVisible);
             SharedPreferences.getInstance().then((prefs) => prefs.setBool('isAssetVisible', _isAssetVisible));
           },
-          onChangeDate: (date) => state.setAssetReferenceDate(date),
+          onChangeDate: (date) => uiState.setAssetReferenceDate(date),
           onShowDatePicker: (context, initialDate) => showDatePicker(
             context: context,
             initialDate: initialDate,
@@ -52,4 +52,5 @@ class _AssetSummaryCardState extends State<AssetSummaryCard> {
     );
   }
 }
+
 

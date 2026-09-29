@@ -1,8 +1,8 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:flutter_app/core/providers/app_state.dart';
+
 import 'package:flutter_app/features/categories/view_models/category_view_model.dart';
 import 'package:flutter_app/features/drawer/accounts/view_models/account_view_model.dart';
 import 'package:flutter_app/features/home/add_transaction/view_models/transaction_view_model.dart';
@@ -25,18 +25,13 @@ void main() {
         ChangeNotifierProvider(create: (_) => AccountViewModel()..init()),
         ChangeNotifierProvider(create: (_) => TransactionViewModel()..init()),
         ChangeNotifierProvider(create: (_) => CategoryViewModel()..init()),
-        ChangeNotifierProxyProvider4<AccountViewModel, TransactionViewModel, CategoryViewModel, UiViewModel, AppState>(
-          create: (context) => AppState(
-            Provider.of<AccountViewModel>(context, listen: false),
+        ChangeNotifierProxyProvider3<AccountViewModel, TransactionViewModel, UiViewModel, RecurringViewModel>(
+          create: (context) => RecurringViewModel(
             Provider.of<TransactionViewModel>(context, listen: false),
-            Provider.of<CategoryViewModel>(context, listen: false),
+            Provider.of<AccountViewModel>(context, listen: false),
             Provider.of<UiViewModel>(context, listen: false),
           ),
-          update: (context, accVM, txVM, catVM, uiVM, previous) => previous ?? AppState(accVM, txVM, catVM, uiVM),
-        ),
-        ChangeNotifierProxyProvider<AppState, RecurringViewModel>(
-          create: (context) => RecurringViewModel(Provider.of<AppState>(context, listen: false)),
-          update: (context, appState, previous) => previous ?? RecurringViewModel(appState),
+          update: (context, accVM, txVM, uiVM, previous) => previous ?? RecurringViewModel(txVM, accVM, uiVM),
         ),
         ChangeNotifierProxyProvider3<AccountViewModel, TransactionViewModel, UiViewModel, DashboardViewModel>(
           create: (context) => DashboardViewModel(
@@ -81,6 +76,7 @@ class SmartBudgetApp extends StatelessWidget {
 // ============================================================
 // HOME SCREEN (Calendar-first)
 // ============================================================
+
 
 
 

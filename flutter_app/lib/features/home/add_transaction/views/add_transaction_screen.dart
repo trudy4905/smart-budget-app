@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_app/core/providers/app_state.dart';
+import 'package:flutter_app/features/home/add_transaction/view_models/transaction_view_model.dart';
+import 'package:flutter_app/features/drawer/accounts/view_models/account_view_model.dart';
+import 'package:flutter_app/features/categories/view_models/category_view_model.dart';
+import 'package:flutter_app/core/providers/ui_view_model.dart';
 import 'package:flutter_app/features/home/add_transaction/models/transaction.dart';
 import 'package:flutter_app/features/categories/models/category_info.dart';
 import 'package:flutter_app/features/home/add_transaction/views/widgets/add_transaction_form_ui.dart';
@@ -23,9 +26,10 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   @override
   void initState() {
     super.initState();
-    final s = context.read<AppState>();
-    _initialDateStr = s.selectedDateStr;
-    if (s.accounts.isNotEmpty) _initialAccountId = s.accounts.first.id;
+    final uiVM = context.read<UiViewModel>();
+    final accountVM = context.read<AccountViewModel>();
+    _initialDateStr = uiVM.selectedDateStr;
+    if (accountVM.accounts.isNotEmpty) _initialAccountId = accountVM.accounts.first.id;
   }
 
   void _save(String type, int amount, String dateStr, String category, String accountId, String memo, bool isFixed) {
@@ -55,9 +59,9 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
           isRecurring: true, recurringId: baseId,
         ));
       }
-      context.read<AppState>().addTransactions(txs);
+      context.read<TransactionViewModel>().addTransactions(txs);
     } else {
-      context.read<AppState>().addTransaction(Transaction(
+      context.read<TransactionViewModel>().addTransaction(Transaction(
         id: baseId,
         date: dateStr, accountId: accountId, type: type,
         amount: amount, category: category, memo: memo, payment: '자동',
@@ -77,19 +81,23 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
           cat: cat,
           onSave: (emoji, name) {
             final newCat = CategoryInfo(name: name, emoji: emoji, color: cat.color, type: cat.type);
-            context.read<AppState>().updateCategory(newCat, cat.name);
+            context.read<CategoryViewModel>().updateCategory(newCat, cat.name);
             _formKey.currentState?.setCategory(name);
           }
         );
       },
       onDelete: () {
-        final state = context.read<AppState>();
-        final others = state.categories.where((c) => c.type == cat.type && c.name != cat.name).toList();
+        final catVM = context.read<CategoryViewModel>();
+        final txVM = context.read<TransactionViewModel>();
+        final others = catVM.categories.where((c) => c.type == cat.type && c.name != cat.name).toList();
         showCategoryDeleteDialog(
           context: context,
           others: others,
           onDeleteAndTransfer: (transferToName) {
-            state.deleteCategory(cat.name, transferToName);
+            if (transferToName != null) {
+              txVM.transferCategory(cat.name, transferToName);
+            }
+            catVM.deleteCategory(cat.name);
             _formKey.currentState?.setCategory(transferToName ?? (others.isNotEmpty ? others.first.name : '기타'));
           }
         );
@@ -103,7 +111,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
       cat: null,
       onSave: (emoji, name) {
         final newCat = CategoryInfo(name: name, emoji: emoji, color: AppColors.primary, type: currentType);
-        context.read<AppState>().addCategory(newCat);
+        context.read<CategoryViewModel>().addCategory(newCat);
         _formKey.currentState?.setCategory(name);
       }
     );
@@ -111,15 +119,16 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final state = context.watch<AppState>();
+    final catVM = context.watch<CategoryViewModel>();
+    final accountVM = context.watch<AccountViewModel>();
 
     return AddTransactionFormUi(
       key: _formKey,
       initialType: widget.initialType,
       initialDateStr: _initialDateStr,
       initialAccountId: _initialAccountId,
-      categories: state.categories,
-      accounts: state.accounts,
+      categories: catVM.categories,
+      accounts: accountVM.accounts,
       onSave: _save,
       onAddCategoryTap: _handleAddCategoryTap,
       onCategoryLongPress: _handleCategoryLongPress,

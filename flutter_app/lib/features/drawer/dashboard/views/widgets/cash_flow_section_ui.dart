@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_app/core/providers/app_state.dart';
+﻿import 'package:flutter/material.dart';
+import 'package:flutter_app/features/drawer/dashboard/models/dashboard_summary.dart';
 import 'package:flutter_app/features/drawer/dashboard/views/cash_flow_widgets.dart';
 import 'package:flutter_app/features/drawer/dashboard/views/expected_asset_card.dart';
 import 'package:flutter_app/features/drawer/recurring/views/recurring_expense_section.dart';
@@ -149,3 +149,4 @@ class CashFlowSectionUI extends StatelessWidget {
     );
   }
 }
+

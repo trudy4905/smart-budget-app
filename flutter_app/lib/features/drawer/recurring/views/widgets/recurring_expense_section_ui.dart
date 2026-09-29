@@ -3,7 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_app/features/home/add_transaction/models/transaction.dart';
 import 'package:flutter_app/features/drawer/accounts/models/account.dart';
 import 'package:flutter_app/core/utils/helpers.dart';
-import 'package:flutter_app/core/providers/app_state.dart' show CardPaymentInfo;
+import 'package:flutter_app/features/drawer/dashboard/models/dashboard_summary.dart' show CardPaymentInfo;
 import 'package:flutter_app/features/drawer/recurring/views/widgets/recurring_item_widget.dart';
 import 'package:flutter_app/core/theme/app_colors.dart';
 
@@ -203,5 +203,8 @@ class RecurringExpenseSectionUI extends StatelessWidget {
     );
   }
 }
+
+
+
 
 

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_app/core/providers/app_state.dart';
+import 'package:flutter_app/features/drawer/accounts/view_models/account_view_model.dart';
 import 'package:flutter_app/features/drawer/accounts/models/account.dart';
 import 'package:flutter_app/features/drawer/accounts/views/add_account_sheet/widgets/add_account_sheet_ui.dart';
 
@@ -12,7 +12,7 @@ class AddAccountSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final state = context.watch<AppState>();
+    final state = context.watch<AccountViewModel>();
     final bankAccounts = state.accounts.where((a) => a.isBank).toList();
 
     return AddAccountSheetUi(
@@ -20,9 +20,9 @@ class AddAccountSheet extends StatelessWidget {
       bankAccounts: bankAccounts,
       onSave: (Account acc) {
         if (editAccount != null) {
-          context.read<AppState>().updateAccount(acc);
+          context.read<AccountViewModel>().updateAccount(acc);
         } else {
-          context.read<AppState>().addAccount(acc);
+          context.read<AccountViewModel>().addAccount(acc);
         }
 
         Navigator.pop(context);

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_app/core/providers/app_state.dart';
+import 'package:flutter_app/features/drawer/accounts/view_models/account_view_model.dart';
+import 'package:flutter_app/features/home/add_transaction/view_models/transaction_view_model.dart';
 import 'package:flutter_app/core/theme/app_colors.dart';
 
 class DrawerFooterWidget extends StatelessWidget {
@@ -32,7 +33,8 @@ class DrawerFooterWidget extends StatelessWidget {
             );
             if (confirm == true) {
               if (!context.mounted) return;
-              context.read<AppState>().resetAllData();
+              context.read<AccountViewModel>().clearAccounts();
+              context.read<TransactionViewModel>().clearTransactions();
             }
           },
           child: Container(

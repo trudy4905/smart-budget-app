@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:flutter_app/core/providers/app_state.dart';
+import 'package:flutter_app/features/drawer/dashboard/models/dashboard_summary.dart';
 import 'package:flutter_app/core/utils/helpers.dart';
 import 'package:flutter_app/core/theme/app_colors.dart';
 
@@ -126,3 +126,4 @@ class _SortItem {
   final Color color;
   _SortItem({required this.day, required this.date, required this.category, required this.memo, required this.amount, required this.color});
 }
+

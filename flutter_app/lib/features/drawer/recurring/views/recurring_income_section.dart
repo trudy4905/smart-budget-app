@@ -1,7 +1,8 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_app/core/providers/app_state.dart';
+import 'package:flutter_app/core/providers/ui_view_model.dart';
+import 'package:flutter_app/features/home/add_transaction/view_models/transaction_view_model.dart';
 import 'package:flutter_app/features/home/add_transaction/models/transaction.dart';
 import 'package:flutter_app/features/drawer/recurring/views/widgets/recurring_income_section_ui.dart';
 
@@ -32,12 +33,12 @@ class _RecurringIncomeSectionState extends State<RecurringIncomeSection> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<AppState>(
-      builder: (context, state, _) {
+    return Consumer2<UiViewModel, TransactionViewModel>(
+      builder: (context, uiState, txVM, _) {
         final Map<String, Transaction> recurringMap = {};
-        for (final t in state.transactions) {
+        for (final t in txVM.transactions) {
           if (t.isRecurring && t.recurringId != null && t.type == 'income') {
-            if (!state.selectedAccountIds.contains('all') && !state.selectedAccountIds.contains(t.accountId)) continue;
+            if (!uiState.selectedAccountIds.contains('all') && !uiState.selectedAccountIds.contains(t.accountId)) continue;
             recurringMap[t.recurringId!] = t;
           }
         }
@@ -54,10 +55,9 @@ class _RecurringIncomeSectionState extends State<RecurringIncomeSection> {
             setState(() => _isRecurringIncomeExpanded = !_isRecurringIncomeExpanded);
             SharedPreferences.getInstance().then((prefs) => prefs.setBool('isRecurringIncomeExpanded', _isRecurringIncomeExpanded));
           },
-          onDelete: (id) => state.deleteRecurringTransactions(id),
+          onDelete: (id) => txVM.deleteRecurringTransactions(id),
         );
       }
     );
   }
 }
-

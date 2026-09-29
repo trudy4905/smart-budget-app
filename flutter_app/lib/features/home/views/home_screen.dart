@@ -1,8 +1,11 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_app/features/drawer/dashboard/view_models/dashboard_view_model.dart';
-import 'package:flutter_app/core/providers/app_state.dart';
+import 'package:flutter_app/core/providers/ui_view_model.dart';
+import 'package:flutter_app/features/drawer/accounts/view_models/account_view_model.dart';
+import 'package:flutter_app/features/categories/view_models/category_view_model.dart';
+import 'package:flutter_app/features/home/add_transaction/view_models/transaction_view_model.dart';
 import 'package:flutter_app/features/home/views/widgets/custom_speed_dial.dart';
 import 'package:flutter_app/features/drawer/views/app_drawer.dart';
 import 'package:flutter_app/features/home/views/widgets/month_carousel.dart';
@@ -38,12 +41,9 @@ class _HomeScreenState extends State<HomeScreen> {
       drawer: const AppDrawer(),
       body: Stack(
         children: [
-          Consumer<AppState>(
-            builder: (context, state, _) {
-              if (!state.loaded) {
-                return const Center(child: CircularProgressIndicator(color: AppColors.primary));
-              }
-              final targetIndex = (state.currentDate.year - 2000) * 12 + (state.currentDate.month - 1);
+          Consumer4<UiViewModel, AccountViewModel, CategoryViewModel, TransactionViewModel>(
+            builder: (context, uiVM, accountVM, catVM, txVM, _) {
+              final targetIndex = (uiVM.currentDate.year - 2000) * 12 + (uiVM.currentDate.month - 1);
               if (!_isPageControllerInitialized) {
                 _pageController = PageController(initialPage: targetIndex);
                 _isPageControllerInitialized = true;
@@ -63,13 +63,13 @@ class _HomeScreenState extends State<HomeScreen> {
               return SafeArea(
                 child: Column(
                   children: [
-                    _buildHeader(state),
+                    _buildHeader(uiVM),
                     MonthCarousel(
                       key: _carouselKey,
-                      currentDate: state.currentDate,
+                      currentDate: uiVM.currentDate,
                       onMonthSelected: (month) {
-                        state.setCurrentDate(month);
-                        state.setSelectedDate('${month.year}-${month.month.toString().padLeft(2, '0')}-01');
+                        uiVM.setCurrentDate(month);
+                        uiVM.setSelectedDate('${month.year}-${month.month.toString().padLeft(2, '0')}-01');
                       },
                     ),
                     Expanded(
@@ -77,9 +77,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         controller: _pageController,
                         onPageChanged: (index) {
                           final newDate = DateTime(2000 + (index ~/ 12), (index % 12) + 1, 1);
-                          if (state.currentDate.year != newDate.year || state.currentDate.month != newDate.month) {
-                            state.setCurrentDate(newDate);
-                            state.setSelectedDate('${newDate.year}-${newDate.month.toString().padLeft(2, '0')}-01');
+                          if (uiVM.currentDate.year != newDate.year || uiVM.currentDate.month != newDate.month) {
+                            uiVM.setCurrentDate(newDate);
+                            uiVM.setSelectedDate('${newDate.year}-${newDate.month.toString().padLeft(2, '0')}-01');
                             _carouselKey.currentState?.scrollToActive();
                           }
                         },
@@ -93,31 +93,31 @@ class _HomeScreenState extends State<HomeScreen> {
                                     SizedBox(
                                       height: constraints.maxHeight,
                                       child: CalendarGrid(
-                                currentDate: pageDate,
-                                selectedDateStr: state.selectedDateStr,
-                                accounts: state.accounts,
-                                getTransactionsForDate: context.read<DashboardViewModel>().getTransactionsForDate,
-                                getCategoryInfo: state.getCategoryInfo,
-                                onDateSelected: (dateStr, isOtherMonth) {
-                                  state.setSelectedDate(dateStr);
-                                  if (isOtherMonth) {
-                                    final parts = dateStr.split('-');
-                                    if (parts.length == 3) {
-                                      state.setCurrentDate(DateTime(int.parse(parts[0]), int.parse(parts[1]), 1));
-                                      _carouselKey.currentState?.scrollToActive();
-                                    }
-                                  }
-                                },
-                              ),
+                                        currentDate: pageDate,
+                                        selectedDateStr: uiVM.selectedDateStr,
+                                        accounts: accountVM.accounts,
+                                        getTransactionsForDate: context.read<DashboardViewModel>().getTransactionsForDate,
+                                        getCategoryInfo: catVM.getCategoryInfo,
+                                        onDateSelected: (dateStr, isOtherMonth) {
+                                          uiVM.setSelectedDate(dateStr);
+                                          if (isOtherMonth) {
+                                            final parts = dateStr.split('-');
+                                            if (parts.length == 3) {
+                                              uiVM.setCurrentDate(DateTime(int.parse(parts[0]), int.parse(parts[1]), 1));
+                                              _carouselKey.currentState?.scrollToActive();
+                                            }
+                                          }
+                                        },
+                                      ),
                                     ),
-                              const Divider(color: AppColors.surface, height: 1),
+                                    const Divider(color: AppColors.surface, height: 1),
                                     DailyDetail(
-                                      selectedDateStr: state.selectedDateStr,
-                                      transactions: context.read<DashboardViewModel>().getTransactionsForDate(state.selectedDateStr),
-                                      accounts: state.accounts,
-                                      getCategoryInfo: state.getCategoryInfo,
-                                      onDeleteTransaction: state.deleteTransaction,
-                                      onDeleteRecurringTransactions: state.deleteRecurringTransactions,
+                                      selectedDateStr: uiVM.selectedDateStr,
+                                      transactions: context.read<DashboardViewModel>().getTransactionsForDate(uiVM.selectedDateStr),
+                                      accounts: accountVM.accounts,
+                                      getCategoryInfo: catVM.getCategoryInfo,
+                                      onDeleteTransaction: txVM.deleteTransaction,
+                                      onDeleteRecurringTransactions: txVM.deleteRecurringTransactions,
                                     ),
                                     SizedBox(height: constraints.maxHeight / 2),
                                   ],
@@ -147,7 +147,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildHeader(AppState state) {
+  Widget _buildHeader(UiViewModel uiVM) {
     final now = DateTime.now();
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
@@ -170,7 +170,7 @@ class _HomeScreenState extends State<HomeScreen> {
           // Month + year picker trigger
           GestureDetector(
             behavior: HitTestBehavior.opaque,
-            onTap: () => _showMonthPickerDialog(context, state),
+            onTap: () => _showMonthPickerDialog(context, uiVM),
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               decoration: BoxDecoration(
@@ -180,7 +180,7 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(state.currentMonthStr,
+                  Text('${uiVM.currentDate.year}년 ${uiVM.currentDate.month}월',
                       style: GoogleFonts.notoSansKr(fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.textMain)),
                   const SizedBox(width: 4),
                   const Icon(Icons.keyboard_arrow_down_rounded, color: AppColors.primary, size: 22),
@@ -193,8 +193,8 @@ class _HomeScreenState extends State<HomeScreen> {
           GestureDetector(
             onTap: () {
               final today = DateTime.now();
-              state.setCurrentDate(today);
-              state.setSelectedDate('${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}');
+              uiVM.setCurrentDate(today);
+              uiVM.setSelectedDate('${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}');
               _carouselKey.currentState?.scrollToActive();
             },
             child: Container(
@@ -219,8 +219,8 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void _showMonthPickerDialog(BuildContext context, AppState state) {
-    int displayYear = state.currentDate.year;
+  void _showMonthPickerDialog(BuildContext context, UiViewModel uiVM) {
+    int displayYear = uiVM.currentDate.year;
     showDialog(
       context: context,
       builder: (ctx) => StatefulBuilder(
@@ -244,11 +244,11 @@ class _HomeScreenState extends State<HomeScreen> {
               mainAxisSpacing: 8,
               crossAxisSpacing: 8,
               children: List.generate(12, (i) {
-                final isActive = displayYear == state.currentDate.year && i + 1 == state.currentDate.month;
+                final isActive = displayYear == uiVM.currentDate.year && i + 1 == uiVM.currentDate.month;
                 return GestureDetector(
                   onTap: () {
-                    state.setCurrentDate(DateTime(displayYear, i + 1, 1));
-                    state.setSelectedDate('$displayYear-${(i + 1).toString().padLeft(2, '0')}-01');
+                    uiVM.setCurrentDate(DateTime(displayYear, i + 1, 1));
+                    uiVM.setSelectedDate('$displayYear-${(i + 1).toString().padLeft(2, '0')}-01');
                     _carouselKey.currentState?.scrollToActive();
                     Navigator.pop(ctx);
                   },
@@ -282,12 +282,7 @@ class _HomeScreenState extends State<HomeScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => ChangeNotifierProvider.value(
-        value: context.read<AppState>(),
-        child: AddTransactionScreen(initialType: initialType),
-      ),
+      builder: (_) => AddTransactionScreen(initialType: initialType),
     );
   }
 }
-
-
