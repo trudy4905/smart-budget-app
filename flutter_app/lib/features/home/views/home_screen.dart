@@ -118,6 +118,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       onDeleteTransaction: state.deleteTransaction,
                                       onDeleteRecurringTransactions: state.deleteRecurringTransactions,
                                     ),
+                                    SizedBox(height: constraints.maxHeight / 2),
                                   ],
                                 ),
                               );
