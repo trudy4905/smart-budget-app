@@ -57,6 +57,7 @@ class CalendarGrid extends StatelessWidget {
           ...List.generate(rows, (row) {
             return Expanded(
               child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: List.generate(7, (col) {
                   final cellIdx = row * 7 + col;
                 final dayOffset = cellIdx - startDow;
@@ -126,8 +127,8 @@ class _CalendarCell extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
+      behavior: HitTestBehavior.opaque,
       child: Container(
-        height: 64,
         decoration: BoxDecoration(
           color: isSelected ? const Color(0xFFD3E3FD).withOpacity(0.5) : Colors.transparent,
           border: Border.all(color: const Color(0xFFE0E0E0), width: 0.5),
