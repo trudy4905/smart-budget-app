@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_app/features/drawer/dashboard/view_models/dashboard_view_model.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_app/core/providers/ui_view_model.dart';
 import 'package:flutter_app/features/drawer/accounts/view_models/account_view_model.dart';
 import 'package:flutter_app/features/drawer/accounts/models/account.dart';
@@ -10,28 +9,8 @@ import 'package:flutter_app/features/drawer/accounts/views/add_account_sheet/add
 import 'package:flutter_app/features/drawer/accounts/views/widgets/accounts_section_ui.dart';
 import 'package:flutter_app/core/theme/app_colors.dart';
 
-class AccountsSection extends StatefulWidget {
+class AccountsSection extends StatelessWidget {
   const AccountsSection({super.key});
-
-  @override
-  State<AccountsSection> createState() => _AccountsSectionState();
-}
-
-class _AccountsSectionState extends State<AccountsSection> {
-  bool _isAccountsExpanded = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadPrefs();
-  }
-
-  Future<void> _loadPrefs() async {
-    final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _isAccountsExpanded = prefs.getBool('isAccountsExpanded') ?? true;
-    });
-  }
 
   void _showAddAccountDialog(BuildContext context, {Account? editAccount}) {
     showModalBottomSheet(
@@ -90,14 +69,13 @@ class _AccountsSectionState extends State<AccountsSection> {
     return AccountsSectionUI(
       banks: banks,
       cards: cards,
-      isExpanded: _isAccountsExpanded,
+      isExpanded: uiVM.isAccountsExpanded,
       getBankAccountBalance: (id) => context.read<DashboardViewModel>().getBankAccountBalance(id, upToDate: DateTime.now()),
       selectedAccountIds: uiVM.selectedAccountIds,
       totalAccountsCount: accountVM.accounts.length,
       onSelectedAccountIdsChanged: (ids) => uiVM.setSelectedAccountIds(ids),
       onToggleExpanded: () {
-        setState(() => _isAccountsExpanded = !_isAccountsExpanded);
-        SharedPreferences.getInstance().then((prefs) => prefs.setBool('isAccountsExpanded', _isAccountsExpanded));
+        uiVM.toggleAccountsExpanded();
       },
       onAddClick: () => _showAddAccountDialog(context),
       onEditClick: (acc) => _showAddAccountDialog(context, editAccount: acc),

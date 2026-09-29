@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_app/core/services/storage_service.dart';
 
 class UiViewModel extends ChangeNotifier {
@@ -9,6 +9,11 @@ class UiViewModel extends ChangeNotifier {
   List<String> selectedAccountIds = ['all'];
   String drawerFilter = 'all'; 
   DateTime assetReferenceDate = DateTime.now();
+
+  bool isAccountsExpanded = true;
+  bool isRecurringIncomeExpanded = true;
+  bool isRecurringExpenseExpanded = true;
+  bool isAssetVisible = true;
 
   List<String> dashboardItemOrder = [
     'income',
@@ -29,8 +34,12 @@ class UiViewModel extends ChangeNotifier {
     final orderStr = await _storageService.loadDashboardItemOrder();
     if (orderStr != null) {
       dashboardItemOrder = orderStr;
-      notifyListeners();
     }
+    isAccountsExpanded = await _storageService.loadBool('isAccountsExpanded') ?? true;
+    isRecurringIncomeExpanded = await _storageService.loadBool('isRecurringIncomeExpanded') ?? true;
+    isRecurringExpenseExpanded = await _storageService.loadBool('isRecurringExpenseExpanded') ?? true;
+    isAssetVisible = await _storageService.loadBool('isAssetVisible') ?? true;
+    notifyListeners();
   }
 
   void setCurrentDate(DateTime d) {
@@ -53,6 +62,30 @@ class UiViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  void toggleAccountsExpanded() {
+    isAccountsExpanded = !isAccountsExpanded;
+    notifyListeners();
+    _storageService.saveBool('isAccountsExpanded', isAccountsExpanded);
+  }
+
+  void toggleRecurringIncomeExpanded() {
+    isRecurringIncomeExpanded = !isRecurringIncomeExpanded;
+    notifyListeners();
+    _storageService.saveBool('isRecurringIncomeExpanded', isRecurringIncomeExpanded);
+  }
+
+  void toggleRecurringExpenseExpanded() {
+    isRecurringExpenseExpanded = !isRecurringExpenseExpanded;
+    notifyListeners();
+    _storageService.saveBool('isRecurringExpenseExpanded', isRecurringExpenseExpanded);
+  }
+
+  void toggleAssetVisible() {
+    isAssetVisible = !isAssetVisible;
+    notifyListeners();
+    _storageService.saveBool('isAssetVisible', isAssetVisible);
+  }
+
   void setAssetReferenceDate(DateTime date) {
     assetReferenceDate = date;
     notifyListeners();
@@ -69,3 +102,4 @@ class UiViewModel extends ChangeNotifier {
     await _storageService.saveDashboardItemOrder(dashboardItemOrder);
   }
 }
+

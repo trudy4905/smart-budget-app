@@ -1,4 +1,4 @@
-import 'dart:convert';
+﻿import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_app/features/drawer/accounts/models/account.dart';
 import 'package:flutter_app/features/home/add_transaction/models/transaction.dart';
@@ -89,8 +89,19 @@ class StorageService {
     await prefs.setString(kStorageKeyOrder, jsonEncode(order));
   }
 
+  Future<bool?> loadBool(String key) async {
+    final prefs = await _prefs;
+    return prefs.getBool(key);
+  }
+
+  Future<void> saveBool(String key, bool value) async {
+    final prefs = await _prefs;
+    await prefs.setBool(key, value);
+  }
+
   Future<void> clearAll() async {
     final prefs = await _prefs;
     await prefs.clear();
   }
 }
+

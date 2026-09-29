@@ -1,84 +1,40 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_app/features/drawer/accounts/view_models/account_view_model.dart';
 import 'package:flutter_app/features/home/add_transaction/view_models/transaction_view_model.dart';
 import 'package:flutter_app/features/drawer/dashboard/view_models/dashboard_view_model.dart';
 import 'package:flutter_app/features/drawer/recurring/view_models/recurring_view_model.dart';
 import 'package:collection/collection.dart';
+import 'package:flutter_app/core/providers/ui_view_model.dart';
 import 'package:flutter_app/features/drawer/recurring/views/widgets/recurring_expense_section_ui.dart';
 
-class RecurringExpenseSection extends StatefulWidget {
+class RecurringExpenseSection extends StatelessWidget {
   final DateTime drawerCashFlowDate;
 
   const RecurringExpenseSection({super.key, required this.drawerCashFlowDate});
 
   @override
-  State<RecurringExpenseSection> createState() => _RecurringExpenseSectionState();
-}
-
-class _RecurringExpenseSectionState extends State<RecurringExpenseSection> {
-  bool _isRecurringExpenseExpanded = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadPrefs();
-  }
-
-  Future<void> _loadPrefs() async {
-    final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _isRecurringExpenseExpanded = prefs.getBool('isRecurringExpenseExpanded') ?? true;
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return Consumer3<AccountViewModel, TransactionViewModel, RecurringViewModel>(
-      builder: (context, accountVM, txVM, recurringVM, _) {
+    return Consumer4<AccountViewModel, TransactionViewModel, RecurringViewModel, UiViewModel>(
+      builder: (context, accountVM, txVM, recurringVM, uiVM, _) {
         final dashboardVM = Provider.of<DashboardViewModel>(context, listen: false);
-        final dash = dashboardVM.getDashboardSummary(widget.drawerCashFlowDate.year, widget.drawerCashFlowDate.month);
+        final dash = dashboardVM.getDashboardSummary(drawerCashFlowDate.year, drawerCashFlowDate.month);
         
         final recurringTxs = recurringVM.getNonCreditRecurringExpenses();
         final cards = recurringVM.getCreditCardsForRecurring();
         
-        int totalExpense = 0;
-        for (final tx in recurringTxs) {
-          final parts = tx.date.split('-');
-          final regYear = parts.isNotEmpty ? int.tryParse(parts[0]) ?? widget.drawerCashFlowDate.year : widget.drawerCashFlowDate.year;
-          final regMonth = parts.length >= 2 ? int.tryParse(parts[1]) ?? widget.drawerCashFlowDate.month : widget.drawerCashFlowDate.month;
-          
-          bool isPast = (widget.drawerCashFlowDate.year < regYear) || 
-                        (widget.drawerCashFlowDate.year == regYear && widget.drawerCashFlowDate.month < regMonth);
-
-          final acc = accountVM.accounts.firstWhereOrNull((a) => a.id == tx.accountId);
-          if (acc == null || !acc.isCredit) {
-            totalExpense += isPast ? 0 : tx.amount;
-          }
-        }
-        
-        for (final c in cards) {
-          for (final info in dash.alreadyPaidCardList) {
-            if (info.account.id == c.id) totalExpense += info.amount;
-          }
-          for (final info in dash.upcomingCardPayments) {
-            if (info.account.id == c.id) totalExpense += info.amount;
-          }
-        }
-
+        int totalExpense = recurringVM.getTotalRecurringExpense(drawerCashFlowDate.year, drawerCashFlowDate.month, dash);
         return RecurringExpenseSectionUI(
-          isExpanded: _isRecurringExpenseExpanded,
+          isExpanded: uiVM.isRecurringExpenseExpanded,
           totalExpense: totalExpense,
           recurringTxs: recurringTxs,
           cards: cards,
-          year: widget.drawerCashFlowDate.year,
-          month: widget.drawerCashFlowDate.month,
+          year: drawerCashFlowDate.year,
+          month: drawerCashFlowDate.month,
           getAccount: (id) => accountVM.accounts.firstWhereOrNull((a) => a.id == id),
-          getCardPaymentInfo: (card) => context.read<DashboardViewModel>().getCardPaymentInfo(card, widget.drawerCashFlowDate.year, widget.drawerCashFlowDate.month),
+          getCardPaymentInfo: (card) => context.read<DashboardViewModel>().getCardPaymentInfo(card, drawerCashFlowDate.year, drawerCashFlowDate.month),
           onToggleExpanded: () {
-            setState(() => _isRecurringExpenseExpanded = !_isRecurringExpenseExpanded);
-            SharedPreferences.getInstance().then((prefs) => prefs.setBool('isRecurringExpenseExpanded', _isRecurringExpenseExpanded));
+            uiVM.toggleRecurringExpenseExpanded();
           },
           onDelete: (id) => txVM.deleteRecurringTransactions(id),
         );
