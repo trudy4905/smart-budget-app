@@ -42,20 +42,37 @@ class CalendarGrid extends StatelessWidget {
       color: AppColors.surface,
       child: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-            child: Row(
-              children: List.generate(7, (i) => Expanded(
-                child: Center(
-                  child: Text(dayHeaders[i],
-                      style: GoogleFonts.notoSansKr(
-                        fontSize: 11,
-                        color: i == 0 ? const Color(0xFFD93025) : i == 6 ? const Color(0xFF1A73E8) : const Color(0xFF70757A),
-                        fontWeight: FontWeight.w500,
-                      )),
-                ),
-              )),
-            ),
+          Row(
+            children: List.generate(7, (i) => Expanded(
+              child: Stack(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    alignment: Alignment.center,
+                    child: Text(dayHeaders[i],
+                        style: GoogleFonts.notoSansKr(
+                          fontSize: 11,
+                          color: i == 0 ? const Color(0xFFD93025) : i == 6 ? const Color(0xFF1A73E8) : const Color(0xFF70757A),
+                          fontWeight: FontWeight.w500,
+                        )),
+                  ),
+                  Positioned(
+                    left: 0,
+                    bottom: 0,
+                    width: 0.5,
+                    height: 5,
+                    child: Container(color: const Color(0xFFE0E0E0)),
+                  ),
+                  Positioned(
+                    right: 0,
+                    bottom: 0,
+                    width: 0.5,
+                    height: 5,
+                    child: Container(color: const Color(0xFFE0E0E0)),
+                  ),
+                ],
+              ),
+            )),
           ),
           ...List.generate(rows, (row) {
             return Expanded(
