@@ -84,9 +84,14 @@ class _HomeScreenState extends State<HomeScreen> {
                         },
                         itemBuilder: (context, index) {
                           final pageDate = DateTime(2000 + (index ~/ 12), (index % 12) + 1, 1);
-                          return Column(
-                            children: [
-                              CalendarGrid(
+                          return LayoutBuilder(
+                            builder: (context, constraints) {
+                              return SingleChildScrollView(
+                                child: Column(
+                                  children: [
+                                    SizedBox(
+                                      height: constraints.maxHeight,
+                                      child: CalendarGrid(
                                 currentDate: pageDate,
                                 selectedDateStr: state.selectedDateStr,
                                 accounts: state.accounts,
@@ -102,18 +107,20 @@ class _HomeScreenState extends State<HomeScreen> {
                                   }
                                 },
                               ),
+                                    ),
                               const Divider(color: AppColors.surface, height: 1),
-                              Expanded(
-                                child: DailyDetail(
-                                  selectedDateStr: state.selectedDateStr,
-                                  transactions: state.getTransactionsForDate(state.selectedDateStr),
-                                  accounts: state.accounts,
-                                  getCategoryInfo: state.getCategoryInfo,
-                                  onDeleteTransaction: state.deleteTransaction,
-                                  onDeleteRecurringTransactions: state.deleteRecurringTransactions,
+                                    DailyDetail(
+                                      selectedDateStr: state.selectedDateStr,
+                                      transactions: state.getTransactionsForDate(state.selectedDateStr),
+                                      accounts: state.accounts,
+                                      getCategoryInfo: state.getCategoryInfo,
+                                      onDeleteTransaction: state.deleteTransaction,
+                                      onDeleteRecurringTransactions: state.deleteRecurringTransactions,
+                                    ),
+                                  ],
                                 ),
-                              ),
-                            ],
+                              );
+                            },
                           );
                         },
                       ),
