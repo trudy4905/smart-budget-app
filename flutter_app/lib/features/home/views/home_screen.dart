@@ -20,6 +20,14 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final GlobalKey<MonthCarouselState> _carouselKey = GlobalKey<MonthCarouselState>();
+  late PageController _pageController;
+  bool _isPageControllerInitialized = false;
+
+  @override
+  void dispose() {
+    if (_isPageControllerInitialized) _pageController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,6 +42,23 @@ class _HomeScreenState extends State<HomeScreen> {
               if (!state.loaded) {
                 return const Center(child: CircularProgressIndicator(color: AppColors.primary));
               }
+              final targetIndex = (state.currentDate.year - 2000) * 12 + (state.currentDate.month - 1);
+              if (!_isPageControllerInitialized) {
+                _pageController = PageController(initialPage: targetIndex);
+                _isPageControllerInitialized = true;
+              } else if (_pageController.hasClients) {
+                if (_pageController.page?.round() != targetIndex) {
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    if (_pageController.hasClients) {
+                      _pageController.animateToPage(
+                        targetIndex,
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeInOut,
+                      );
+                    }
+                  });
+                }
+              }
               return SafeArea(
                 child: Column(
                   children: [
@@ -47,52 +72,50 @@ class _HomeScreenState extends State<HomeScreen> {
                       },
                     ),
                     Expanded(
-                      child: Column(
-                        children: [
-                          GestureDetector(
-                            onHorizontalDragEnd: (details) {
-                              if (details.primaryVelocity == null) return;
-                              if (details.primaryVelocity! < 0) {
-                                final next = DateTime(state.currentDate.year, state.currentDate.month + 1, 1);
-                                state.setCurrentDate(next);
-                                state.setSelectedDate('${next.year}-${next.month.toString().padLeft(2, '0')}-01');
-                                _carouselKey.currentState?.scrollToActive();
-                              } else if (details.primaryVelocity! > 0) {
-                                final prev = DateTime(state.currentDate.year, state.currentDate.month - 1, 1);
-                                state.setCurrentDate(prev);
-                                state.setSelectedDate('${prev.year}-${prev.month.toString().padLeft(2, '0')}-01');
-                                _carouselKey.currentState?.scrollToActive();
-                              }
-                            },
-                            child: CalendarGrid(
-                              currentDate: state.currentDate,
-                              selectedDateStr: state.selectedDateStr,
-                              accounts: state.accounts,
-                              getTransactionsForDate: state.getTransactionsForDate,
-                              onDateSelected: (dateStr, isOtherMonth) {
-                                state.setSelectedDate(dateStr);
-                                if (isOtherMonth) {
-                                  final parts = dateStr.split('-');
-                                  if (parts.length == 3) {
-                                    state.setCurrentDate(DateTime(int.parse(parts[0]), int.parse(parts[1]), 1));
-                                    _carouselKey.currentState?.scrollToActive();
+                      child: PageView.builder(
+                        controller: _pageController,
+                        onPageChanged: (index) {
+                          final newDate = DateTime(2000 + (index ~/ 12), (index % 12) + 1, 1);
+                          if (state.currentDate.year != newDate.year || state.currentDate.month != newDate.month) {
+                            state.setCurrentDate(newDate);
+                            state.setSelectedDate('${newDate.year}-${newDate.month.toString().padLeft(2, '0')}-01');
+                            _carouselKey.currentState?.scrollToActive();
+                          }
+                        },
+                        itemBuilder: (context, index) {
+                          final pageDate = DateTime(2000 + (index ~/ 12), (index % 12) + 1, 1);
+                          return Column(
+                            children: [
+                              CalendarGrid(
+                                currentDate: pageDate,
+                                selectedDateStr: state.selectedDateStr,
+                                accounts: state.accounts,
+                                getTransactionsForDate: state.getTransactionsForDate,
+                                onDateSelected: (dateStr, isOtherMonth) {
+                                  state.setSelectedDate(dateStr);
+                                  if (isOtherMonth) {
+                                    final parts = dateStr.split('-');
+                                    if (parts.length == 3) {
+                                      state.setCurrentDate(DateTime(int.parse(parts[0]), int.parse(parts[1]), 1));
+                                      _carouselKey.currentState?.scrollToActive();
+                                    }
                                   }
-                                }
-                              },
-                            ),
-                          ),
-                          const Divider(color: AppColors.surface, height: 1),
-                          Expanded(
-                            child: DailyDetail(
-                              selectedDateStr: state.selectedDateStr,
-                              transactions: state.getTransactionsForDate(state.selectedDateStr),
-                              accounts: state.accounts,
-                              getCategoryInfo: state.getCategoryInfo,
-                              onDeleteTransaction: state.deleteTransaction,
-                              onDeleteRecurringTransactions: state.deleteRecurringTransactions,
-                            ),
-                          ),
-                        ],
+                                },
+                              ),
+                              const Divider(color: AppColors.surface, height: 1),
+                              Expanded(
+                                child: DailyDetail(
+                                  selectedDateStr: state.selectedDateStr,
+                                  transactions: state.getTransactionsForDate(state.selectedDateStr),
+                                  accounts: state.accounts,
+                                  getCategoryInfo: state.getCategoryInfo,
+                                  onDeleteTransaction: state.deleteTransaction,
+                                  onDeleteRecurringTransactions: state.deleteRecurringTransactions,
+                                ),
+                              ),
+                            ],
+                          );
+                        },
                       ),
                     ),
                   ],
