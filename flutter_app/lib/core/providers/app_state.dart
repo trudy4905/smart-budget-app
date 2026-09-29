@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_app/features/accounts/models/account.dart';
-import 'package:flutter_app/features/transactions/models/transaction.dart';
+import 'package:flutter_app/features/drawer/accounts/models/account.dart';
+import 'package:flutter_app/features/home/add_transaction/models/transaction.dart';
 import 'package:flutter_app/core/utils/helpers.dart';
 
 import 'package:flutter_app/features/categories/models/category_info.dart';
 import 'package:flutter_app/core/services/storage_service.dart';
 import 'package:flutter_app/core/providers/ui_view_model.dart';
 
-import 'package:flutter_app/features/dashboard/models/dashboard_summary.dart';
+import 'package:flutter_app/features/drawer/dashboard/models/dashboard_summary.dart';
 import 'package:flutter_app/core/theme/app_colors.dart';
-export 'package:flutter_app/features/dashboard/models/dashboard_summary.dart';
+export 'package:flutter_app/features/drawer/dashboard/models/dashboard_summary.dart';
 
 class AppState extends ChangeNotifier {
   List<Account> accounts = [];

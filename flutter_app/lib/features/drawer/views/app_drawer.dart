@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/features/drawer/views/header/drawer_header.dart';
 import 'package:flutter_app/features/drawer/views/footer/drawer_footer.dart';
-import 'package:flutter_app/features/dashboard/views/asset_summary_card.dart';
-import 'package:flutter_app/features/dashboard/views/cash_flow_section.dart';
-import 'package:flutter_app/features/accounts/views/accounts_section.dart';
+import 'package:flutter_app/features/drawer/dashboard/views/asset_summary_card.dart';
+import 'package:flutter_app/features/drawer/dashboard/views/cash_flow_section.dart';
+import 'package:flutter_app/features/drawer/accounts/views/accounts_section.dart';
 
 class AppDrawer extends StatelessWidget {
   const AppDrawer({super.key});

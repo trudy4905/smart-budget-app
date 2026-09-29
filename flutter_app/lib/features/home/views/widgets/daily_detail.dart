@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:flutter_app/features/transactions/models/transaction.dart';
-import 'package:flutter_app/features/accounts/models/account.dart';
+import 'package:flutter_app/features/home/add_transaction/models/transaction.dart';
+import 'package:flutter_app/features/drawer/accounts/models/account.dart';
 import 'package:flutter_app/features/categories/models/category_info.dart';
 import 'package:flutter_app/core/utils/helpers.dart';
 import 'package:flutter_app/core/theme/app_colors.dart';

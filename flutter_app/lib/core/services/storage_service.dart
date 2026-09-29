@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_app/features/accounts/models/account.dart';
-import 'package:flutter_app/features/transactions/models/transaction.dart';
+import 'package:flutter_app/features/drawer/accounts/models/account.dart';
+import 'package:flutter_app/features/home/add_transaction/models/transaction.dart';
 import 'package:flutter_app/features/categories/models/category_info.dart';
 
 const kStorageKeyTx = 'smart_budget_transactions_v6.0';

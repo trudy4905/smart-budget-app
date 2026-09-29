@@ -7,7 +7,7 @@ import 'package:flutter_app/features/drawer/views/app_drawer.dart';
 import 'package:flutter_app/features/home/views/widgets/month_carousel.dart';
 import 'package:flutter_app/features/home/views/widgets/calendar_grid.dart';
 import 'package:flutter_app/features/home/views/widgets/daily_detail.dart';
-import 'package:flutter_app/features/transactions/views/add_transaction_screen.dart';
+import 'package:flutter_app/features/home/add_transaction/views/add_transaction_screen.dart';
 import 'package:flutter_app/core/theme/app_colors.dart';
 
 class HomeScreen extends StatefulWidget {
