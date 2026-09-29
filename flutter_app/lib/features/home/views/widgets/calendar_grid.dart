@@ -32,7 +32,7 @@ class CalendarGrid extends StatelessWidget {
     final prevMonthDays = DateTime(year, month, 0).day;
     final now = DateTime.now();
     final todayStr = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
-    final rows = ((startDow + totalDays) / 7).ceil();
+    final rows = 7;
     final dayHeaders = ['일', '월', '화', '수', '목', '금', '토'];
 
     return Container(
