@@ -55,9 +55,10 @@ class CalendarGrid extends StatelessWidget {
             ),
           ),
           ...List.generate(rows, (row) {
-            return Row(
-              children: List.generate(7, (col) {
-                final cellIdx = row * 7 + col;
+            return Expanded(
+              child: Row(
+                children: List.generate(7, (col) {
+                  final cellIdx = row * 7 + col;
                 final dayOffset = cellIdx - startDow;
 
                 int dayNum;
@@ -98,7 +99,7 @@ class CalendarGrid extends StatelessWidget {
                   ),
                 );
               }),
-            );
+            ));
           }),
         ],
       ),

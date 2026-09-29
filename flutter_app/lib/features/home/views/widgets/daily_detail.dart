@@ -65,9 +65,8 @@ class DailyDetail extends StatelessWidget {
             ],
           ),
         ),
-        Expanded(
-          child: txs.isEmpty
-              ? Center(
+        if (txs.isEmpty)
+          Center(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -79,7 +78,10 @@ class DailyDetail extends StatelessWidget {
                     ],
                   ),
                 )
-              : ListView.builder(
+        else
+          ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
                   padding: const EdgeInsets.symmetric(horizontal: 12),
                   itemCount: txs.length,
                   itemBuilder: (context, i) => _TxItem(
@@ -90,7 +92,6 @@ class DailyDetail extends StatelessWidget {
                     onDeleteRecurringTransactions: onDeleteRecurringTransactions,
                   ),
                 ),
-        ),
       ],
     );
   }
