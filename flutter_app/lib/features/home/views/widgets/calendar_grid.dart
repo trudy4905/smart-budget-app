@@ -172,20 +172,35 @@ class _CellChips extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final visible = txs.take(2).toList();
-    final overflow = txs.length - visible.length;
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        ...visible.map((t) => _Chip(tx: t, accounts: accounts)),
-        if (overflow > 0)
-          Container(
-            margin: const EdgeInsets.only(top: 1),
-            padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 1),
-            decoration: BoxDecoration(color: AppColors.divider, borderRadius: BorderRadius.circular(3)),
-            child: Text('+$overflow', style: GoogleFonts.notoSansKr(fontSize: 8, color: AppColors.textSub)),
-          ),
-      ],
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        int maxChips = (constraints.maxHeight / 16.0).floor();
+        if (maxChips <= 0) return const SizedBox();
+        
+        List<Transaction> visible;
+        int overflow = 0;
+        
+        if (txs.length > maxChips) {
+           visible = txs.take(maxChips > 1 ? maxChips - 1 : 1).toList();
+           overflow = txs.length - visible.length;
+        } else {
+           visible = txs;
+        }
+
+        return Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            ...visible.map((t) => _Chip(tx: t, accounts: accounts)),
+            if (overflow > 0)
+              Container(
+                margin: const EdgeInsets.only(top: 1),
+                padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 1),
+                decoration: BoxDecoration(color: AppColors.divider, borderRadius: BorderRadius.circular(3)),
+                child: Text('+$overflow', style: GoogleFonts.notoSansKr(fontSize: 8, color: AppColors.textSub)),
+              ),
+          ],
+        );
+      },
     );
   }
 }
