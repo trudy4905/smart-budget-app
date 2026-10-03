@@ -18,7 +18,7 @@ class ExpectedAssetCardUi extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 2.5),
+      margin: const EdgeInsets.symmetric(vertical: 3.5),
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
       decoration: BoxDecoration(
         color: const Color(0xFFF0FDF4),

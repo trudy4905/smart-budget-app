@@ -57,7 +57,7 @@ class CashFlowSectionUI extends StatelessWidget {
             ReorderableListView(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
-              padding: const EdgeInsets.symmetric(horizontal: 12),
+              padding: const EdgeInsets.fromLTRB(12, 0, 12, 16),
               buildDefaultDragHandles: false,
               proxyDecorator: (Widget child, int index, Animation<double> animation) {
                 return AnimatedBuilder(
@@ -132,7 +132,7 @@ class CashFlowSectionUI extends StatelessWidget {
                     break;
                   case 'recurring_expense':
                     childWidget = Container(
-                      margin: const EdgeInsets.symmetric(vertical: 2.5),
+                      margin: const EdgeInsets.symmetric(vertical: 3.5),
                       child: Column(
                         children: [
                           const Padding(padding: EdgeInsets.symmetric(horizontal: 4), child: Divider(color: AppColors.background, height: 1)),
@@ -147,7 +147,7 @@ class CashFlowSectionUI extends StatelessWidget {
                     break;
                   case 'recurring_income':
                     childWidget = Container(
-                      margin: const EdgeInsets.symmetric(vertical: 2.5),
+                      margin: const EdgeInsets.symmetric(vertical: 3.5),
                       child: Column(
                         children: [
                           const Padding(padding: EdgeInsets.symmetric(horizontal: 4), child: Divider(color: AppColors.background, height: 1)),
