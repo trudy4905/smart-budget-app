@@ -47,7 +47,7 @@ class CashFlowSectionUI extends StatelessWidget {
         child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(12, 4, 12, 0),
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
               child: CashFlowHeaderWidget(
                 drawerCashFlowDate: drawerCashFlowDate,
                 onChangeMonth: onChangeMonth,
