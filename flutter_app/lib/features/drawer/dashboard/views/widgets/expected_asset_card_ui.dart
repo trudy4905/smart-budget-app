@@ -18,11 +18,15 @@ class ExpectedAssetCardUi extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 4),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+      margin: const EdgeInsets.symmetric(vertical: 5),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
         color: const Color(0xFFF0FDF4), // Lighter green
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: const Color(0xFFBBF7D0).withOpacity(0.8),
+          width: 0.8,
+        ),
       ),
       child: Row(
         children: [
@@ -33,13 +37,33 @@ class ExpectedAssetCardUi extends StatelessWidget {
             child: Image.asset('assets/expected_assets_icon.png', fit: BoxFit.contain),
           ),
           const SizedBox(width: 8),
-          Text('$month월 예상 자산', style: GoogleFonts.notoSansKr(fontSize: 15, color: AppColors.textMain, fontWeight: FontWeight.w600)),
+          Text(
+            '$month월 예상 자산',
+            style: GoogleFonts.notoSansKr(
+              fontSize: 14,
+              color: AppColors.textMain,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
           const Spacer(),
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Text('${formatNumber(expectedBalance)}원', style: GoogleFonts.notoSansKr(fontSize: 15, fontWeight: FontWeight.w700, color: const Color(0xFF059669))),
-              Text('${remainingBalance > 0 ? '+' : ''}${formatNumber(remainingBalance)}원', style: GoogleFonts.notoSansKr(fontSize: 11, color: const Color(0xFF059669))),
+              Text(
+                '${formatNumber(expectedBalance)}원',
+                style: GoogleFonts.notoSansKr(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: const Color(0xFF059669),
+                ),
+              ),
+              Text(
+                '${remainingBalance > 0 ? '+' : ''}${formatNumber(remainingBalance)}원',
+                style: GoogleFonts.notoSansKr(
+                  fontSize: 11,
+                  color: const Color(0xFF059669),
+                ),
+              ),
             ],
           ),
         ],
