@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_app/core/theme/app_colors.dart';
 
@@ -29,6 +30,7 @@ class _CustomSpeedDialState extends State<CustomSpeedDial> with SingleTickerProv
   }
 
   void _toggle() {
+    HapticFeedback.selectionClick();
     if (_isOpen) {
       _ctrl.reverse();
     } else {
@@ -37,27 +39,57 @@ class _CustomSpeedDialState extends State<CustomSpeedDial> with SingleTickerProv
     setState(() => _isOpen = !_isOpen);
   }
 
-  Widget _buildItem(String label, IconData icon, String type) {
+  Widget _buildItem(String label, IconData icon, String type, Color color, Color bgColor) {
     return GestureDetector(
       onTap: () {
+        HapticFeedback.selectionClick();
         _toggle();
         widget.onSelect(type);
       },
       behavior: HitTestBehavior.opaque,
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
-          color: const Color(0xFFE5EDFA),
+          color: Colors.white,
           borderRadius: BorderRadius.circular(30),
-          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 4, offset: const Offset(0, 2))],
+          border: Border.all(
+            color: color.withOpacity(0.25),
+            width: 1,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.08),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+            BoxShadow(
+              color: color.withOpacity(0.12),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, color: const Color(0xFF1D4ED8), size: 20),
+            Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: bgColor,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, color: color, size: 16),
+            ),
             const SizedBox(width: 8),
-            Text(label, style: GoogleFonts.notoSansKr(fontSize: 15, fontWeight: FontWeight.w600, color: const Color(0xFF1D4ED8))),
+            Text(
+              label,
+              style: GoogleFonts.notoSansKr(
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+                color: color,
+              ),
+            ),
           ],
         ),
       ),
@@ -76,20 +108,47 @@ class _CustomSpeedDialState extends State<CustomSpeedDial> with SingleTickerProv
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              _buildItem('수입', Icons.download_rounded, 'income'),
-              _buildItem('지출', Icons.upload_rounded, 'expense'),
+              _buildItem('수입 추가', Icons.arrow_downward_rounded, 'income', AppColors.income, AppColors.incomeBg),
+              _buildItem('지출 추가', Icons.arrow_upward_rounded, 'expense', AppColors.expense, AppColors.expenseBg),
             ],
           ),
         ),
-        FloatingActionButton(
-          onPressed: _toggle,
-          backgroundColor: AppColors.secondary,
-          elevation: 4,
-          shape: const CircleBorder(),
-          child: AnimatedRotation(
-            turns: _isOpen ? 0.125 : 0,
-            duration: const Duration(milliseconds: 250),
-            child: const Icon(Icons.add, color: Colors.white, size: 28),
+        GestureDetector(
+          onTap: _toggle,
+          child: Container(
+            width: 56,
+            height: 56,
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [Color(0xFF6366F1), Color(0xFF4F46E5)],
+              ),
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF4F46E5).withOpacity(0.4),
+                  blurRadius: 14,
+                  offset: const Offset(0, 5),
+                ),
+                BoxShadow(
+                  color: Colors.white.withOpacity(0.25),
+                  blurRadius: 2,
+                  offset: const Offset(0, -1),
+                ),
+              ],
+              border: Border.all(
+                color: Colors.white.withOpacity(0.25),
+                width: 1.2,
+              ),
+            ),
+            child: Center(
+              child: AnimatedRotation(
+                turns: _isOpen ? 0.125 : 0,
+                duration: const Duration(milliseconds: 250),
+                child: const Icon(Icons.add_rounded, color: Colors.white, size: 28),
+              ),
+            ),
           ),
         ),
       ],

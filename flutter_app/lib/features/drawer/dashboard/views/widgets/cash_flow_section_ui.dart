@@ -53,6 +53,7 @@ class CashFlowSectionUI extends StatelessWidget {
                 onChangeMonth: onChangeMonth,
               ),
             ),
+            const SizedBox(height: 10),
             ReorderableListView(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
@@ -63,19 +64,23 @@ class CashFlowSectionUI extends StatelessWidget {
                   animation: animation,
                   builder: (BuildContext context, Widget? _) {
                     final double animValue = Curves.easeOutCubic.transform(animation.value);
-                    final double elevation = lerpDouble(2, 10, animValue)!;
                     final double scale = lerpDouble(1.0, 1.03, animValue)!;
                     return Transform.scale(
                       scale: scale,
                       alignment: Alignment.center,
-                      child: Center(
-                        child: Material(
-                          elevation: elevation,
-                          shadowColor: Colors.black.withOpacity(0.25),
-                          color: AppColors.surface,
+                      child: Container(
+                        decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(20),
-                          child: child,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.15 * animValue),
+                              blurRadius: 14 * animValue,
+                              spreadRadius: 1 * animValue,
+                              offset: Offset(0, 4 * animValue),
+                            ),
+                          ],
                         ),
+                        child: child,
                       ),
                     );
                   },
@@ -127,7 +132,7 @@ class CashFlowSectionUI extends StatelessWidget {
                     break;
                   case 'recurring_expense':
                     childWidget = Container(
-                      margin: const EdgeInsets.symmetric(vertical: 5),
+                      margin: const EdgeInsets.symmetric(vertical: 2.5),
                       child: Column(
                         children: [
                           const Padding(padding: EdgeInsets.symmetric(horizontal: 4), child: Divider(color: AppColors.background, height: 1)),
@@ -142,7 +147,7 @@ class CashFlowSectionUI extends StatelessWidget {
                     break;
                   case 'recurring_income':
                     childWidget = Container(
-                      margin: const EdgeInsets.symmetric(vertical: 5),
+                      margin: const EdgeInsets.symmetric(vertical: 2.5),
                       child: Column(
                         children: [
                           const Padding(padding: EdgeInsets.symmetric(horizontal: 4), child: Divider(color: AppColors.background, height: 1)),

@@ -150,16 +150,25 @@ class AccountsSectionUI extends StatelessWidget {
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
                       decoration: BoxDecoration(
-                        color: AppColors.primary.withOpacity(0.12),
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFFEEF2FF), Color(0xFFE0E7FF)],
+                        ),
                         borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: AppColors.primary.withOpacity(0.25)),
+                        border: Border.all(color: AppColors.primary.withOpacity(0.3)),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColors.primary.withOpacity(0.12),
+                            blurRadius: 6,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Icons.add, size: 12, color: AppColors.primary),
+                          const Icon(Icons.add_rounded, size: 14, color: AppColors.primary),
                           const SizedBox(width: 4),
-                          Text('추가', style: GoogleFonts.notoSansKr(fontSize: 11, color: AppColors.primary)),
+                          Text('추가', style: GoogleFonts.notoSansKr(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.primary)),
                         ],
                       ),
                     ),
