@@ -145,6 +145,10 @@ class CashFlowSectionUI extends StatelessWidget {
                   case 'recurring_expense':
                     childWidget = Container(
                       margin: const EdgeInsets.symmetric(vertical: 3.5),
+                      decoration: BoxDecoration(
+                        color: AppColors.surface,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
                       child: Column(
                         children: [
                           const Padding(padding: EdgeInsets.symmetric(horizontal: 4), child: Divider(color: AppColors.background, height: 1)),
@@ -160,6 +164,10 @@ class CashFlowSectionUI extends StatelessWidget {
                   case 'recurring_income':
                     childWidget = Container(
                       margin: const EdgeInsets.symmetric(vertical: 3.5),
+                      decoration: BoxDecoration(
+                        color: AppColors.surface,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
                       child: Column(
                         children: [
                           const Padding(padding: EdgeInsets.symmetric(horizontal: 4), child: Divider(color: AppColors.background, height: 1)),
