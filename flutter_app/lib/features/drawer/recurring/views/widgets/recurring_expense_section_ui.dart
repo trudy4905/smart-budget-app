@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_app/features/home/add_transaction/models/transaction.dart';
 import 'package:flutter_app/features/drawer/accounts/models/account.dart';
+import 'package:flutter_app/features/categories/models/category_info.dart';
 import 'package:flutter_app/core/utils/helpers.dart';
 import 'package:flutter_app/features/drawer/dashboard/models/dashboard_summary.dart' show CardPaymentInfo;
 import 'package:flutter_app/features/drawer/recurring/views/widgets/recurring_item_widget.dart';
@@ -16,6 +17,7 @@ class RecurringExpenseSectionUI extends StatelessWidget {
   final int month;
   final Account? Function(String accountId) getAccount;
   final CardPaymentInfo Function(Account card) getCardPaymentInfo;
+  final CategoryInfo Function(String category) getCategoryInfo;
   final VoidCallback onToggleExpanded;
   final void Function(String recurringId) onDelete;
 
@@ -29,13 +31,47 @@ class RecurringExpenseSectionUI extends StatelessWidget {
     required this.month,
     required this.getAccount,
     required this.getCardPaymentInfo,
+    required this.getCategoryInfo,
     required this.onToggleExpanded,
     required this.onDelete,
   });
 
+  void _confirmDelete(BuildContext context, String recurringId) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: AppColors.surface,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text(
+          '고정 지출 삭제',
+          style: GoogleFonts.notoSansKr(fontWeight: FontWeight.w700, color: AppColors.expense),
+        ),
+        content: Text(
+          '모든 일정에서 고정 항목이 삭제됩니다.',
+          style: GoogleFonts.notoSansKr(color: AppColors.textSub),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('취소', style: GoogleFonts.notoSansKr(color: AppColors.textHint)),
+          ),
+          TextButton(
+            onPressed: () {
+              onDelete(recurringId);
+              Navigator.pop(context);
+            },
+            child: Text(
+              '삭제',
+              style: GoogleFonts.notoSansKr(color: AppColors.expense, fontWeight: FontWeight.w700),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    
     int displayedItemCount = recurringTxs.length + cards.length;
 
     return Column(
@@ -52,11 +88,21 @@ class RecurringExpenseSectionUI extends StatelessWidget {
               children: [
                 const Icon(Icons.repeat_rounded, size: 14, color: AppColors.expense),
                 const SizedBox(width: 6),
-                Text('고정 지출 ($displayedItemCount)', style: GoogleFonts.notoSansKr(fontSize: 14, color: AppColors.textMain, fontWeight: FontWeight.w700)),
+                Text(
+                  '고정 지출 ($displayedItemCount)',
+                  style: GoogleFonts.notoSansKr(fontSize: 14, color: AppColors.textMain, fontWeight: FontWeight.w700),
+                ),
                 const Spacer(),
-                Text(formatNumber(totalExpense), style: GoogleFonts.notoSansKr(fontSize: 14, color: AppColors.textMain, fontWeight: FontWeight.w700)),
+                Text(
+                  formatNumber(totalExpense),
+                  style: GoogleFonts.notoSansKr(fontSize: 14, color: AppColors.textMain, fontWeight: FontWeight.w700),
+                ),
                 const SizedBox(width: 8),
-                Icon(isExpanded ? Icons.keyboard_arrow_down : Icons.keyboard_arrow_right, size: 16, color: AppColors.textHint),
+                Icon(
+                  isExpanded ? Icons.keyboard_arrow_down : Icons.keyboard_arrow_right,
+                  size: 16,
+                  color: AppColors.textHint,
+                ),
               ],
             ),
           ),
@@ -72,12 +118,12 @@ class RecurringExpenseSectionUI extends StatelessWidget {
                 ),
               ...recurringTxs.where((tx) => getAccount(tx.accountId)?.isCredit != true).toList().asMap().entries.map((e) {
                 final tx = e.value;
-                final txAccount = getAccount(tx.accountId);
+                final catInfo = getCategoryInfo(tx.category);
                 final parts = tx.date.split('-');
                 final regYear = parts.isNotEmpty ? int.tryParse(parts[0]) ?? year : year;
                 final regMonth = parts.length >= 2 ? int.tryParse(parts[1]) ?? month : month;
                 final txDay = parts.length >= 3 ? int.tryParse(parts[2]) ?? 0 : 0;
-                
+
                 bool isPast = (year < regYear) || (year == regYear && month < regMonth);
                 final int displayAmount = isPast ? 0 : tx.amount;
 
@@ -85,33 +131,11 @@ class RecurringExpenseSectionUI extends StatelessWidget {
                   children: [
                     const Padding(padding: EdgeInsets.only(left: 8, right: 8), child: Divider(color: AppColors.background, height: 1)),
                     RecurringItemWidget(
-                      icon: txAccount == null ? Icons.calendar_today : (txAccount.isBank ? Icons.account_balance : Icons.credit_card),
-                      iconBgColor: AppColors.expenseBg,
-                      iconColor: AppColors.expense,
+                      emoji: catInfo.emoji,
                       title: tx.memo.isNotEmpty ? '${tx.category} (${tx.memo})' : tx.category,
                       subtitle: '$month/$txDay',
                       amount: displayAmount,
-                      onDelete: () {
-                        showDialog(
-                          context: context,
-                          builder: (_) => AlertDialog(
-                            backgroundColor: AppColors.surface,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                            title: Text('고정 지출 삭제', style: GoogleFonts.notoSansKr(fontWeight: FontWeight.w700, color: AppColors.expense)),
-                            content: Text('모든 일정에서 고정 항목이 삭제됩니다.', style: GoogleFonts.notoSansKr(color: AppColors.textSub)),
-                            actions: [
-                              TextButton(onPressed: () => Navigator.pop(context), child: Text('취소', style: GoogleFonts.notoSansKr(color: AppColors.textHint))),
-                              TextButton(
-                                onPressed: () {
-                                  onDelete(tx.recurringId!);
-                                  Navigator.pop(context);
-                                },
-                                child: Text('삭제', style: GoogleFonts.notoSansKr(color: AppColors.expense, fontWeight: FontWeight.w700)),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
+                      onDelete: tx.recurringId != null ? () => _confirmDelete(context, tx.recurringId!) : null,
                     ),
                   ],
                 );
@@ -120,7 +144,7 @@ class RecurringExpenseSectionUI extends StatelessWidget {
                 final c = e.value;
                 final cardInfo = getCardPaymentInfo(c);
                 int cardPaymentAmount = cardInfo.amount;
-                
+
                 String subtitle = '${cardInfo.startStr}~${cardInfo.endStr} | ${cardInfo.paymentDateStr}';
                 Widget titleTag;
                 if (cardInfo.isFinalized) {
@@ -136,22 +160,22 @@ class RecurringExpenseSectionUI extends StatelessWidget {
                     child: Text('누적중', style: GoogleFonts.notoSansKr(fontSize: 10, fontWeight: FontWeight.w600, color: AppColors.textSub)),
                   );
                 }
-                
+
                 final cardRecurringTxs = cardInfo.recurringTxs;
 
                 return Column(
                   children: [
                     const Padding(padding: EdgeInsets.only(left: 8, right: 8), child: Divider(color: AppColors.background, height: 1)),
                     RecurringItemWidget(
-                      icon: Icons.credit_card,
-                      iconBgColor: AppColors.expenseBg,
-                      iconColor: AppColors.expense,
+                      icon: Icons.credit_card_rounded,
+                      iconColor: AppColors.secondary,
                       title: '${c.name} 대금 결제',
                       titleTag: titleTag,
                       subtitle: subtitle,
                       amount: cardPaymentAmount,
                     ),
                     ...cardRecurringTxs.map((tx) {
+                      final subCatInfo = getCategoryInfo(tx.category);
                       final parts = tx.date.split('-');
                       final txMonth = parts.length >= 2 ? int.tryParse(parts[1]) ?? month : month;
                       final txDay = parts.length >= 3 ? int.tryParse(parts[2]) ?? 0 : 0;
@@ -161,33 +185,11 @@ class RecurringExpenseSectionUI extends StatelessWidget {
                           const Padding(padding: EdgeInsets.only(left: 8, right: 8), child: Divider(color: AppColors.background, height: 1)),
                           RecurringItemWidget(
                             isSubItem: true,
-                            icon: Icons.credit_card,
-                            iconBgColor: AppColors.expenseBg.withOpacity(0.5),
-                            iconColor: AppColors.expense.withOpacity(0.5),
+                            emoji: subCatInfo.emoji,
                             title: tx.memo.isNotEmpty ? '${tx.category} (${tx.memo})' : tx.category,
                             subtitle: '$txMonth/$txDay',
                             amount: tx.amount,
-                            onDelete: () {
-                              showDialog(
-                                context: context,
-                                builder: (_) => AlertDialog(
-                                  backgroundColor: AppColors.surface,
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                                  title: Text('고정 지출 삭제', style: GoogleFonts.notoSansKr(fontWeight: FontWeight.w700, color: AppColors.expense)),
-                                  content: Text('모든 일정에서 고정 항목이 삭제됩니다.', style: GoogleFonts.notoSansKr(color: AppColors.textSub)),
-                                  actions: [
-                                    TextButton(onPressed: () => Navigator.pop(context), child: Text('취소', style: GoogleFonts.notoSansKr(color: AppColors.textHint))),
-                                    TextButton(
-                                      onPressed: () {
-                                        onDelete(tx.recurringId!);
-                                        Navigator.pop(context);
-                                      },
-                                      child: Text('삭제', style: GoogleFonts.notoSansKr(color: AppColors.expense, fontWeight: FontWeight.w700)),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            },
+                            onDelete: tx.recurringId != null ? () => _confirmDelete(context, tx.recurringId!) : null,
                           ),
                         ],
                       );
@@ -205,8 +207,3 @@ class RecurringExpenseSectionUI extends StatelessWidget {
     );
   }
 }
-
-
-
-
-

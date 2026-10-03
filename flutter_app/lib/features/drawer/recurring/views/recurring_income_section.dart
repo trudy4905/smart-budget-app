@@ -5,6 +5,8 @@ import 'package:flutter_app/features/home/add_transaction/view_models/transactio
 import 'package:flutter_app/features/drawer/recurring/view_models/recurring_view_model.dart';
 import 'package:flutter_app/features/drawer/recurring/views/widgets/recurring_income_section_ui.dart';
 
+import 'package:flutter_app/features/categories/view_models/category_view_model.dart';
+
 class RecurringIncomeSection extends StatelessWidget {
   final DateTime drawerCashFlowDate;
 
@@ -21,6 +23,7 @@ class RecurringIncomeSection extends StatelessWidget {
           totalIncome: totalIncome,
           recurringTxs: recurringTxs,
           month: drawerCashFlowDate.month,
+          getCategoryInfo: (cat) => context.read<CategoryViewModel>().getCategoryInfo(cat),
           onToggleExpanded: () {
             uiVM.toggleRecurringIncomeExpanded();
           },

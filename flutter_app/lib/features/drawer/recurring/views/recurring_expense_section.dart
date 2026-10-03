@@ -8,6 +8,8 @@ import 'package:collection/collection.dart';
 import 'package:flutter_app/core/providers/ui_view_model.dart';
 import 'package:flutter_app/features/drawer/recurring/views/widgets/recurring_expense_section_ui.dart';
 
+import 'package:flutter_app/features/categories/view_models/category_view_model.dart';
+
 class RecurringExpenseSection extends StatelessWidget {
   final DateTime drawerCashFlowDate;
 
@@ -33,6 +35,7 @@ class RecurringExpenseSection extends StatelessWidget {
           month: drawerCashFlowDate.month,
           getAccount: (id) => accountVM.accounts.firstWhereOrNull((a) => a.id == id),
           getCardPaymentInfo: (card) => context.read<DashboardViewModel>().getCardPaymentInfo(card, drawerCashFlowDate.year, drawerCashFlowDate.month),
+          getCategoryInfo: (cat) => context.read<CategoryViewModel>().getCategoryInfo(cat),
           onToggleExpanded: () {
             uiVM.toggleRecurringExpenseExpanded();
           },
