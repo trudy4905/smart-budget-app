@@ -5,6 +5,7 @@ import 'package:flutter_app/features/drawer/accounts/models/account.dart';
 import 'package:flutter_app/core/utils/helpers.dart';
 import 'package:flutter_app/features/drawer/accounts/views/add_account_sheet/constants/account_constants.dart';
 import 'package:flutter_app/core/theme/app_colors.dart';
+import 'package:flutter_app/core/widgets/custom_sliding_segmented_tab.dart';
 
 class AddAccountSheetUi extends StatefulWidget {
   final Account? editAccount;
@@ -126,16 +127,30 @@ class _AddAccountSheetUiState extends State<AddAccountSheetUi> {
               ],
             ),
             const SizedBox(height: 16),
-            // Type toggle
-            Container(
-              decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(10)),
-              child: Row(
-                children: [
-                  _typeTab('bank', '통장', Icons.account_balance, const Color(0xFF059669)),
-                  _typeTab('credit', '신용카드', Icons.credit_card, AppColors.secondary),
-                  _typeTab('debit', '체크카드', Icons.credit_score, const Color(0xFFD97706)),
-                ],
-              ),
+            // Type toggle (iPhone-style sliding tab)
+            CustomSlidingSegmentedTab<String>(
+              selectedValue: _type,
+              onValueChanged: _changeType,
+              items: const [
+                SegmentTabItem(
+                  value: 'bank',
+                  label: '통장',
+                  icon: Icons.account_balance_rounded,
+                  activeColor: Color(0xFF059669),
+                ),
+                SegmentTabItem(
+                  value: 'credit',
+                  label: '신용카드',
+                  icon: Icons.credit_card_rounded,
+                  activeColor: AppColors.secondary,
+                ),
+                SegmentTabItem(
+                  value: 'debit',
+                  label: '체크카드',
+                  icon: Icons.credit_score_rounded,
+                  activeColor: Color(0xFFD97706),
+                ),
+              ],
             ),
             const SizedBox(height: 14),
             // Bank/card selection
@@ -302,35 +317,6 @@ class _AddAccountSheetUiState extends State<AddAccountSheetUi> {
     );
   }
 
-  Widget _typeTab(String type, String label, IconData iconData, Color iconColor) {
-    final isActive = _type == type;
-    return Expanded(
-      child: InkWell(
-        onTap: () => _changeType(type),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 150),
-          padding: const EdgeInsets.symmetric(vertical: 10),
-          decoration: BoxDecoration(
-            color: isActive ? AppColors.primary.withOpacity(0.15) : Colors.transparent,
-            borderRadius: BorderRadius.circular(10),
-            border: isActive ? Border.all(color: AppColors.primary.withOpacity(0.4)) : Border.all(color: Colors.transparent),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(iconData, size: 14, color: isActive ? iconColor : AppColors.textHint),
-              const SizedBox(width: 4),
-              Text(label,
-                  style: GoogleFonts.notoSansKr(
-                    fontSize: 11, color: isActive ? AppColors.primary : AppColors.textHint,
-                    fontWeight: isActive ? FontWeight.w700 : FontWeight.w400,
-                  )),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
 
   InputDecoration _inputDec(String hint) => InputDecoration(
         hintText: hint,

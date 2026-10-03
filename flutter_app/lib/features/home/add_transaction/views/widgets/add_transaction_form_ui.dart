@@ -5,6 +5,7 @@ import 'package:flutter_app/features/categories/models/category_info.dart';
 import 'package:flutter_app/features/drawer/accounts/models/account.dart';
 import 'package:flutter_app/core/utils/helpers.dart';
 import 'package:flutter_app/core/theme/app_colors.dart';
+import 'package:flutter_app/core/widgets/custom_sliding_segmented_tab.dart';
 
 class AddTransactionFormUi extends StatefulWidget {
   final String initialType;
@@ -100,9 +101,23 @@ class AddTransactionFormUiState extends State<AddTransactionFormUi> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(12)),
-                  child: Row(children: [_typeTab('income', '수입'), _typeTab('expense', '지출')]),
+                CustomSlidingSegmentedTab<String>(
+                  selectedValue: _type,
+                  onValueChanged: _onTypeChanged,
+                  items: const [
+                    SegmentTabItem(
+                      value: 'income',
+                      label: '수입',
+                      icon: Icons.arrow_downward_rounded,
+                      activeColor: AppColors.income,
+                    ),
+                    SegmentTabItem(
+                      value: 'expense',
+                      label: '지출',
+                      icon: Icons.arrow_upward_rounded,
+                      activeColor: AppColors.expense,
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 16),
                 _label('금액'),
@@ -258,37 +273,16 @@ class AddTransactionFormUiState extends State<AddTransactionFormUi> {
     );
   }
 
-  Widget _typeTab(String type, String label) {
-    final isActive = _type == type;
-    return Expanded(
-      child: GestureDetector(
-        onTap: () => setState(() {
-          _type = type;
-          if (type == 'income' && _accountId != null) {
-            final acc = widget.accounts.where((a) => a.id == _accountId).firstOrNull;
-            if (acc != null && !acc.isBank) {
-              _accountId = widget.accounts.where((a) => a.isBank).firstOrNull?.id;
-            }
-          }
-        }),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          decoration: BoxDecoration(
-            color: isActive ? AppColors.primary.withOpacity(0.15) : Colors.transparent,
-            borderRadius: BorderRadius.circular(12),
-            border: isActive ? Border.all(color: AppColors.primary.withOpacity(0.4)) : Border.all(color: Colors.transparent),
-          ),
-          child: Center(
-            child: Text(label,
-                style: GoogleFonts.notoSansKr(
-                  color: isActive ? AppColors.primary : AppColors.textHint,
-                  fontWeight: isActive ? FontWeight.w700 : FontWeight.w400,
-                )),
-          ),
-        ),
-      ),
-    );
+  void _onTypeChanged(String newType) {
+    setState(() {
+      _type = newType;
+      if (newType == 'income' && _accountId != null) {
+        final acc = widget.accounts.where((a) => a.id == _accountId).firstOrNull;
+        if (acc != null && !acc.isBank) {
+          _accountId = widget.accounts.where((a) => a.isBank).firstOrNull?.id;
+        }
+      }
+    });
   }
 
   Widget _amountBtn(String label, int addVal) {
