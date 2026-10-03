@@ -59,6 +59,8 @@ class CashFlowRowWidget extends StatelessWidget {
   final int amount;
   final bool isExpanded;
   final VoidCallback onTap;
+  final IconData? icon;
+  final Color? iconColor;
 
   const CashFlowRowWidget({
     super.key,
@@ -67,6 +69,8 @@ class CashFlowRowWidget extends StatelessWidget {
     required this.amount,
     required this.isExpanded,
     required this.onTap,
+    this.icon,
+    this.iconColor,
   });
 
   @override
@@ -87,6 +91,10 @@ class CashFlowRowWidget extends StatelessWidget {
         ),
         child: Row(
           children: [
+            if (icon != null) ...[
+              Icon(icon, size: 14, color: iconColor ?? AppColors.textSub),
+              const SizedBox(width: 8),
+            ],
             Text(
               title,
               style: GoogleFonts.notoSansKr(

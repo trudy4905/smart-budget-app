@@ -96,6 +96,8 @@ class CashFlowSectionUI extends StatelessWidget {
                   case 'income':
                     childWidget = CashFlowRowWidget(
                       type: 'income',
+                      icon: Icons.arrow_downward_rounded,
+                      iconColor: const Color(0xFF059669),
                       title: '수입',
                       amount: dash.alreadyReceivedIncome,
                       isExpanded: openPanel == 'income',
@@ -105,6 +107,8 @@ class CashFlowSectionUI extends StatelessWidget {
                   case 'expense':
                     childWidget = CashFlowRowWidget(
                       type: 'expense',
+                      icon: Icons.arrow_upward_rounded,
+                      iconColor: AppColors.expense,
                       title: '지출',
                       amount: dash.totalAlreadyPaid,
                       isExpanded: openPanel == 'expense',
@@ -114,6 +118,8 @@ class CashFlowSectionUI extends StatelessWidget {
                   case 'upcoming_income':
                     childWidget = CashFlowRowWidget(
                       type: 'upcoming_income',
+                      icon: Icons.schedule_rounded,
+                      iconColor: const Color(0xFFD97706),
                       title: '예정 수입',
                       amount: dash.totalUpcomingIncome,
                       isExpanded: openPanel == 'upcoming_income',
@@ -123,6 +129,8 @@ class CashFlowSectionUI extends StatelessWidget {
                   case 'upcoming_expense':
                     childWidget = CashFlowRowWidget(
                       type: 'upcoming_expense',
+                      icon: Icons.event_busy_rounded,
+                      iconColor: const Color(0xFF7C3AED),
                       title: '예정 지출',
                       amount: dash.totalUpcomingExpense,
                       isExpanded: openPanel == 'upcoming_expense',
