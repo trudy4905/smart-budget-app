@@ -55,9 +55,6 @@ class CashFlowHeaderWidget extends StatelessWidget {
 
 class CashFlowRowWidget extends StatelessWidget {
   final String type;
-  final IconData icon;
-  final Color iconBgColor;
-  final Color iconColor;
   final String title;
   final int amount;
   final bool isExpanded;
@@ -66,9 +63,6 @@ class CashFlowRowWidget extends StatelessWidget {
   const CashFlowRowWidget({
     super.key,
     required this.type,
-    required this.icon,
-    required this.iconBgColor,
-    required this.iconColor,
     required this.title,
     required this.amount,
     required this.isExpanded,
@@ -82,7 +76,7 @@ class CashFlowRowWidget extends StatelessWidget {
       onTap: onTap,
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 3.5),
-        padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 14),
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
         decoration: BoxDecoration(
           color: const Color(0xFFF8FAFC),
           borderRadius: BorderRadius.circular(20),
@@ -93,15 +87,6 @@ class CashFlowRowWidget extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Container(
-              padding: const EdgeInsets.all(7),
-              decoration: BoxDecoration(
-                color: iconBgColor,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(icon, size: 14, color: iconColor),
-            ),
-            const SizedBox(width: 12),
             Text(
               title,
               style: GoogleFonts.notoSansKr(

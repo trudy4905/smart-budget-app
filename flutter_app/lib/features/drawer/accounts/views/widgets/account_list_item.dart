@@ -83,15 +83,6 @@ class AccountListItem extends StatelessWidget {
                   ),
                   child: isChecked ? const Icon(Icons.check, size: 12, color: AppColors.surface) : null,
                 ),
-                const SizedBox(width: 12),
-                Container(
-                  width: 32, height: 32,
-                  decoration: const BoxDecoration(
-                    color: AppColors.background,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(icon, size: 16, color: AppColors.textSub),
-                ),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Column(
@@ -101,12 +92,28 @@ class AccountListItem extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Expanded(
-                            child: Text(label,
-                                style: GoogleFonts.notoSansKr(
-                                  fontSize: 13,
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  icon,
+                                  size: 15,
                                   color: isChecked ? AppColors.textMain : AppColors.textSub,
-                                  fontWeight: isChecked ? FontWeight.w600 : FontWeight.w400,
-                                ), overflow: TextOverflow.ellipsis),
+                                ),
+                                const SizedBox(width: 6),
+                                Flexible(
+                                  child: Text(
+                                    label,
+                                    style: GoogleFonts.notoSansKr(
+                                      fontSize: 13,
+                                      color: isChecked ? AppColors.textMain : AppColors.textSub,
+                                      fontWeight: isChecked ? FontWeight.w600 : FontWeight.w400,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                           if (rightTopText != null)
                             Text(rightTopText!, style: GoogleFonts.notoSansKr(fontSize: 10, color: AppColors.textSub)),
