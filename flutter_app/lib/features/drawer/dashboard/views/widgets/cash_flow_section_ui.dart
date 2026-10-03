@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_app/features/drawer/dashboard/models/dashboard_summary.dart';
 import 'package:flutter_app/features/drawer/dashboard/views/cash_flow_widgets.dart';
 import 'package:flutter_app/features/drawer/dashboard/views/expected_asset_card.dart';
@@ -33,8 +33,15 @@ class CashFlowSectionUI extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           color: AppColors.surface,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.divider),
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.04),
+              blurRadius: 10,
+              offset: const Offset(0, 3),
+            ),
+          ],
+          border: Border.all(color: AppColors.divider.withOpacity(0.8)),
         ),
         child: Column(
           children: [
@@ -54,7 +61,7 @@ class CashFlowSectionUI extends StatelessWidget {
                 return Material(
                   elevation: 6,
                   color: AppColors.surface,
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(24),
                   child: child,
                 );
               },

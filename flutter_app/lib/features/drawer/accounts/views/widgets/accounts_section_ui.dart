@@ -121,8 +121,15 @@ class AccountsSectionUI extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           color: AppColors.surface,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.divider),
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.04),
+              blurRadius: 10,
+              offset: const Offset(0, 3),
+            ),
+          ],
+          border: Border.all(color: AppColors.divider.withOpacity(0.8)),
         ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -141,11 +148,11 @@ class AccountsSectionUI extends StatelessWidget {
                   GestureDetector(
                     onTap: onAddClick,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
                       decoration: BoxDecoration(
-                        color: AppColors.primary.withOpacity(0.15),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppColors.primary.withOpacity(0.3)),
+                        color: AppColors.primary.withOpacity(0.12),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: AppColors.primary.withOpacity(0.25)),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,

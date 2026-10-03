@@ -11,8 +11,12 @@ class AppDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Drawer(
-      width: MediaQuery.of(context).size.width * 0.85,
+      width: MediaQuery.of(context).size.width * 0.86,
       backgroundColor: const Color(0xFFF8FAFC),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.horizontal(right: Radius.circular(32)),
+      ),
+      elevation: 12,
       child: const SafeArea(
         child: Column(
           children: [
