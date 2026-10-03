@@ -50,6 +50,8 @@ class RecurringExpenseSectionUI extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
+                const Icon(Icons.repeat_rounded, size: 14, color: AppColors.expense),
+                const SizedBox(width: 6),
                 Text('고정 지출 ($displayedItemCount)', style: GoogleFonts.notoSansKr(fontSize: 14, color: AppColors.textMain, fontWeight: FontWeight.w700)),
                 const Spacer(),
                 Text(formatNumber(totalExpense), style: GoogleFonts.notoSansKr(fontSize: 14, color: AppColors.textMain, fontWeight: FontWeight.w700)),

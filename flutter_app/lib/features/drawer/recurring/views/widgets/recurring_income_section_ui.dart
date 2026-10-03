@@ -37,6 +37,8 @@ class RecurringIncomeSectionUI extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
+                const Icon(Icons.repeat_rounded, size: 14, color: Color(0xFF059669)),
+                const SizedBox(width: 6),
                 Text('고정 수입 (${recurringTxs.length})', style: GoogleFonts.notoSansKr(fontSize: 14, color: AppColors.textMain, fontWeight: FontWeight.w700)),
                 const Spacer(),
                 Text(formatNumber(totalIncome), style: GoogleFonts.notoSansKr(fontSize: 14, color: AppColors.textMain, fontWeight: FontWeight.w700)),
