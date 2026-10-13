@@ -30,9 +30,16 @@ class _AssetBarChartWidgetState extends State<AssetBarChartWidget> {
   void initState() {
     super.initState();
     _scrollController = ScrollController();
+    _scrollController.addListener(_onScroll);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _scrollToSelectedDate(animate: false);
     });
+  }
+
+  void _onScroll() {
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   @override
@@ -47,6 +54,7 @@ class _AssetBarChartWidgetState extends State<AssetBarChartWidget> {
 
   @override
   void dispose() {
+    _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
     super.dispose();
   }
@@ -97,22 +105,65 @@ class _AssetBarChartWidgetState extends State<AssetBarChartWidget> {
     );
   }
 
+  // 현재 화면(가시 영역)에 보이는 데이터들의 최대 자산 금액을 계산
+  int _getVisibleMaxAsset(double itemWidth, double scrollAreaWidth) {
+    if (widget.dataList.isEmpty) return 30000000;
+
+    int startIndex = 0;
+    int endIndex = widget.dataList.length;
+
+    if (_scrollController.hasClients) {
+      final offset = _scrollController.offset;
+      startIndex = (offset / itemWidth).floor().clamp(0, widget.dataList.length - 1);
+      final visibleCount = (scrollAreaWidth / itemWidth).ceil() + 1;
+      endIndex = (startIndex + visibleCount).clamp(0, widget.dataList.length);
+    } else {
+      final selectedIdx = widget.dataList.indexWhere((d) {
+        if (widget.viewMode == AssetViewMode.monthly) {
+          return d.date.year == widget.selectedDate.year && d.date.month == widget.selectedDate.month;
+        } else {
+          return d.date.year == widget.selectedDate.year;
+        }
+      });
+      if (selectedIdx != -1) {
+        startIndex = (selectedIdx - 2).clamp(0, widget.dataList.length - 1);
+        endIndex = (selectedIdx + 3).clamp(0, widget.dataList.length);
+      }
+    }
+
+    final visibleItems = widget.dataList.sublist(startIndex, endIndex);
+    if (visibleItems.isEmpty) return widget.dataList.first.totalAsset;
+
+    return visibleItems.map((d) => d.totalAsset).fold<int>(0, (m, v) => v > m ? v : m);
+  }
+
+  // 현재 화면 중앙에 위치한 연도 계산
+  int _getDisplayedYear(double itemWidth, double scrollAreaWidth) {
+    if (!_scrollController.hasClients || widget.dataList.isEmpty) {
+      return widget.selectedDate.year;
+    }
+    final offset = _scrollController.offset;
+    final centerIndex = ((offset + scrollAreaWidth / 2) / itemWidth).floor().clamp(0, widget.dataList.length - 1);
+    return widget.dataList[centerIndex].date.year;
+  }
+
   @override
   Widget build(BuildContext context) {
     if (widget.dataList.isEmpty) return const SizedBox.shrink();
 
     final screenWidth = MediaQuery.of(context).size.width;
     const double yAxisWidth = 76.0;
+    final scrollAreaWidth = screenWidth - 16 - yAxisWidth;
     // 우측 Y축 레이블 공간을 제외한 가용 너비 기준으로 아이템 너비 계산
-    final itemWidth = (screenWidth - 16 - yAxisWidth) / 4.2;
+    final itemWidth = scrollAreaWidth / 4.2;
 
-    // 실제 자산 최고액 기준 동적 Y축 스케일 계산
-    final maxAsset = widget.dataList.map((d) => d.totalAsset).fold<int>(0, (m, v) => v > m ? v : m);
-    final yMax = _calculateYAxisMax(maxAsset);
+    // 현재 화면에 보이는 구간의 최대 금액을 기준으로 Y축 스케일 동적 산출 (바닥에 붙지 않고 꽉 차게 표시)
+    final visibleMax = _getVisibleMaxAsset(itemWidth, scrollAreaWidth);
+    final yMax = _calculateYAxisMax(visibleMax);
     final yMid = (yMax * 2) ~/ 3;
     final yLow = yMax ~/ 3;
 
-    final currentYear = widget.selectedDate.year.toString();
+    final displayedYear = _getDisplayedYear(itemWidth, scrollAreaWidth).toString();
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
@@ -126,7 +177,7 @@ class _AssetBarChartWidgetState extends State<AssetBarChartWidget> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  currentYear,
+                  displayedYear,
                   style: GoogleFonts.notoSansKr(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
@@ -209,12 +260,15 @@ class _AssetBarChartWidgetState extends State<AssetBarChartWidget> {
                         width: itemWidth,
                         child: Column(
                           children: [
-                            // 상단: 막대 영역
+                            // 상단: 막대 영역 (하단에 6px 여백을 두어 바닥에 붙지 않고 쾌적하게 꽉 차도록 렌더링)
                             SizedBox(
                               height: _barChartHeight,
                               child: Align(
                                 alignment: Alignment.bottomCenter,
-                                child: _buildSmoothBar(item, isSelected, yMax),
+                                child: Padding(
+                                  padding: const EdgeInsets.only(bottom: 6.0),
+                                  child: _buildSmoothBar(item, isSelected, yMax),
+                                ),
                               ),
                             ),
                             const SizedBox(height: 10),
@@ -267,11 +321,20 @@ class _AssetBarChartWidgetState extends State<AssetBarChartWidget> {
 
   // 가장 앞자리 단위 표시 (예: 억원, 천만원, 백만원, 만원, 천원, 백원, 원)
   String _formatLeadingUnit(int n) {
+    if (n <= 0) return '0원';
     if (n >= 100000000) {
       final eok = n ~/ 100000000;
+      final remain = (n % 100000000) ~/ 10000000;
+      if (remain > 0) {
+        return '$eok억$remain천만';
+      }
       return '$eok억원';
     } else if (n >= 10000000) {
       final cheon = n ~/ 10000000;
+      final remain = (n % 10000000) ~/ 1000000;
+      if (remain > 0) {
+        return '$cheon천$remain백만';
+      }
       return '$cheon천만원';
     } else if (n >= 1000000) {
       final baek = n ~/ 1000000;
@@ -293,10 +356,10 @@ class _AssetBarChartWidgetState extends State<AssetBarChartWidget> {
   // 모서리가 절대 깨지지 않는 완벽한 라운딩 스택 막대
   // -------------------------------------------------------------
   Widget _buildSmoothBar(MonthlyAssetData item, bool isSelected, int yMax) {
-    final double maxBarHeight = _barChartHeight - 12.0;
-    const double minBarHeight = 32.0;
+    final double maxBarHeight = _barChartHeight - 16.0;
+    const double minBarHeight = 44.0; // 최소 높이를 도톰하게 주어 바닥에 납작하게 붙지 않게 함
 
-    // 실제 총 자산에 비례한 전체 막대 높이
+    // 가시 영역 기준 총 자산 비례 막대 높이 계산
     final assetRatio = yMax > 0 ? (item.totalAsset.clamp(0, yMax) / yMax) : 0.0;
     final totalBarHeight = minBarHeight + (maxBarHeight - minBarHeight) * assetRatio;
 
@@ -402,27 +465,27 @@ class _AssetBarChartWidgetState extends State<AssetBarChartWidget> {
     );
   }
 
-  // 자산 최대치에 맞는 적절한 Y축 상한선 (3단계 눈금이 3천, 2천, 1천 등 앞자리 단위로 딱 떨어지도록 계산)
+  // 자산 최대치에 맞는 적절한 Y축 상한선 (갑자기 3억으로 점프하지 않고, 최대치에 약간의 여유를 둔 후 최적 단위로 계산)
   int _calculateYAxisMax(int maxAsset) {
     if (maxAsset <= 0) return 30000000;
-    final target = (maxAsset * 1.15).toInt();
+    final target = (maxAsset * 1.08).toInt();
 
-    // 3등분(yMax, 2/3, 1/3)이 앞자리 단위(3천, 2천, 1천 / 3억, 2억, 1억)로 정갈하게 나뉘도록 스텝 설정
     int step;
-    if (target <= 3000000) {
-      step = 3000000; // 3백, 2백, 1백
-    } else if (target <= 9000000) {
-      step = 3000000; // 6백(4백,2백) or 9백(6백,3백)
+    if (target <= 10000000) {
+      step = 2000000; // 2백만원 단위
     } else if (target <= 30000000) {
-      step = 30000000; // 3천, 2천, 1천
-    } else if (target <= 90000000) {
-      step = 30000000; // 6천(4천,2천) or 9천(6천,3천)
-    } else if (target <= 300000000) {
-      step = 300000000; // 3억, 2억, 1억
+      step = 5000000; // 5백만원 단위 (1500만, 2000만, 2500만, 3000만)
+    } else if (target <= 60000000) {
+      step = 10000000; // 1천만원 단위 (4천만, 5천만, 6천만)
+    } else if (target <= 100000000) {
+      step = 20000000; // 2천만원 단위 (8천만, 1억)
+    } else if (target <= 200000000) {
+      step = 25000000; // 2천5백만원 단위 (1억2500만, 1억5000만, 1억7500만, 2억)
     } else {
-      step = 300000000;
+      step = 50000000; // 5천만원 단위
     }
 
-    return ((target + step - 1) ~/ step) * step;
+    final rounded = ((target + step - 1) ~/ step) * step;
+    return rounded > 0 ? rounded : step;
   }
 }
