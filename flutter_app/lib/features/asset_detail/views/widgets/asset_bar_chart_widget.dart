@@ -65,9 +65,11 @@ class _AssetBarChartWidgetState extends State<AssetBarChartWidget> {
 
     if (selectedIdx != -1) {
       final screenWidth = MediaQuery.of(context).size.width;
-      final itemWidth = (screenWidth - 32) / 4.8;
-      // 선택된 항목이 화면 중앙에 오도록 스크롤
-      final targetOffset = (selectedIdx * itemWidth) - (screenWidth / 2) + (itemWidth / 2) + 16;
+      const double yAxisWidth = 64.0;
+      final itemWidth = (screenWidth - 16 - yAxisWidth) / 4.2;
+      final scrollAreaWidth = screenWidth - yAxisWidth;
+      // 선택된 항목이 스크롤 가용 영역 중앙에 오도록 스크롤
+      final targetOffset = (selectedIdx * itemWidth) - (scrollAreaWidth / 2) + (itemWidth / 2) + 16;
       final clampedOffset = targetOffset.clamp(0.0, _scrollController.position.maxScrollExtent);
 
       if (animate) {
@@ -85,7 +87,8 @@ class _AssetBarChartWidgetState extends State<AssetBarChartWidget> {
   void _scrollByStep(int direction) {
     if (!_scrollController.hasClients) return;
     final screenWidth = MediaQuery.of(context).size.width;
-    final itemWidth = (screenWidth - 32) / 4.8;
+    const double yAxisWidth = 64.0;
+    final itemWidth = (screenWidth - 16 - yAxisWidth) / 4.2;
     final target = _scrollController.offset + (direction * itemWidth * 2);
     final clamped = target.clamp(0.0, _scrollController.position.maxScrollExtent);
     _scrollController.animateTo(
@@ -100,8 +103,9 @@ class _AssetBarChartWidgetState extends State<AssetBarChartWidget> {
     if (widget.dataList.isEmpty) return const SizedBox.shrink();
 
     final screenWidth = MediaQuery.of(context).size.width;
-    // 한 화면에 약 4.8개가 보이도록 하여 자연스럽게 옆으로 스크롤됨을 시각적으로 유도
-    final itemWidth = (screenWidth - 32) / 4.8;
+    const double yAxisWidth = 64.0;
+    // 우측 Y축 레이블 공간을 제외한 가용 너비 기준으로 아이템 너비 계산
+    final itemWidth = (screenWidth - 16 - yAxisWidth) / 4.2;
 
     // 실제 자산 최고액 기준 동적 Y축 스케일 계산
     final maxAsset = widget.dataList.map((d) => d.totalAsset).fold<int>(0, (m, v) => v > m ? v : m);
@@ -160,29 +164,34 @@ class _AssetBarChartWidgetState extends State<AssetBarChartWidget> {
         ),
         const SizedBox(height: 6),
 
-        // 2. 통합 가로 스크롤 영역 (고정 배경 Y축 가이드선 + 스크롤되는 막대 및 캡슐 날짜)
+        // 2. 통합 가로 차트 영역 (배경 가이드선 + 독립 Y축 금액 레이블 + 좌측 스크롤 막대)
         SizedBox(
           height: _barChartHeight + 46, // 막대 높이(180) + 하단 캡슐 날짜(46)
           child: Stack(
             children: [
-              // 배경 고정 수평 가이드선 및 우측 Y축 레이블
-              Positioned.fill(
-                child: Padding(
-                  padding: const EdgeInsets.only(bottom: 46), // 날짜 높이 제외
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      _buildGuideLine(yMax),
-                      _buildGuideLine(yMid),
-                      _buildGuideLine(yLow),
-                      const Divider(color: Color(0xFFF1F5F9), height: 1),
-                    ],
-                  ),
+              // 배경 수평 가이드선 (화면 전체 너비에 걸쳐 연하게 깔림)
+              const Positioned(
+                left: 16,
+                right: 16,
+                top: 0,
+                bottom: 46,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Divider(color: Color(0xFFF1F5F9), height: 1),
+                    Divider(color: Color(0xFFF1F5F9), height: 1),
+                    Divider(color: Color(0xFFF1F5F9), height: 1),
+                    Divider(color: Color(0xFFF1F5F9), height: 1),
+                  ],
                 ),
               ),
 
-              // 가로 스크롤 가능한 막대 + 날짜 캡슐 목록 (자연스러운 제스처 스크롤)
-              Positioned.fill(
+              // 가로 스크롤 막대 + 날짜 캡슐 목록 (우측 Y축 금액 영역을 침범하지 않도록 right: yAxisWidth로 제한)
+              Positioned(
+                left: 0,
+                right: yAxisWidth,
+                top: 0,
+                bottom: 0,
                 child: ListView.builder(
                   controller: _scrollController,
                   scrollDirection: Axis.horizontal,
@@ -217,6 +226,24 @@ class _AssetBarChartWidgetState extends State<AssetBarChartWidget> {
                   },
                 ),
               ),
+
+              // 독립된 우측 고정 Y축 금액 레이블 (막대에 가려지지 않음)
+              Positioned(
+                right: 16,
+                top: 0,
+                bottom: 46,
+                width: yAxisWidth - 16,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    _buildYLabel(yMax),
+                    _buildYLabel(yMid),
+                    _buildYLabel(yLow),
+                    const SizedBox(height: 1),
+                  ],
+                ),
+              ),
             ],
           ),
         ),
@@ -224,26 +251,15 @@ class _AssetBarChartWidgetState extends State<AssetBarChartWidget> {
     );
   }
 
-  // -------------------------------------------------------------
-  // 가이드라인 및 Y축 눈금선 (동적 계산)
-  // -------------------------------------------------------------
-  Widget _buildGuideLine(int amount) {
-    return Row(
-      children: [
-        const Expanded(
-          child: Divider(color: Color(0xFFF1F5F9), height: 1),
-        ),
-        const SizedBox(width: 6),
-        Text(
-          '₩${formatCompactNumber(amount)}',
-          style: GoogleFonts.notoSansKr(
-            fontSize: 11,
-            fontWeight: FontWeight.w500,
-            color: const Color(0xFF94A3B8),
-          ),
-        ),
-        const SizedBox(width: 16),
-      ],
+  // Y축 텍스트 레이블 위젯
+  Widget _buildYLabel(int amount) {
+    return Text(
+      '₩${formatCompactNumber(amount)}',
+      style: GoogleFonts.notoSansKr(
+        fontSize: 11,
+        fontWeight: FontWeight.w600,
+        color: const Color(0xFF94A3B8),
+      ),
     );
   }
 
