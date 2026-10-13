@@ -64,7 +64,7 @@ class _AssetBarChartWidgetState extends State<AssetBarChartWidget> {
 
     if (selectedIdx != -1) {
       final screenWidth = MediaQuery.of(context).size.width;
-      const double yAxisWidth = 64.0;
+      const double yAxisWidth = 76.0;
       final itemWidth = (screenWidth - 16 - yAxisWidth) / 4.2;
       final scrollAreaWidth = screenWidth - yAxisWidth;
       // 선택된 항목이 스크롤 가용 영역 중앙에 오도록 스크롤
@@ -86,7 +86,7 @@ class _AssetBarChartWidgetState extends State<AssetBarChartWidget> {
   void _scrollByStep(int direction) {
     if (!_scrollController.hasClients) return;
     final screenWidth = MediaQuery.of(context).size.width;
-    const double yAxisWidth = 64.0;
+    const double yAxisWidth = 76.0;
     final itemWidth = (screenWidth - 16 - yAxisWidth) / 4.2;
     final target = _scrollController.offset + (direction * itemWidth * 2);
     final clamped = target.clamp(0.0, _scrollController.position.maxScrollExtent);
@@ -102,7 +102,7 @@ class _AssetBarChartWidgetState extends State<AssetBarChartWidget> {
     if (widget.dataList.isEmpty) return const SizedBox.shrink();
 
     final screenWidth = MediaQuery.of(context).size.width;
-    const double yAxisWidth = 64.0;
+    const double yAxisWidth = 76.0;
     // 우측 Y축 레이블 공간을 제외한 가용 너비 기준으로 아이템 너비 계산
     final itemWidth = (screenWidth - 16 - yAxisWidth) / 4.2;
 
@@ -265,22 +265,28 @@ class _AssetBarChartWidgetState extends State<AssetBarChartWidget> {
     );
   }
 
-  // 가장 앞자리 단위만 포맷팅 (예: 30,000,000 -> 3천, 300,000,000 -> 3억)
+  // 가장 앞자리 단위 표시 (예: 억원, 천만원, 백만원, 만원, 천원, 백원, 원)
   String _formatLeadingUnit(int n) {
     if (n >= 100000000) {
       final eok = n ~/ 100000000;
-      return '$eok억';
+      return '$eok억원';
     } else if (n >= 10000000) {
       final cheon = n ~/ 10000000;
-      return '$cheon천';
+      return '$cheon천만원';
     } else if (n >= 1000000) {
       final baek = n ~/ 1000000;
-      return '$baek백';
+      return '$baek백만원';
     } else if (n >= 10000) {
       final man = n ~/ 10000;
-      return '$man만';
+      return '$man만원';
+    } else if (n >= 1000) {
+      final cheon = n ~/ 1000;
+      return '$cheon천원';
+    } else if (n >= 100) {
+      final baek = n ~/ 100;
+      return '$baek백원';
     }
-    return n.toString();
+    return '$n원';
   }
 
   // -------------------------------------------------------------
