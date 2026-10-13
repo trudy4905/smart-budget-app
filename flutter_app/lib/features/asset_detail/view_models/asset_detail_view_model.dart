@@ -243,17 +243,51 @@ class AssetDetailViewModel extends ChangeNotifier {
   }
 
   // -------------------------------------------------------------
-  // 카테고리별 소비 및 수입 점유율 계산
+  // 카테고리별 소비 및 수입 점유율 계산 (카드 대금 등 결제 수단 정산은 제외하고 실제 소비 카테고리만 집계)
   // -------------------------------------------------------------
+  bool _isRealExpense(dynamic t) {
+    if (t.type != 'expense') return false;
+
+    // 1. 가상 카드 대금 정산 거래 (virtual_로 시작) 제외
+    final id = t.id as String? ?? '';
+    if (id.startsWith('virtual_')) return false;
+
+    // 2. 정산(isSettlement) 플래그 거래 제외
+    if (t.isSettlement == true) return false;
+
+    // 3. 메모에 '카드대금'이 포함된 정산 거래 제외
+    final memo = t.memo as String? ?? '';
+    if (memo.contains('카드대금')) return false;
+
+    // 4. 카테고리가 카드 대금/정산 관련인 경우 제외 (카드 대금은 결제 수단 정산임)
+    final cat = (t.category as String? ?? '').trim();
+    if (cat.endsWith('대금') ||
+        cat.endsWith('예정대금') ||
+        cat.contains('카드대금') ||
+        cat.contains('카드 대금')) {
+      return false;
+    }
+
+    return true;
+  }
+
+  bool _isRealIncome(dynamic t) {
+    if (t.type != 'income') return false;
+    final id = t.id as String? ?? '';
+    if (id.startsWith('virtual_')) return false;
+    if (t.isSettlement == true) return false;
+    return true;
+  }
+
   List<CategorySpendingItem> _getCategorySpendingsForMonth(int year, int month) {
     final txs = dashboardVM.getTransactionsForMonth(year, month, ignoreDrawerFilter: true);
-    final expenseTxs = txs.where((t) => t.type == 'expense').toList();
+    final expenseTxs = txs.where((t) => _isRealExpense(t)).toList();
     return _calculateCategoryBreakdown(expenseTxs);
   }
 
   List<CategorySpendingItem> _getCategoryIncomesForMonth(int year, int month) {
     final txs = dashboardVM.getTransactionsForMonth(year, month, ignoreDrawerFilter: true);
-    final incomeTxs = txs.where((t) => t.type == 'income').toList();
+    final incomeTxs = txs.where((t) => _isRealIncome(t)).toList();
     return _calculateCategoryBreakdown(incomeTxs);
   }
 
@@ -261,7 +295,7 @@ class AssetDetailViewModel extends ChangeNotifier {
     final allTxs = <dynamic>[];
     for (int m = 1; m <= 12; m++) {
       final txs = dashboardVM.getTransactionsForMonth(year, m, ignoreDrawerFilter: true);
-      allTxs.addAll(txs.where((t) => t.type == 'expense'));
+      allTxs.addAll(txs.where((t) => _isRealExpense(t)));
     }
     return _calculateCategoryBreakdown(allTxs);
   }
@@ -270,7 +304,7 @@ class AssetDetailViewModel extends ChangeNotifier {
     final allTxs = <dynamic>[];
     for (int m = 1; m <= 12; m++) {
       final txs = dashboardVM.getTransactionsForMonth(year, m, ignoreDrawerFilter: true);
-      allTxs.addAll(txs.where((t) => t.type == 'income'));
+      allTxs.addAll(txs.where((t) => _isRealIncome(t)));
     }
     return _calculateCategoryBreakdown(allTxs);
   }
