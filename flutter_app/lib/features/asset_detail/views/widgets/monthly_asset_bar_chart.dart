@@ -22,7 +22,6 @@ class MonthlyAssetBarChart extends StatefulWidget {
 
 class _MonthlyAssetBarChartState extends State<MonthlyAssetBarChart> {
   late final ScrollController _scrollController;
-  final double _barHeight = 140.0;
   final double _barWidth = 38.0;
 
   @override
@@ -84,20 +83,26 @@ class _MonthlyAssetBarChartState extends State<MonthlyAssetBarChart> {
         // 가로 스크롤 막대그래프 영역
         SizedBox(
           height: 256,
-          child: ListView.builder(
-            controller: _scrollController,
-            scrollDirection: Axis.horizontal,
-            physics: const BouncingScrollPhysics(),
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            itemCount: widget.dataList.length,
-            itemBuilder: (context, index) {
-              final item = widget.dataList[index];
-              final isSelected = item.month.year == widget.selectedMonth.year &&
-                  item.month.month == widget.selectedMonth.month;
+          child: Builder(
+            builder: (context) {
+              final maxAsset = widget.dataList.map((d) => d.totalAsset).fold<int>(0, (prev, val) => val > prev ? val : prev);
 
-              return SizedBox(
-                width: itemWidth,
-                child: _buildBarColumn(item, isSelected),
+              return ListView.builder(
+                controller: _scrollController,
+                scrollDirection: Axis.horizontal,
+                physics: const BouncingScrollPhysics(),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                itemCount: widget.dataList.length,
+                itemBuilder: (context, index) {
+                  final item = widget.dataList[index];
+                  final isSelected = item.month.year == widget.selectedMonth.year &&
+                      item.month.month == widget.selectedMonth.month;
+
+                  return SizedBox(
+                    width: itemWidth,
+                    child: _buildBarColumn(item, isSelected, maxAsset),
+                  );
+                },
               );
             },
           ),
@@ -131,10 +136,18 @@ class _MonthlyAssetBarChartState extends State<MonthlyAssetBarChart> {
     );
   }
 
-  Widget _buildBarColumn(MonthlyAssetData item, bool isSelected) {
+  Widget _buildBarColumn(MonthlyAssetData item, bool isSelected, int maxAsset) {
     final totalFlow = item.totalIncome + item.totalExpense;
     final incomeRatio = totalFlow > 0 ? (item.totalIncome / totalFlow) : 0.0;
     final expenseRatio = totalFlow > 0 ? (item.totalExpense / totalFlow) : 0.0;
+
+    // 총 자산에 비례하여 막대 전체 높이 계산 (최소 36px ~ 최대 140px)
+    const double minHeight = 36.0;
+    const double maxHeight = 140.0;
+    final double assetRatio = maxAsset > 0
+        ? (item.totalAsset.clamp(0, maxAsset) / maxAsset)
+        : 0.0;
+    final double calculatedBarHeight = minHeight + (maxHeight - minHeight) * assetRatio;
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
@@ -168,10 +181,12 @@ class _MonthlyAssetBarChartState extends State<MonthlyAssetBarChart> {
             ),
             const SizedBox(height: 8),
 
-            // 2. 수입/지출 비율 스택 막대
-            Container(
+            // 2. 수입/지출 비율 스택 막대 (높이는 총 자산에 비례)
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeOutCubic,
               width: _barWidth,
-              height: _barHeight,
+              height: calculatedBarHeight,
               decoration: BoxDecoration(
                 color: const Color(0xFFE2E8F0),
                 borderRadius: BorderRadius.circular(12),
@@ -207,7 +222,7 @@ class _MonthlyAssetBarChartState extends State<MonthlyAssetBarChart> {
                                 width: double.infinity,
                                 color: const Color(0xFFF43F5E),
                                 alignment: Alignment.center,
-                                child: (expenseRatio >= 0.25)
+                                child: (calculatedBarHeight * expenseRatio >= 20 && expenseRatio >= 0.2)
                                     ? Text(
                                         '${(expenseRatio * 100).round()}%',
                                         style: GoogleFonts.notoSansKr(
@@ -230,7 +245,7 @@ class _MonthlyAssetBarChartState extends State<MonthlyAssetBarChart> {
                                 width: double.infinity,
                                 color: const Color(0xFF10B981),
                                 alignment: Alignment.center,
-                                child: (incomeRatio >= 0.25)
+                                child: (calculatedBarHeight * incomeRatio >= 20 && incomeRatio >= 0.2)
                                     ? Text(
                                         '${(incomeRatio * 100).round()}%',
                                         style: GoogleFonts.notoSansKr(
