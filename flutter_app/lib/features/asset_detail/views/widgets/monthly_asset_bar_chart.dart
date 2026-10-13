@@ -22,7 +22,7 @@ class MonthlyAssetBarChart extends StatefulWidget {
 
 class _MonthlyAssetBarChartState extends State<MonthlyAssetBarChart> {
   late final ScrollController _scrollController;
-  final double _barHeight = 150.0;
+  final double _barHeight = 140.0;
   final double _barWidth = 38.0;
 
   @override
@@ -83,7 +83,7 @@ class _MonthlyAssetBarChartState extends State<MonthlyAssetBarChart> {
 
         // 가로 스크롤 막대그래프 영역
         SizedBox(
-          height: 240,
+          height: 256,
           child: ListView.builder(
             controller: _scrollController,
             scrollDirection: Axis.horizontal,
