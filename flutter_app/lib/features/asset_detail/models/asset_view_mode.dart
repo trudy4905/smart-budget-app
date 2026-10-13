@@ -1,0 +1,4 @@
+enum AssetViewMode {
+  monthly,
+  yearly,
+}
