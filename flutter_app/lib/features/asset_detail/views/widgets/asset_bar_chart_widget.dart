@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_app/features/asset_detail/models/monthly_asset_data.dart';
 import 'package:flutter_app/features/asset_detail/models/asset_view_mode.dart';
-import 'package:flutter_app/core/utils/helpers.dart';
 
 class AssetBarChartWidget extends StatefulWidget {
   final AssetViewMode viewMode;
@@ -115,152 +114,173 @@ class _AssetBarChartWidgetState extends State<AssetBarChartWidget> {
 
     final currentYear = widget.selectedDate.year.toString();
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // 1. 기준 연도 및 좌우 화살표 내비게이션 바
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                currentYear,
-                style: GoogleFonts.notoSansKr(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                  color: const Color(0xFF64748B),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 1. 기준 연도 및 좌우 화살표 내비게이션 바
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  currentYear,
+                  style: GoogleFonts.notoSansKr(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: const Color(0xFF64748B),
+                  ),
                 ),
-              ),
-              Row(
-                children: [
-                  GestureDetector(
-                    onTap: () => _scrollByStep(-1),
-                    child: Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFF1F5F9),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(Icons.chevron_left_rounded, size: 18, color: Color(0xFF64748B)),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  GestureDetector(
-                    onTap: () => _scrollByStep(1),
-                    child: Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFF1F5F9),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(Icons.chevron_right_rounded, size: 18, color: Color(0xFF64748B)),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 6),
-
-        // 2. 통합 가로 차트 영역 (배경 가이드선 + 독립 Y축 금액 레이블 + 좌측 스크롤 막대)
-        SizedBox(
-          height: _barChartHeight + 46, // 막대 높이(180) + 하단 캡슐 날짜(46)
-          child: Stack(
-            children: [
-              // 배경 수평 가이드선 (화면 전체 너비에 걸쳐 연하게 깔림)
-              const Positioned(
-                left: 16,
-                right: 16,
-                top: 0,
-                bottom: 46,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                Row(
                   children: [
-                    Divider(color: Color(0xFFF1F5F9), height: 1),
-                    Divider(color: Color(0xFFF1F5F9), height: 1),
-                    Divider(color: Color(0xFFF1F5F9), height: 1),
-                    Divider(color: Color(0xFFF1F5F9), height: 1),
+                    GestureDetector(
+                      onTap: () => _scrollByStep(-1),
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: const BoxDecoration(
+                          color: Color(0xFFF1F5F9),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.chevron_left_rounded, size: 18, color: Color(0xFF64748B)),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    GestureDetector(
+                      onTap: () => _scrollByStep(1),
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: const BoxDecoration(
+                          color: Color(0xFFF1F5F9),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.chevron_right_rounded, size: 18, color: Color(0xFF64748B)),
+                      ),
+                    ),
                   ],
                 ),
-              ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 6),
 
-              // 가로 스크롤 막대 + 날짜 캡슐 목록 (우측 Y축 금액 영역을 침범하지 않도록 right: yAxisWidth로 제한)
-              Positioned(
-                left: 0,
-                right: yAxisWidth,
-                top: 0,
-                bottom: 0,
-                child: ListView.builder(
-                  controller: _scrollController,
-                  scrollDirection: Axis.horizontal,
-                  physics: const BouncingScrollPhysics(),
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  itemCount: widget.dataList.length,
-                  itemBuilder: (context, index) {
-                    final item = widget.dataList[index];
-                    final isSelected = widget.viewMode == AssetViewMode.monthly
-                        ? (item.date.year == widget.selectedDate.year && item.date.month == widget.selectedDate.month)
-                        : (item.date.year == widget.selectedDate.year);
+          // 2. 통합 가로 차트 영역 (배경 가이드선 + 독립 Y축 금액 레이블 + 좌측 스크롤 막대)
+          SizedBox(
+            height: _barChartHeight + 46, // 막대 높이(180) + 하단 캡슐 날짜(46)
+            child: Stack(
+              children: [
+                // 배경 수평 가이드선 (화면 전체 너비에 걸쳐 연하게 깔림)
+                const Positioned(
+                  left: 4,
+                  right: 4,
+                  top: 0,
+                  bottom: 46,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Divider(color: Color(0xFFF1F5F9), height: 1),
+                      Divider(color: Color(0xFFF1F5F9), height: 1),
+                      Divider(color: Color(0xFFF1F5F9), height: 1),
+                      Divider(color: Color(0xFFF1F5F9), height: 1),
+                    ],
+                  ),
+                ),
 
-                    return SizedBox(
-                      width: itemWidth,
-                      child: Column(
-                        children: [
-                          // 상단: 막대 영역
-                          SizedBox(
-                            height: _barChartHeight,
-                            child: Align(
-                              alignment: Alignment.bottomCenter,
-                              child: _buildSmoothBar(item, isSelected, yMax),
+                // 가로 스크롤 막대 + 날짜 캡슐 목록 (우측 Y축 금액 영역을 침범하지 않도록 right: yAxisWidth로 제한)
+                Positioned(
+                  left: 0,
+                  right: yAxisWidth,
+                  top: 0,
+                  bottom: 0,
+                  child: ListView.builder(
+                    controller: _scrollController,
+                    scrollDirection: Axis.horizontal,
+                    physics: const BouncingScrollPhysics(),
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    itemCount: widget.dataList.length,
+                    itemBuilder: (context, index) {
+                      final item = widget.dataList[index];
+                      final isSelected = widget.viewMode == AssetViewMode.monthly
+                          ? (item.date.year == widget.selectedDate.year && item.date.month == widget.selectedDate.month)
+                          : (item.date.year == widget.selectedDate.year);
+
+                      return SizedBox(
+                        width: itemWidth,
+                        child: Column(
+                          children: [
+                            // 상단: 막대 영역
+                            SizedBox(
+                              height: _barChartHeight,
+                              child: Align(
+                                alignment: Alignment.bottomCenter,
+                                child: _buildSmoothBar(item, isSelected, yMax),
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 10),
+                            const SizedBox(height: 10),
 
-                          // 하단: 블랙 캡슐 알약 날짜 버튼
-                          _buildDatePill(item, isSelected),
-                        ],
-                      ),
-                    );
-                  },
+                            // 하단: 블랙 캡슐 알약 날짜 버튼
+                            _buildDatePill(item, isSelected),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
                 ),
-              ),
 
-              // 독립된 우측 고정 Y축 금액 레이블 (막대에 가려지지 않음)
-              Positioned(
-                right: 16,
-                top: 0,
-                bottom: 46,
-                width: yAxisWidth - 16,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    _buildYLabel(yMax),
-                    _buildYLabel(yMid),
-                    _buildYLabel(yLow),
-                    const SizedBox(height: 1),
-                  ],
+                // 독립된 우측 고정 Y축 금액 레이블 (막대에 가려지지 않음)
+                Positioned(
+                  right: 4,
+                  top: 0,
+                  bottom: 46,
+                  width: yAxisWidth - 10,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      _buildYLabel(yMax),
+                      _buildYLabel(yMid),
+                      _buildYLabel(yLow),
+                      const SizedBox(height: 1),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
-  // Y축 텍스트 레이블 위젯
+  // Y축 텍스트 레이블 위젯 (3천, 3억 등 가장 앞자리 단위만 표시)
   Widget _buildYLabel(int amount) {
     return Text(
-      '₩${formatCompactNumber(amount)}',
+      _formatLeadingUnit(amount),
       style: GoogleFonts.notoSansKr(
         fontSize: 11,
         fontWeight: FontWeight.w600,
         color: const Color(0xFF94A3B8),
       ),
     );
+  }
+
+  // 가장 앞자리 단위만 포맷팅 (예: 30,000,000 -> 3천, 300,000,000 -> 3억)
+  String _formatLeadingUnit(int n) {
+    if (n >= 100000000) {
+      final eok = n ~/ 100000000;
+      return '$eok억';
+    } else if (n >= 10000000) {
+      final cheon = n ~/ 10000000;
+      return '$cheon천';
+    } else if (n >= 1000000) {
+      final baek = n ~/ 1000000;
+      return '$baek백';
+    } else if (n >= 10000) {
+      final man = n ~/ 10000;
+      return '$man만';
+    }
+    return n.toString();
   }
 
   // -------------------------------------------------------------
@@ -376,22 +396,25 @@ class _AssetBarChartWidgetState extends State<AssetBarChartWidget> {
     );
   }
 
-  // 자산 최대치에 맞는 적절한 Y축 상한선(올림) 유연한 동적 계산
+  // 자산 최대치에 맞는 적절한 Y축 상한선 (3단계 눈금이 3천, 2천, 1천 등 앞자리 단위로 딱 떨어지도록 계산)
   int _calculateYAxisMax(int maxAsset) {
-    if (maxAsset <= 0) return 3000000;
-    // 막대가 차트 최상단에 닿지 않도록 약 15% 여유 공간 확보
+    if (maxAsset <= 0) return 30000000;
     final target = (maxAsset * 1.15).toInt();
 
-    // 자산 규모에 맞춘 세밀한 올림 스텝 (100만 / 200만 / 500만 / 1000만)
+    // 3등분(yMax, 2/3, 1/3)이 앞자리 단위(3천, 2천, 1천 / 3억, 2억, 1억)로 정갈하게 나뉘도록 스텝 설정
     int step;
-    if (target <= 5000000) {
-      step = 1000000; // 100만 단위
+    if (target <= 3000000) {
+      step = 3000000; // 3백, 2백, 1백
+    } else if (target <= 9000000) {
+      step = 3000000; // 6백(4백,2백) or 9백(6백,3백)
     } else if (target <= 30000000) {
-      step = 2000000; // 200만 단위 (예: 2,200만, 2,400만 등)
-    } else if (target <= 100000000) {
-      step = 5000000; // 500만 단위
+      step = 30000000; // 3천, 2천, 1천
+    } else if (target <= 90000000) {
+      step = 30000000; // 6천(4천,2천) or 9천(6천,3천)
+    } else if (target <= 300000000) {
+      step = 300000000; // 3억, 2억, 1억
     } else {
-      step = 10000000; // 1,000만 단위
+      step = 300000000;
     }
 
     return ((target + step - 1) ~/ step) * step;
