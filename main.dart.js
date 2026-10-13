@@ -87101,7 +87101,7 @@ q.toString
 p.iH(B.c.jS((r-1.5)*((s.a.a-32)/4),0,q),B.fy,B.N1)}},
 F(a){var s=this,r=A.bu(a,null,t.l).w,q=t.p,p=A.b7(A.a([s.MF("\uc218\uc785",B.fq),B.a6o,s.MF("\uc9c0\ucd9c",B.l8)],q),B.o,B.eI,B.n),o=s.d
 o===$&&A.b()
-return A.bn(A.a([new A.aV(B.NI,p,null),A.c4(A.aIE(o,new A.avS(s,(r.a.a-32)/4),s.a.c.length,B.d0,B.o_,B.aV,!1),240,null)],q),B.aj,B.m,B.n)},
+return A.bn(A.a([new A.aV(B.NI,p,null),A.c4(A.aIE(o,new A.avS(s,(r.a.a-32)/4),s.a.c.length,B.d0,B.o_,B.aV,!1),256,null)],q),B.aj,B.m,B.n)},
 MF(a,b){var s=null
 return A.b7(A.a([A.aS(s,s,B.l,s,s,new A.aK(b,s,s,s,s,s,B.bm),s,8,s,s,s,s,8),B.k5,A.P(a,s,s,s,A.S().$3$color$fontSize$fontWeight(B.S,12,B.aq),s,s)],t.p),B.o,B.m,B.ak)},
 a5z(a,b){var s,r,q,p,o,n,m,l=null,k=a.c+a.e,j=a.d+a.f,i=k+j,h=i>0,g=h?k/i:0,f=h?j/i:0
@@ -87121,7 +87121,7 @@ n=f>0
 if(n){m=B.c.aK(f*1000)
 o.push(A.d9(A.aS(B.a1,f>=0.25?A.P(""+B.c.af(f*100)+"%",l,l,l,A.S().$3$color$fontSize$fontWeight(B.i,9,B.B),l,l):l,B.l,B.l8,l,l,l,l,l,l,l,l,1/0),m))}if(n&&g>0)o.push(A.aS(l,l,B.l,A.F(102,255,255,255),l,l,l,1,l,l,l,l,l))
 if(g>0){n=B.c.aK(g*1000)
-o.push(A.d9(A.aS(B.a1,g>=0.25?A.P(""+B.c.af(g*100)+"%",l,l,l,A.S().$3$color$fontSize$fontWeight(B.i,9,B.B),l,l):l,B.l,B.fq,l,l,l,l,l,l,l,l,1/0),n))}o=A.bn(o,B.o,B.m,B.n)}q=A.aS(l,A.JJ(p,o,B.bE),B.l,l,l,new A.aK(B.b6,l,l,r,q,l,B.C),l,150,l,l,l,l,38)
+o.push(A.d9(A.aS(B.a1,g>=0.25?A.P(""+B.c.af(g*100)+"%",l,l,l,A.S().$3$color$fontSize$fontWeight(B.i,9,B.B),l,l):l,B.l,B.fq,l,l,l,l,l,l,l,l,1/0),n))}o=A.bn(o,B.o,B.m,B.n)}q=A.aS(l,A.JJ(p,o,B.bE),B.l,l,l,new A.aK(B.b6,l,l,r,q,l,B.C),l,140,l,l,l,l,38)
 r=t.p
 o=A.a([],r)
 if(a.gr4())o.push(A.aS(l,l,B.l,l,l,B.IV,l,5,B.Nh,l,l,l,5))
