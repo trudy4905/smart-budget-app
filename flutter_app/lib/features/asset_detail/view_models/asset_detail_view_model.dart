@@ -72,16 +72,35 @@ class AssetDetailViewModel extends ChangeNotifier {
   MonthlyAssetData getSelectedMonthData() => getSelectedData();
 
   // -------------------------------------------------------------
-  // 월별 데이터 집계
+  // 월별 데이터 집계 (과거 전체 ~ 미래 3년치)
   // -------------------------------------------------------------
   List<MonthlyAssetData> _getMonthlyDataList() {
     final now = DateTime.now();
     final currentMonthStart = DateTime(now.year, now.month, 1);
     final currentNetAsset = dashboardVM.getFilteredNetAssets();
 
-    // 과거 5개월 ~ 미래 6개월 총 12개월 생성
+    // 1. 가장 과거 거래 일자 탐색 (기본값: 최소 2년 전)
+    DateTime earliest = DateTime(now.year - 2, 1, 1);
+    for (final t in dashboardVM.transactions) {
+      final parts = t.date.split('-');
+      if (parts.length >= 3) {
+        final y = int.tryParse(parts[0]);
+        final m = int.tryParse(parts[1]);
+        if (y != null && m != null) {
+          final d = DateTime(y, m, 1);
+          if (d.isBefore(earliest)) {
+            earliest = d;
+          }
+        }
+      }
+    }
+
+    // 과거 개월 수 및 미래 3년(36개월) 계산
+    final pastMonthsCount = (now.year * 12 + now.month) - (earliest.year * 12 + earliest.month);
+    const futureMonthsCount = 36; // 미래 3년치
+
     final months = <DateTime>[];
-    for (int i = -5; i <= 6; i++) {
+    for (int i = -pastMonthsCount; i <= futureMonthsCount; i++) {
       int y = now.year;
       int m = now.month + i;
       while (m < 1) { m += 12; y--; }
@@ -104,9 +123,9 @@ class AssetDetailViewModel extends ChangeNotifier {
     final assetMap = <DateTime, int>{};
     assetMap[currentMonthStart] = currentNetAsset;
 
-    // 미래 (+1 ~ +6)
+    // 미래 (+1 ~ +36)
     int runningAsset = currentNetAsset;
-    for (int i = 1; i <= 6; i++) {
+    for (int i = 1; i <= futureMonthsCount; i++) {
       int y = now.year;
       int m = now.month + i;
       while (m < 1) { m += 12; y--; }
@@ -118,9 +137,9 @@ class AssetDetailViewModel extends ChangeNotifier {
       assetMap[target] = runningAsset;
     }
 
-    // 과거 (-1 ~ -5)
+    // 과거 (-1 ~ -pastMonthsCount)
     int backAsset = currentNetAsset;
-    for (int i = -1; i >= -5; i--) {
+    for (int i = -1; i >= -pastMonthsCount; i--) {
       int y = now.year;
       int m = now.month + i;
       while (m < 1) { m += 12; y--; }
@@ -159,13 +178,28 @@ class AssetDetailViewModel extends ChangeNotifier {
   }
 
   // -------------------------------------------------------------
-  // 연도별 데이터 집계
+  // 연도별 데이터 집계 (과거 전체 ~ 미래 3년치)
   // -------------------------------------------------------------
   List<MonthlyAssetData> _getYearlyDataList() {
     final now = DateTime.now();
-    final currentNetAsset = dashboardVM.getFilteredNetAssets();
-    // 최근 3개년 ~ 내년 (예: 2024, 2025, 2026, 2027)
-    final years = [now.year - 2, now.year - 1, now.year, now.year + 1];
+
+    // 가장 과거 연도 탐색
+    int startYear = now.year - 2;
+    for (final t in dashboardVM.transactions) {
+      final parts = t.date.split('-');
+      if (parts.isNotEmpty) {
+        final y = int.tryParse(parts[0]);
+        if (y != null && y < startYear) {
+          startYear = y;
+        }
+      }
+    }
+
+    // 과거 전체 연도 ~ 미래 3개년 (now.year + 3)
+    final years = <int>[];
+    for (int y = startYear; y <= now.year + 3; y++) {
+      years.add(y);
+    }
 
     final monthlyList = _getMonthlyDataList();
 
@@ -183,27 +217,12 @@ class AssetDetailViewModel extends ChangeNotifier {
         totalUpExpense += summary.totalUpcomingExpense;
       }
 
-      // 해당 연도 말 시점의 총자산 추정치
-      int estimatedAsset = currentNetAsset;
-      if (year == now.year) {
-        // 올해 말 예상 자산: 12월 데이터 기준
-        final decData = monthlyList.firstWhere(
-          (d) => d.date.year == year && d.date.month == 12,
-          orElse: () => monthlyList.last,
-        );
-        estimatedAsset = decData.totalAsset;
-      } else if (year < now.year) {
-        final targetDec = DateTime(year, 12, 1);
-        final found = monthlyList.firstWhere(
-          (d) => d.date.year == targetDec.year && d.date.month == targetDec.month,
-          orElse: () => monthlyList.first,
-        );
-        estimatedAsset = found.totalAsset;
-      } else {
-        // 미래 연도 말 자산
-        final net = (totalIncome + totalUpIncome) - (totalExpense + totalUpExpense);
-        estimatedAsset = currentNetAsset + net;
-      }
+      // 해당 연도 12월 시점의 총자산 추정치
+      final decData = monthlyList.firstWhere(
+        (d) => d.date.year == year && d.date.month == 12,
+        orElse: () => monthlyList.last,
+      );
+      final estimatedAsset = decData.totalAsset;
 
       final catSpendings = _getCategorySpendingsForYear(year);
       final catIncomes = _getCategoryIncomesForYear(year);
