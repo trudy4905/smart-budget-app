@@ -360,13 +360,24 @@ class _AssetBarChartWidgetState extends State<AssetBarChartWidget> {
     );
   }
 
-  // 자산 최대치에 맞는 적절한 Y축 상한선(올림) 계산
+  // 자산 최대치에 맞는 적절한 Y축 상한선(올림) 유연한 동적 계산
   int _calculateYAxisMax(int maxAsset) {
-    if (maxAsset <= 0) return 6000000;
-    if (maxAsset <= 6000000) return 6000000;
-    if (maxAsset <= 10000000) return 10000000;
-    if (maxAsset <= 20000000) return 20000000;
-    if (maxAsset <= 50000000) return 50000000;
-    return ((maxAsset + 9999999) ~/ 10000000) * 10000000;
+    if (maxAsset <= 0) return 3000000;
+    // 막대가 차트 최상단에 닿지 않도록 약 15% 여유 공간 확보
+    final target = (maxAsset * 1.15).toInt();
+
+    // 자산 규모에 맞춘 세밀한 올림 스텝 (100만 / 200만 / 500만 / 1000만)
+    int step;
+    if (target <= 5000000) {
+      step = 1000000; // 100만 단위
+    } else if (target <= 30000000) {
+      step = 2000000; // 200만 단위 (예: 2,200만, 2,400만 등)
+    } else if (target <= 100000000) {
+      step = 5000000; // 500만 단위
+    } else {
+      step = 10000000; // 1,000만 단위
+    }
+
+    return ((target + step - 1) ~/ step) * step;
   }
 }
