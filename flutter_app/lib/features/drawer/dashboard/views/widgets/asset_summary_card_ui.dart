@@ -11,6 +11,7 @@ class AssetSummaryCardUI extends StatelessWidget {
   final VoidCallback onToggleVisibility;
   final void Function(DateTime date) onChangeDate;
   final Future<DateTime?> Function(BuildContext context, DateTime initialDate) onShowDatePicker;
+  final VoidCallback? onOpenDetail;
 
   const AssetSummaryCardUI({
     super.key,
@@ -20,6 +21,7 @@ class AssetSummaryCardUI extends StatelessWidget {
     required this.onToggleVisibility,
     required this.onChangeDate,
     required this.onShowDatePicker,
+    this.onOpenDetail,
   });
 
   @override
@@ -130,20 +132,50 @@ class AssetSummaryCardUI extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 10),
-            ImageFiltered(
-              imageFilter: ImageFilter.blur(
-                sigmaX: isAssetVisible ? 0 : 8,
-                sigmaY: isAssetVisible ? 0 : 8,
-              ),
-              child: Text(
-                '${formatNumber(totalAssets)}원',
-                style: GoogleFonts.notoSansKr(
-                  fontSize: 28,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.textMain,
-                  letterSpacing: -0.5,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                ImageFiltered(
+                  imageFilter: ImageFilter.blur(
+                    sigmaX: isAssetVisible ? 0 : 8,
+                    sigmaY: isAssetVisible ? 0 : 8,
+                  ),
+                  child: Text(
+                    '${formatNumber(totalAssets)}원',
+                    style: GoogleFonts.notoSansKr(
+                      fontSize: 28,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.textMain,
+                      letterSpacing: -0.5,
+                    ),
+                  ),
                 ),
-              ),
+                if (onOpenDetail != null)
+                  GestureDetector(
+                    onTap: onOpenDetail,
+                    child: Container(
+                      padding: const EdgeInsets.all(7),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.06),
+                            blurRadius: 6,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                        border: Border.all(color: const Color(0xFFE2E8F0)),
+                      ),
+                      child: const Icon(
+                        Icons.chevron_right_rounded,
+                        size: 20,
+                        color: AppColors.textMain,
+                      ),
+                    ),
+                  ),
+              ],
             ),
           ],
         ),

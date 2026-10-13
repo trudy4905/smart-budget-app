@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:flutter_app/features/drawer/dashboard/view_models/dashboard_view_model.dart';
 import 'package:flutter_app/core/providers/ui_view_model.dart';
 import 'package:flutter_app/features/drawer/dashboard/views/widgets/asset_summary_card_ui.dart';
+import 'package:flutter_app/features/asset_detail/views/asset_detail_screen.dart';
 
 class AssetSummaryCard extends StatelessWidget {
   const AssetSummaryCard({super.key});
@@ -25,6 +26,11 @@ class AssetSummaryCard extends StatelessWidget {
             firstDate: DateTime(2000),
             lastDate: DateTime(2100),
           ),
+          onOpenDetail: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const AssetDetailScreen()),
+            );
+          },
         );
       },
     );
