@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_app/features/asset_detail/models/monthly_asset_data.dart';
+import 'package:flutter_app/features/asset_detail/models/category_spending_item.dart';
 import 'package:flutter_app/core/utils/helpers.dart';
 import 'package:flutter_app/core/theme/app_colors.dart';
 
@@ -128,14 +129,14 @@ class AssetDetailCardWidget extends StatelessWidget {
             const Divider(color: Color(0xFFF1F5F9), height: 1),
 
             // ---------------------------------------------------------
-            // [아코디언 1] 수입/지출 상세 내역 ⌵
+            // [아코디언 1] 카테고리별 수입 통계 ⌵
             // ---------------------------------------------------------
             Theme(
               data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
               child: ExpansionTile(
                 tilePadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 2),
                 title: Text(
-                  '수입 / 지출 상세 내역',
+                  '카테고리별 수입 통계',
                   style: GoogleFonts.notoSansKr(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -144,53 +145,10 @@ class AssetDetailCardWidget extends StatelessWidget {
                 ),
                 children: [
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                    child: Column(
-                      children: [
-                        Row(
-                          children: [
-                            Expanded(
-                              child: _buildSubMetricCard(
-                                title: '확정 수입',
-                                amount: data.income,
-                                color: const Color(0xFF10B981),
-                                icon: Icons.south_west_rounded,
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: _buildSubMetricCard(
-                                title: '예정 수입',
-                                amount: data.upcomingIncome,
-                                color: const Color(0xFF0284C7),
-                                icon: Icons.schedule_rounded,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: _buildSubMetricCard(
-                                title: '확정 지출',
-                                amount: data.expense,
-                                color: const Color(0xFFF43F5E),
-                                icon: Icons.north_east_rounded,
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: _buildSubMetricCard(
-                                title: '예정 지출',
-                                amount: data.upcomingExpense,
-                                color: const Color(0xFFF59E0B),
-                                icon: Icons.event_repeat_rounded,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
+                    padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+                    child: _buildCategoryList(
+                      data.categoryIncomes,
+                      '해당 기간에 발생한 수입 내역이 없습니다.',
                     ),
                   ),
                 ],
@@ -217,73 +175,10 @@ class AssetDetailCardWidget extends StatelessWidget {
                 children: [
                   Padding(
                     padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
-                    child: data.categorySpendings.isEmpty
-                        ? Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            child: Text(
-                              '해당 기간에 발생한 지출 내역이 없습니다.',
-                              style: GoogleFonts.notoSansKr(
-                                fontSize: 13,
-                                color: AppColors.textSub,
-                              ),
-                            ),
-                          )
-                        : Column(
-                            children: data.categorySpendings.map((cat) {
-                              return Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 8),
-                                child: Column(
-                                  children: [
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Row(
-                                          children: [
-                                            Text(cat.emoji, style: const TextStyle(fontSize: 15)),
-                                            const SizedBox(width: 8),
-                                            Text(
-                                              cat.category,
-                                              style: GoogleFonts.notoSansKr(
-                                                fontSize: 13,
-                                                fontWeight: FontWeight.w600,
-                                                color: AppColors.textMain,
-                                              ),
-                                            ),
-                                            const SizedBox(width: 6),
-                                            Text(
-                                              '(${(cat.percentage * 100).toStringAsFixed(1)}%)',
-                                              style: GoogleFonts.notoSansKr(
-                                                fontSize: 12,
-                                                color: AppColors.textSub,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        Text(
-                                          '₩${formatNumber(cat.amount)}',
-                                          style: GoogleFonts.notoSansKr(
-                                            fontSize: 13,
-                                            fontWeight: FontWeight.w700,
-                                            color: AppColors.textMain,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 6),
-                                    ClipRRect(
-                                      borderRadius: BorderRadius.circular(4),
-                                      child: LinearProgressIndicator(
-                                        value: cat.percentage.clamp(0.0, 1.0),
-                                        minHeight: 6,
-                                        backgroundColor: const Color(0xFFF1F5F9),
-                                        valueColor: AlwaysStoppedAnimation<Color>(cat.color),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            }).toList(),
-                          ),
+                    child: _buildCategoryList(
+                      data.categorySpendings,
+                      '해당 기간에 발생한 지출 내역이 없습니다.',
+                    ),
                   ),
                 ],
               ),
@@ -338,51 +233,75 @@ class AssetDetailCardWidget extends StatelessWidget {
     );
   }
 
-  // 서브 메트릭 미니 카드
-  Widget _buildSubMetricCard({
-    required String title,
-    required int amount,
-    required Color color,
-    required IconData icon,
-  }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+  Widget _buildCategoryList(List<CategorySpendingItem> items, String emptyMessage) {
+    if (items.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        child: Text(
+          emptyMessage,
+          style: GoogleFonts.notoSansKr(
+            fontSize: 13,
+            color: AppColors.textSub,
+          ),
+        ),
+      );
+    }
+
+    return Column(
+      children: items.map((cat) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          child: Column(
             children: [
-              Icon(icon, size: 13, color: color),
-              const SizedBox(width: 5),
-              Text(
-                title,
-                style: GoogleFonts.notoSansKr(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.textSub,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Text(cat.emoji, style: const TextStyle(fontSize: 15)),
+                      const SizedBox(width: 8),
+                      Text(
+                        cat.category,
+                        style: GoogleFonts.notoSansKr(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textMain,
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        '(${(cat.percentage * 100).toStringAsFixed(1)}%)',
+                        style: GoogleFonts.notoSansKr(
+                          fontSize: 12,
+                          color: AppColors.textSub,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Text(
+                    '₩${formatNumber(cat.amount)}',
+                    style: GoogleFonts.notoSansKr(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.textMain,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 6),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(4),
+                child: LinearProgressIndicator(
+                  value: cat.percentage.clamp(0.0, 1.0),
+                  minHeight: 6,
+                  backgroundColor: const Color(0xFFF1F5F9),
+                  valueColor: AlwaysStoppedAnimation<Color>(cat.color),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 6),
-          FittedBox(
-            fit: BoxFit.scaleDown,
-            child: Text(
-              '${formatNumber(amount)}원',
-              style: GoogleFonts.notoSansKr(
-                fontSize: 14,
-                fontWeight: FontWeight.w700,
-                color: amount > 0 ? AppColors.textMain : const Color(0xFF94A3B8),
-              ),
-            ),
-          ),
-        ],
-      ),
+        );
+      }).toList(),
     );
   }
 }

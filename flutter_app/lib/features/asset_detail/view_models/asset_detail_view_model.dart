@@ -141,6 +141,7 @@ class AssetDetailViewModel extends ChangeNotifier {
     return months.map((m) {
       final s = summaries[m]!;
       final catSpendings = _getCategorySpendingsForMonth(m.year, m.month);
+      final catIncomes = _getCategoryIncomesForMonth(m.year, m.month);
 
       return MonthlyAssetData(
         date: m,
@@ -152,6 +153,7 @@ class AssetDetailViewModel extends ChangeNotifier {
         upcomingIncome: s['upIncome']!,
         upcomingExpense: s['upExpense']!,
         categorySpendings: catSpendings,
+        categoryIncomes: catIncomes,
       );
     }).toList();
   }
@@ -204,6 +206,7 @@ class AssetDetailViewModel extends ChangeNotifier {
       }
 
       final catSpendings = _getCategorySpendingsForYear(year);
+      final catIncomes = _getCategoryIncomesForYear(year);
 
       return MonthlyAssetData(
         date: DateTime(year, 1, 1),
@@ -215,17 +218,24 @@ class AssetDetailViewModel extends ChangeNotifier {
         upcomingIncome: totalUpIncome,
         upcomingExpense: totalUpExpense,
         categorySpendings: catSpendings,
+        categoryIncomes: catIncomes,
       );
     }).toList();
   }
 
   // -------------------------------------------------------------
-  // 카테고리별 소비 점유율 계산
+  // 카테고리별 소비 및 수입 점유율 계산
   // -------------------------------------------------------------
   List<CategorySpendingItem> _getCategorySpendingsForMonth(int year, int month) {
     final txs = dashboardVM.getTransactionsForMonth(year, month, ignoreDrawerFilter: true);
     final expenseTxs = txs.where((t) => t.type == 'expense').toList();
     return _calculateCategoryBreakdown(expenseTxs);
+  }
+
+  List<CategorySpendingItem> _getCategoryIncomesForMonth(int year, int month) {
+    final txs = dashboardVM.getTransactionsForMonth(year, month, ignoreDrawerFilter: true);
+    final incomeTxs = txs.where((t) => t.type == 'income').toList();
+    return _calculateCategoryBreakdown(incomeTxs);
   }
 
   List<CategorySpendingItem> _getCategorySpendingsForYear(int year) {
@@ -237,13 +247,22 @@ class AssetDetailViewModel extends ChangeNotifier {
     return _calculateCategoryBreakdown(allTxs);
   }
 
-  List<CategorySpendingItem> _calculateCategoryBreakdown(List<dynamic> expenseTxs) {
-    if (expenseTxs.isEmpty) return [];
+  List<CategorySpendingItem> _getCategoryIncomesForYear(int year) {
+    final allTxs = <dynamic>[];
+    for (int m = 1; m <= 12; m++) {
+      final txs = dashboardVM.getTransactionsForMonth(year, m, ignoreDrawerFilter: true);
+      allTxs.addAll(txs.where((t) => t.type == 'income'));
+    }
+    return _calculateCategoryBreakdown(allTxs);
+  }
+
+  List<CategorySpendingItem> _calculateCategoryBreakdown(List<dynamic> txs) {
+    if (txs.isEmpty) return [];
 
     final Map<String, int> catAmounts = {};
     int total = 0;
 
-    for (final t in expenseTxs) {
+    for (final t in txs) {
       final cat = (t.category != null && (t.category as String).isNotEmpty) ? (t.category as String) : '기타';
       final amt = (t.amount as int);
       catAmounts[cat] = (catAmounts[cat] ?? 0) + amt;

@@ -1,4 +1,3 @@
-import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_app/features/asset_detail/models/monthly_asset_data.dart';
@@ -24,31 +23,37 @@ class AssetBarChartWidget extends StatefulWidget {
 }
 
 class _AssetBarChartWidgetState extends State<AssetBarChartWidget> {
-  // 한 번에 화면에 보여줄 아이템 개수 (기본 5개)
-  final int _windowSize = 5;
-  int _startIndex = 0;
-
-  final double _chartHeight = 180.0;
-  final double _barWidth = 44.0;
+  late final ScrollController _scrollController;
+  final double _barChartHeight = 180.0;
+  final double _barWidth = 42.0;
 
   @override
   void initState() {
     super.initState();
-    _updateStartIndexToFitSelected();
+    _scrollController = ScrollController();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _scrollToSelectedDate(animate: false);
+    });
   }
 
   @override
   void didUpdateWidget(covariant AssetBarChartWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.selectedDate != widget.selectedDate ||
-        oldWidget.viewMode != widget.viewMode ||
-        oldWidget.dataList.length != widget.dataList.length) {
-      _updateStartIndexToFitSelected();
+    if (oldWidget.viewMode != widget.viewMode) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _scrollToSelectedDate(animate: true);
+      });
     }
   }
 
-  void _updateStartIndexToFitSelected() {
-    if (widget.dataList.isEmpty) return;
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _scrollToSelectedDate({bool animate = true}) {
+    if (!_scrollController.hasClients || widget.dataList.isEmpty) return;
 
     final selectedIdx = widget.dataList.indexWhere((d) {
       if (widget.viewMode == AssetViewMode.monthly) {
@@ -59,34 +64,46 @@ class _AssetBarChartWidgetState extends State<AssetBarChartWidget> {
     });
 
     if (selectedIdx != -1) {
-      // 선택된 항목이 5개 중 중앙(2번째)에 오도록 startIndex 설정
-      int targetStart = selectedIdx - 2;
-      final maxStart = math.max(0, widget.dataList.length - _windowSize);
-      _startIndex = targetStart.clamp(0, maxStart);
-    } else {
-      _startIndex = 0;
+      final screenWidth = MediaQuery.of(context).size.width;
+      final itemWidth = (screenWidth - 32) / 4.8;
+      // 선택된 항목이 화면 중앙에 오도록 스크롤
+      final targetOffset = (selectedIdx * itemWidth) - (screenWidth / 2) + (itemWidth / 2) + 16;
+      final clampedOffset = targetOffset.clamp(0.0, _scrollController.position.maxScrollExtent);
+
+      if (animate) {
+        _scrollController.animateTo(
+          clampedOffset,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOutCubic,
+        );
+      } else {
+        _scrollController.jumpTo(clampedOffset);
+      }
     }
   }
 
-  void _shiftWindow(int delta) {
-    final maxStart = math.max(0, widget.dataList.length - _windowSize);
-    final next = (_startIndex + delta).clamp(0, maxStart);
-    if (next != _startIndex) {
-      setState(() {
-        _startIndex = next;
-      });
-    }
+  void _scrollByStep(int direction) {
+    if (!_scrollController.hasClients) return;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final itemWidth = (screenWidth - 32) / 4.8;
+    final target = _scrollController.offset + (direction * itemWidth * 2);
+    final clamped = target.clamp(0.0, _scrollController.position.maxScrollExtent);
+    _scrollController.animateTo(
+      clamped,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOutCubic,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     if (widget.dataList.isEmpty) return const SizedBox.shrink();
 
-    // 현재 윈도우에 보이는 데이터 슬라이스 (최대 5개)
-    final endIndex = math.min(_startIndex + _windowSize, widget.dataList.length);
-    final visibleData = widget.dataList.sublist(_startIndex, endIndex);
+    final screenWidth = MediaQuery.of(context).size.width;
+    // 한 화면에 약 4.8개가 보이도록 하여 자연스럽게 옆으로 스크롤됨을 시각적으로 유도
+    final itemWidth = (screenWidth - 32) / 4.8;
 
-    // 실제 자산 기준 동적 Y축 스케일 계산
+    // 실제 자산 최고액 기준 동적 Y축 스케일 계산
     final maxAsset = widget.dataList.map((d) => d.totalAsset).fold<int>(0, (m, v) => v > m ? v : m);
     final yMax = _calculateYAxisMax(maxAsset);
     final yMid = (yMax * 2) ~/ 3;
@@ -97,113 +114,108 @@ class _AssetBarChartWidgetState extends State<AssetBarChartWidget> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // 1. 기준 연도 라벨
+        // 1. 기준 연도 및 좌우 화살표 내비게이션 바
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Text(
-            currentYear,
-            style: GoogleFonts.notoSansKr(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: const Color(0xFF94A3B8),
-            ),
-          ),
-        ),
-        const SizedBox(height: 6),
-
-        // 2. 차트 캔버스 (배경 Y축 가이드선 + 스택 막대들)
-        SizedBox(
-          height: _chartHeight,
-          child: Stack(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              // 배경 수평 가이드선 및 우측 Y축 레이블 (실제 자산 동적 스케일)
-              Positioned.fill(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    _buildGuideLine(yMax),
-                    _buildGuideLine(yMid),
-                    _buildGuideLine(yLow),
-                    const Divider(color: Color(0xFFF1F5F9), height: 1),
-                  ],
+              Text(
+                currentYear,
+                style: GoogleFonts.notoSansKr(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: const Color(0xFF64748B),
                 ),
               ),
-
-              // 막대 그래픽 리스트
-              Positioned.fill(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: visibleData.map((item) {
-                      final isSelected = widget.viewMode == AssetViewMode.monthly
-                          ? (item.date.year == widget.selectedDate.year && item.date.month == widget.selectedDate.month)
-                          : (item.date.year == widget.selectedDate.year);
-
-                      return _buildBarItem(item, isSelected, yMax);
-                    }).toList(),
+              Row(
+                children: [
+                  GestureDetector(
+                    onTap: () => _scrollByStep(-1),
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFF1F5F9),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.chevron_left_rounded, size: 18, color: Color(0xFF64748B)),
+                    ),
                   ),
-                ),
+                  const SizedBox(width: 8),
+                  GestureDetector(
+                    onTap: () => _scrollByStep(1),
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFF1F5F9),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.chevron_right_rounded, size: 18, color: Color(0xFF64748B)),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
         ),
+        const SizedBox(height: 6),
 
-        const SizedBox(height: 12),
-
-        // 3. 하단 X축 날짜 선택 바 (좌우 화살표 + 블랙 캡슐 알약 탭)
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10),
-          child: Row(
+        // 2. 통합 가로 스크롤 영역 (고정 배경 Y축 가이드선 + 스크롤되는 막대 및 캡슐 날짜)
+        SizedBox(
+          height: _barChartHeight + 46, // 막대 높이(180) + 하단 캡슐 날짜(46)
+          child: Stack(
             children: [
-              // 왼쪽 화살표
-              IconButton(
-                icon: const Icon(Icons.chevron_left_rounded, size: 22, color: Color(0xFF64748B)),
-                onPressed: _startIndex > 0 ? () => _shiftWindow(-1) : null,
-                splashRadius: 18,
+              // 배경 고정 수평 가이드선 및 우측 Y축 레이블
+              Positioned.fill(
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 46), // 날짜 높이 제외
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      _buildGuideLine(yMax),
+                      _buildGuideLine(yMid),
+                      _buildGuideLine(yLow),
+                      const Divider(color: Color(0xFFF1F5F9), height: 1),
+                    ],
+                  ),
+                ),
               ),
 
-              // 날짜 항목들
-              Expanded(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: visibleData.map((item) {
+              // 가로 스크롤 가능한 막대 + 날짜 캡슐 목록 (자연스러운 제스처 스크롤)
+              Positioned.fill(
+                child: ListView.builder(
+                  controller: _scrollController,
+                  scrollDirection: Axis.horizontal,
+                  physics: const BouncingScrollPhysics(),
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  itemCount: widget.dataList.length,
+                  itemBuilder: (context, index) {
+                    final item = widget.dataList[index];
                     final isSelected = widget.viewMode == AssetViewMode.monthly
                         ? (item.date.year == widget.selectedDate.year && item.date.month == widget.selectedDate.month)
                         : (item.date.year == widget.selectedDate.year);
 
-                    return GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: () => widget.onSelectDate(item.date),
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 200),
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: isSelected ? const Color(0xFF1E293B) : Colors.transparent,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          item.label,
-                          style: GoogleFonts.notoSansKr(
-                            fontSize: 13,
-                            fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                            color: isSelected ? Colors.white : const Color(0xFF64748B),
+                    return SizedBox(
+                      width: itemWidth,
+                      child: Column(
+                        children: [
+                          // 상단: 막대 영역
+                          SizedBox(
+                            height: _barChartHeight,
+                            child: Align(
+                              alignment: Alignment.bottomCenter,
+                              child: _buildSmoothBar(item, isSelected, yMax),
+                            ),
                           ),
-                        ),
+                          const SizedBox(height: 10),
+
+                          // 하단: 블랙 캡슐 알약 날짜 버튼
+                          _buildDatePill(item, isSelected),
+                        ],
                       ),
                     );
-                  }).toList(),
+                  },
                 ),
-              ),
-
-              // 오른쪽 화살표
-              IconButton(
-                icon: const Icon(Icons.chevron_right_rounded, size: 22, color: Color(0xFF64748B)),
-                onPressed: (_startIndex + _windowSize < widget.dataList.length)
-                    ? () => _shiftWindow(1)
-                    : null,
-                splashRadius: 18,
               ),
             ],
           ),
@@ -236,11 +248,11 @@ class _AssetBarChartWidgetState extends State<AssetBarChartWidget> {
   }
 
   // -------------------------------------------------------------
-  // 개별 막대 위젯 (레퍼런스 디자인 스택 바)
+  // 모서리가 절대 깨지지 않는 완벽한 라운딩 스택 막대
   // -------------------------------------------------------------
-  Widget _buildBarItem(MonthlyAssetData item, bool isSelected, int yMax) {
-    final double maxBarHeight = _chartHeight - 16.0;
-    const double minBarHeight = 30.0;
+  Widget _buildSmoothBar(MonthlyAssetData item, bool isSelected, int yMax) {
+    final double maxBarHeight = _barChartHeight - 12.0;
+    const double minBarHeight = 32.0;
 
     // 실제 총 자산에 비례한 전체 막대 높이
     final assetRatio = yMax > 0 ? (item.totalAsset.clamp(0, yMax) / yMax) : 0.0;
@@ -254,73 +266,96 @@ class _AssetBarChartWidgetState extends State<AssetBarChartWidget> {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () => widget.onSelectDate(item.date),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          // 스택 막대 본체
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeOutCubic,
-            width: _barWidth,
-            height: totalBarHeight,
-            decoration: BoxDecoration(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
-              boxShadow: isSelected
-                  ? [
-                      BoxShadow(
-                        color: const Color(0xFFD81B60).withOpacity(0.25),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
-                      ),
-                    ]
-                  : [],
-            ),
-            child: ClipRRect(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
-              child: Column(
-                children: [
-                  // 상단: 지출 블록 (연한 핑크 배경 + 테두리 라인 느낌)
-                  Expanded(
-                    flex: (expenseRatio * 1000).toInt().clamp(1, 1000),
-                    child: Container(
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFFCE4EC),
-                        border: Border(
-                          top: const BorderSide(color: Color(0xFFD81B60), width: 1.5),
-                          left: const BorderSide(color: Color(0xFFD81B60), width: 1.5),
-                          right: const BorderSide(color: Color(0xFFD81B60), width: 1.5),
-                          bottom: BorderSide(
-                            color: incomeRatio > 0 ? const Color(0xFFD81B60) : Colors.transparent,
-                            width: 1.0,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  // 하단: 수입 블록 (진한 마젠타 솔리드)
-                  Expanded(
-                    flex: (incomeRatio * 1000).toInt().clamp(1, 1000),
-                    child: Container(
-                      width: double.infinity,
-                      decoration: const BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [
-                            Color(0xFFE91E63),
-                            Color(0xFFAD1457),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.easeOutCubic,
+        width: _barWidth,
+        height: totalBarHeight,
+        decoration: BoxDecoration(
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+          // 바깥 틀에 일체형 테두리를 적용하여 안티앨리어싱 깨짐 완전 방지
+          border: Border.all(
+            color: isSelected ? const Color(0xFFD81B60) : const Color(0xFFE2E8F0),
+            width: isSelected ? 2.0 : 1.2,
           ),
-        ],
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: const Color(0xFFD81B60).withOpacity(0.28),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ]
+              : [],
+        ),
+        child: ClipRRect(
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
+          child: Column(
+            children: [
+              // 상단: 지출 블록 (연한 핑크 솔리드)
+              if (expenseRatio > 0)
+                Expanded(
+                  flex: (expenseRatio * 1000).toInt().clamp(1, 1000),
+                  child: Container(
+                    width: double.infinity,
+                    color: const Color(0xFFFCE4EC),
+                  ),
+                ),
+
+              // 수입과 지출 사이 얇은 경계선
+              if (expenseRatio > 0 && incomeRatio > 0)
+                Container(
+                  height: 1.2,
+                  color: isSelected ? const Color(0xFFD81B60) : const Color(0xFFF48FB1),
+                ),
+
+              // 하단: 수입 블록 (진한 마젠타 그라데이션)
+              if (incomeRatio > 0)
+                Expanded(
+                  flex: (incomeRatio * 1000).toInt().clamp(1, 1000),
+                  child: Container(
+                    width: double.infinity,
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Color(0xFFE91E63),
+                          Color(0xFFAD1457),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // -------------------------------------------------------------
+  // 하단 블랙 캡슐 알약 날짜 버튼
+  // -------------------------------------------------------------
+  Widget _buildDatePill(MonthlyAssetData item, bool isSelected) {
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () => widget.onSelectDate(item.date),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+        decoration: BoxDecoration(
+          color: isSelected ? const Color(0xFF1E293B) : Colors.transparent,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Text(
+          item.label,
+          style: GoogleFonts.notoSansKr(
+            fontSize: 12,
+            fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+            color: isSelected ? Colors.white : const Color(0xFF64748B),
+          ),
+        ),
       ),
     );
   }
@@ -332,7 +367,6 @@ class _AssetBarChartWidgetState extends State<AssetBarChartWidget> {
     if (maxAsset <= 10000000) return 10000000;
     if (maxAsset <= 20000000) return 20000000;
     if (maxAsset <= 50000000) return 50000000;
-    // 그 이상: 1000만 단위 올림
     return ((maxAsset + 9999999) ~/ 10000000) * 10000000;
   }
 }

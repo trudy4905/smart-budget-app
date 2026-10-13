@@ -10,6 +10,7 @@ class MonthlyAssetData {
   final int upcomingIncome;
   final int upcomingExpense;
   final List<CategorySpendingItem> categorySpendings;
+  final List<CategorySpendingItem> categoryIncomes;
 
   const MonthlyAssetData({
     required this.date,
@@ -21,6 +22,7 @@ class MonthlyAssetData {
     required this.upcomingIncome,
     required this.upcomingExpense,
     this.categorySpendings = const [],
+    this.categoryIncomes = const [],
   });
 
   // 호환성을 위한 게터
